@@ -1,11 +1,38 @@
 Package: G4database001
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Title: G4 biophysics database visualization and management
+Version: 0.48.0
+Author: Eric Largy
+Maintainer: Eric Largy <eric.largy@u-bordeaux.fr>
+Description: g4dbr allows to automatically format and visualize data from G-quadruplex DNA native ESI-MS, UV-melting, CD, and NMR, as well as store the data in a database.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+  shiny,
+  shinydashboard,
+  shinydashboardPlus,
+  shinyWidgets,
+  shinyBS,
+  shinysky,
+  tidyverse,
+  readxl,
+  writexl,
+  DT,
+  QWUtils,
+  zoo,
+  data.table,
+  DescTools,
+  hablar,
+  assertive.types,
+  ggsci,
+  ggpmisc,
+  ggpubr,
+  ggthemes,
+  ggrepel,
+  plotly,
+  devtools
+Remotes:
+  github::AnalytixWare/ShinySky,
+  github::DavidBarke/QWUtils
+
