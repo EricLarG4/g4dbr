@@ -1,4 +1,4 @@
-Package: G4database001
+Package: g4dbr
 Type: Package
 Title: G4 biophysics database visualization and management
 Version: 0.48.0
