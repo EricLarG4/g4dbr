@@ -9,7 +9,7 @@ install.package("devtools")
 
 library(devtools)
 
-devtools::install_local("XXX/g4dbr.zip")
+devtools::install_local("XXX/g4dbr-master.zip")
 ```
 
 where XXX is the filepath of the zip archive.
