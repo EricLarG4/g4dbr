@@ -23,7 +23,7 @@ Where `XXX` is the filepath of the zip archive. Use slashes `/` rather than back
 
 You may update some or all of the packages that were already installed or skip this step.
 
-![Package updates](readme2.PNG)
+![Package updates](man/ressources/readme2.PNG)
 
 ## Use
 
@@ -35,4 +35,4 @@ g4dbr::g4db()
 
 ## License
 
-GPL-3 [Eric Largy](man/ressources/https://github.com/EricLarG4)
+GPL-3 [Eric Largy](figures/https://github.com/EricLarG4)
