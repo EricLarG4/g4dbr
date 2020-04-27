@@ -2,30 +2,30 @@ g4db <- function() {
 
     #libraries----
 
-    library(shiny)
-    library(shinydashboard)
-    library(shinydashboardPlus)
-    library(shinyWidgets)
-    library(shinyBS)
-    library(shinysky)
-
-    library(tidyverse)
-    library(readxl)
-    library(writexl)
-    library(DT)
-    library(QWUtils)
-    library(zoo)
-    library(data.table)
-    library(DescTools)
-    library(hablar)
-    library(assertive.types)
-
-    library(ggsci)
-    library(ggpmisc)
-    library(ggpubr)
-    library(ggthemes)
-    library(ggrepel)
-    library(plotly)
+    # library(shiny)
+    # library(shinydashboard)
+    # library(shinydashboardPlus)
+    # library(shinyWidgets)
+    # library(shinyBS)
+    # library(shinysky)
+    #
+    # library(tidyverse)
+    # library(readxl)
+    # library(writexl)
+    # library(DT)
+    # library(QWUtils)
+    # library(zoo)
+    # library(data.table)
+    # library(DescTools)
+    # library(hablar)
+    # library(assertive.types)
+    #
+    # library(ggsci)
+    # library(ggpmisc)
+    # library(ggpubr)
+    # library(ggthemes)
+    # library(ggrepel)
+    # library(plotly)
 
 
     #sources----
