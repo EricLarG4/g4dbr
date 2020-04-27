@@ -29,8 +29,8 @@ g4db <- function() {
 
 
     #sources----
-    source('EpsilonCalc.R')
-    source('nb_row_extract.R')
+    # source('EpsilonCalc.R')
+    # source('nb_row_extract.R')
 
     #UI-----------
     ui <- dashboardPagePlus(
@@ -1222,7 +1222,7 @@ g4db <- function() {
                 mutate(norm.int = (int - int.min)/(int.max - int.min))
 
             #calculates average masses of H and K from referencedb file (massdb sheet)
-            ave.mass <- read_xlsx("g4dbr/referencedb.xlsx",
+            ave.mass <- read_xlsx("referencedb.xlsx",
                                   sheet = 'massdb') %>%
                 filter(atom %in% c('K', 'H')) %>%
                 group_by(atom) %>%
@@ -1274,7 +1274,7 @@ g4db <- function() {
         info.mass <- reactive({
 
             #mass database
-            massdb <- read_xlsx("g4dbr/referencedb.xlsx",
+            massdb <- read_xlsx("referencedb.xlsx",
                                 sheet = 'massdb') %>%
                 group_by(atom) %>%
                 mutate(av.mass = ab1*mass1 + ab2*mass2 + ab3*mass3)
