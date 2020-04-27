@@ -7,8 +7,6 @@ To install, download the zip archive then in R run:
 ```{r install}
 install.packages("devtools")
 
-library(devtools)
-
 devtools::install_local("XXX/g4dbr-master.zip")
 ```
 
