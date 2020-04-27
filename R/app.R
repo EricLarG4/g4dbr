@@ -29,8 +29,8 @@ g4db <- function() {
 
 
     #sources----
-    # source('EpsilonCalc.R')
-    # source('nb_row_extract.R')
+    source('EpsilonCalc.R')
+    source('nb_row_extract.R')
 
     #UI-----------
     ui <- dashboardPagePlus(
