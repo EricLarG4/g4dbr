@@ -1,17 +1,17 @@
 # g4dbr
 _G4 biophysics database visualization and management_
 
----
-
-  - [Installation](#Installation)
-  - [Use](#Use)
-  - [License](#License)
+  + [Installation](#Installation)
+  + [Use](#Use)
+  + [License](#License)
 
 ## Installation
 
-To install, download the zip archive then in R run:
+To install, download the zip archive.
 
 ![Download g4dbr](readme.PNG)
+
+In R (e.g. the console of RStudio), run:
 
 ```{r install}
 install.packages("devtools")
