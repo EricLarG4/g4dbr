@@ -9,7 +9,7 @@ _G4 biophysics database visualization and management_
 
 To install, download the zip archive.
 
-![Download g4dbr](figures/readme.PNG)
+![Download g4dbr](man/ressources/readme.PNG)
 
 In R (e.g. the console of RStudio), run:
 
@@ -35,4 +35,4 @@ g4dbr::g4db()
 
 ## License
 
-GPL-3 [Eric Largy](figures/https://github.com/EricLarG4)
+GPL-3 [Eric Largy](man/ressources/https://github.com/EricLarG4)
