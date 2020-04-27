@@ -33,6 +33,8 @@ To use g4dbr, run:
 g4dbr::g4db()
 ```
 
+The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx).
+
 ## License
 
 GPL-3 [Eric Largy](figures/https://github.com/EricLarG4)
