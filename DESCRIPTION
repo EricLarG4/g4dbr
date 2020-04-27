@@ -35,4 +35,5 @@ Imports:
 Remotes:
   github::AnalytixWare/ShinySky,
   github::DavidBarke/QWUtils
-
+Depends: 
+    R (>= 2.10)
