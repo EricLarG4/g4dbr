@@ -1,14 +1,13 @@
 epsilon.calculator <- function(sequence = NULL){
-  
+
   #extinction coefficient database
-  epsilondb <- read_xlsx('referencedb.xlsx',
-                         sheet = 'epsilondb')
-  
+  epsilondb <- epsilondb
+
   #initialization of result data frame
   epsilon.calc <- data.frame()
   buffer <- data.frame()
   result <- data.frame()
-  
+
   for (i in 1:str_length(sequence)) {
     buffer <- data.frame(position = i,
                          nucleo = substr(sequence, i, i),
@@ -16,7 +15,7 @@ epsilon.calculator <- function(sequence = NULL){
     )
     epsilon.calc <- rbind(epsilon.calc, buffer)
   }
-  
+
   epsilon.calc <- epsilon.calc %>%
     mutate(
       indiv.base = case_when(
@@ -52,11 +51,11 @@ epsilon.calculator <- function(sequence = NULL){
         )
       )
     )
-  
+
   epsilon.calc$indiv.base[1] = 0
   epsilon.calc$indiv.base[str_length(sequence)] = 0
-  
+
   result <- sum(epsilon.calc$nn, na.rm = T) - sum(epsilon.calc$indiv.base, na.rm = T)
-  
+
   return(result)
 }

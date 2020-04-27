@@ -1,5 +1,5 @@
 ---
-title: "g4db 0.47"
+title: "g4db 0.48"
 author: "Eric Largy"
 date: "2020/04/27"
 output:
@@ -31,8 +31,10 @@ library(writexl)
 
 # Added features
 
-## v. 0.47
+## v. 0.48
 
++ Creation of a package to encapsulate the app, additinal functions and datasets
+  - Creation of datasets in .Rda format to replace the .xlsx files containing the mass and isotope references
 + Oligonucleotide selection now in two phases: bulk selection from _left sidebar_ and refinment from _general information table_
   - All oligonucleotides now selected by default in _left sidebar_ dropdown menu
   - _General information table_ displays oligonucleotides selected in _left sidebar_ (all by default)
