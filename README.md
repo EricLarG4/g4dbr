@@ -5,7 +5,7 @@ To install, download the zip archive then in R run:
 
 
 ```{r install}
-install.package("devtools")
+install.packages("devtools")
 
 library(devtools)
 
