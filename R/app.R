@@ -1222,7 +1222,7 @@ g4db <- function() {
                 mutate(norm.int = (int - int.min)/(int.max - int.min))
 
             #calculates average masses of H and K from referencedb file (massdb sheet)
-            ave.mass <- read_xlsx("db/referencedb.xlsx",
+            ave.mass <- read_xlsx("referencedb.xlsx",
                                   sheet = 'massdb') %>%
                 filter(atom %in% c('K', 'H')) %>%
                 group_by(atom) %>%
@@ -1274,7 +1274,7 @@ g4db <- function() {
         info.mass <- reactive({
 
             #mass database
-            massdb <- read_xlsx("db/referencedb.xlsx",
+            massdb <- read_xlsx("referencedb.xlsx",
                                 sheet = 'massdb') %>%
                 group_by(atom) %>%
                 mutate(av.mass = ab1*mass1 + ab2*mass2 + ab3*mass3)
@@ -2829,7 +2829,7 @@ g4db <- function() {
 
         db.info <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'db/db.xlsx',
+                path = 'db.xlsx',
                 sheet = 'info'
             )  %>% #date formatting
                 mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
@@ -2837,7 +2837,7 @@ g4db <- function() {
 
         db.CD <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'db/db.xlsx',
+                path = 'db.xlsx',
                 sheet = 'CD'
             )
         })
@@ -2856,7 +2856,7 @@ g4db <- function() {
 
         db.NMR <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'db/db.xlsx',
+                path = 'db.xlsx',
                 sheet = 'NMR'
             )
         })
@@ -2871,14 +2871,14 @@ g4db <- function() {
 
         db.MS <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'db/db.xlsx',
+                path = 'db.xlsx',
                 sheet = 'MS'
             )
         })
 
         db.UV.melting <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'db/db.xlsx',
+                path = 'db.xlsx',
                 sheet = 'UV-melting'
             )
         })
@@ -3724,7 +3724,7 @@ g4db <- function() {
                                               'MS' = db.MS.export,
                                               'UV-melting' = db.UV.melting.export
                                      ),
-                                     path = "db/db.xlsx",
+                                     path = "db.xlsx",
                                      col_names = T,
                                      format_headers = T
                                  )
