@@ -1224,7 +1224,7 @@ g4db <- function() {
             #calculates average masses of H and K from referencedb file (massdb sheet)
             referencedb.path <- system.file("inst/extdata", "referencedb.xlsx", package="g4dbr")
 
-            ave.mass <- read_xlsx(referencedb.path$datapath,
+            ave.mass <- read_xlsx(referencedb.path,
                                   sheet = 'massdb') %>%
                 filter(atom %in% c('K', 'H')) %>%
                 group_by(atom) %>%
@@ -1278,7 +1278,7 @@ g4db <- function() {
             referencedb.path <- system.file("inst/extdata", "referencedb.xlsx", package="g4dbr")
 
             #mass database
-            massdb <- read_xlsx(referencedb.path$datapath,
+            massdb <- read_xlsx(referencedb.path,
                                 sheet = 'massdb') %>%
                 group_by(atom) %>%
                 mutate(av.mass = ab1*mass1 + ab2*mass2 + ab3*mass3)
