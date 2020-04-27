@@ -37,7 +37,7 @@ g4db <- function() {
         sidebar_fullCollapse = TRUE,
         #header--------------
         dashboardHeaderPlus(
-            title = "datAniRban"
+            title = "g4db"
             # enable_rightsidebar = TRUE,
             # rightSidebarIcon = "palette"
         ),

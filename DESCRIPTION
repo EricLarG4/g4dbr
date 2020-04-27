@@ -5,7 +5,7 @@ Version: 0.48.0
 Author: Eric Largy
 Maintainer: Eric Largy <eric.largy@u-bordeaux.fr>
 Description: g4dbr allows to automatically format and visualize data from G-quadruplex DNA native ESI-MS, UV-melting, CD, and NMR, as well as store the data in a database.
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
