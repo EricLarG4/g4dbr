@@ -2829,7 +2829,7 @@ g4db <- function() {
 
         db.info <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'database_test.xlsx',
+                path = 'db.xlsx',
                 sheet = 'info'
             )  %>% #date formatting
                 mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
@@ -2837,7 +2837,7 @@ g4db <- function() {
 
         db.CD <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'database_test.xlsx',
+                path = 'db.xlsx',
                 sheet = 'CD'
             )
         })
@@ -2856,7 +2856,7 @@ g4db <- function() {
 
         db.NMR <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'database_test.xlsx',
+                path = 'db.xlsx',
                 sheet = 'NMR'
             )
         })
@@ -2871,14 +2871,14 @@ g4db <- function() {
 
         db.MS <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'database_test.xlsx',
+                path = 'db.xlsx',
                 sheet = 'MS'
             )
         })
 
         db.UV.melting <- eventReactive(input$db.load, {
             read_xlsx(
-                path = 'database_test.xlsx',
+                path = 'db.xlsx',
                 sheet = 'UV-melting'
             )
         })
@@ -3724,7 +3724,7 @@ g4db <- function() {
                                               'MS' = db.MS.export,
                                               'UV-melting' = db.UV.melting.export
                                      ),
-                                     path = "database_test.xlsx",
+                                     path = "db.xlsx",
                                      col_names = T,
                                      format_headers = T
                                  )
