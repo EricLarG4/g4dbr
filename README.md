@@ -12,7 +12,7 @@ library(devtools)
 devtools::install_local("XXX/g4dbr-master.zip")
 ```
 
-where XXX is the filepath of the zip archive.
+where XXX is the filepath of the zip archive, and using slashes '/' rather than backslashes '\\' even on Windows.
 
 To use g4dbr, run:
 
