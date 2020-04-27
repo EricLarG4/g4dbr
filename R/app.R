@@ -1222,7 +1222,7 @@ g4db <- function() {
                 mutate(norm.int = (int - int.min)/(int.max - int.min))
 
             #calculates average masses of H and K from referencedb file (massdb sheet)
-            referencedb.path <- system.file("inst/extdata", "referencedb.xlsx", package="g4dbr")
+            referencedb.path <- system.file("R", "referencedb.xlsx", package="g4dbr")
 
             ave.mass <- read_xlsx(referencedb.path,
                                   sheet = 'massdb') %>%
@@ -1275,7 +1275,7 @@ g4db <- function() {
 
         info.mass <- reactive({
 
-            referencedb.path <- system.file("inst/extdata", "referencedb.xlsx", package="g4dbr")
+            referencedb.path <- system.file("R", "referencedb.xlsx", package="g4dbr")
 
             #mass database
             massdb <- read_xlsx(referencedb.path,
