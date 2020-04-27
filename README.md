@@ -30,9 +30,7 @@ You may update some or all of the packages that were already installed or skip t
 To use g4dbr, run:
 
 ```{r use}
-library(g4dbr)
-
-g4db()
+g4dbr::g4db()
 ```
 
 ## License
