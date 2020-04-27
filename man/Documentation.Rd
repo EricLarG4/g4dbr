@@ -1,14 +1,14 @@
-\name{G4Database001}
-\alias{G4Database001}
+\name{g4dbr}
+\alias{g4dbr}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-G4DAtabase001
+g4dbr
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-G4Database001(x)
+g4db()
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
