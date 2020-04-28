@@ -33,7 +33,7 @@ library(g4dbr)
 g4db()
 ```
 
-The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx) in the data subfolder. To use these files extract them from the archives then load into the g4db interface, in the _database_ and _ImportR_ tabs respectively.
+The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx) in the inst/extdata subfolder. To use these files extract them from the archives then load into the g4db interface, in the _database_ and _ImportR_ tabs respectively.
 
 ## License
 

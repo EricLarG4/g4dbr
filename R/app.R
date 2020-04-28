@@ -1820,7 +1820,7 @@ g4db <- function() {
                 geom_line(size = input$nmr.size.line) +
                 geom_text_repel(aes(x = shift, y = int, label = peak.number, color = oligo),
                                 force = 2,
-                                min.segment.length = 0.5,
+                                min.segment.length = 0.25,
                                 alpha = 0.85,
                                 size =5,
                                 fontface = 'bold',
@@ -3295,7 +3295,7 @@ g4db <- function() {
                 geom_line(size = input$nmr.size.line.db) +
                 geom_text_repel(aes(x = shift, y = int, label = peak.number, color = oligo),
                                 force = 2,
-                                min.segment.length = 0.5,
+                                min.segment.length = 0.25,
                                 alpha = 0.85,
                                 size =5,
                                 fontface = 'bold',

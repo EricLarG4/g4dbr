@@ -34,6 +34,9 @@ library(writexl)
 ```{r mirror, message=FALSE, warning=FALSE, paged.print=FALSE}
 # to mirror repository to team repo:
 # D:\ownCloud\Projects\G4 database\g4dbr> git push --mirror https://github.com/g4db-team/g4dbr
+
+#to do:
+#- make NMR label as text for comma separated labels
 ```
 
 ## v. 0.48 
@@ -41,7 +44,9 @@ library(writexl)
 + Creation of a package to encapsulate the app, additinal functions and datasets
   - Creation of datasets in .Rda format to replace the .xlsx files containing the mass and isotope references
   - These can still be modified but require to convert the modified excel file into .Rda within the package using `devtools::use_data()`
-  - Three functions: _g4db_ to launch the app, _epsilon.calculator_ to calculate extinction coefficients of oligonucleotides (used within g4db but can be used as a standalone function), and _nb_row_extract_ that determines the number of rows in panelled figures to adjust their size within _g4db._
+  - Three functions: _g4db_ to launch the app, _epsilon.calculator_ to calculate extinction coefficients of oligonucleotides (used within g4db but can be used as a standalone function), and _nb_row_extract_ that determines the number of rows in panelled figures to adjust their size within _g4db_.
+  - Documentation of the functions
+  - Documentation of the datasets
 + Database load button replaced by file import button
   - Database no more hard-linked to code, now the user can specify whichever database they want
 + Oligonucleotide selection now in two phases: bulk selection from _left sidebar_ and refinment from _general information table_
