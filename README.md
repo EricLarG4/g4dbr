@@ -30,10 +30,11 @@ You may update some or all of the packages that were already installed or skip t
 To use g4dbr, run:
 
 ```{r use}
-g4dbr::g4db()
+library(g4dbr)
+g4db()
 ```
 
-The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx).
+The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx) in the data subfolder.
 
 ## License
 
