@@ -31,10 +31,18 @@ library(writexl)
 
 # Added features
 
+```{r mirror, message=FALSE, warning=FALSE, paged.print=FALSE}
+# to mirror repository to team repo:
+# D:\ownCloud\Projects\G4 database\g4dbr>git push --mirror https://github.com/g4db-team/g4dbr
+```
+
 ## v. 0.48
 
 + Creation of a package to encapsulate the app, additinal functions and datasets
   - Creation of datasets in .Rda format to replace the .xlsx files containing the mass and isotope references
+  - These can still be modified but require to convert the modified excel file into .Rda within the package using `devtools::use_data()`
++ Database load button replaced by file import button
+  - Database no more hard-linked to code, now the user can specify whichever database they want
 + Oligonucleotide selection now in two phases: bulk selection from _left sidebar_ and refinment from _general information table_
   - All oligonucleotides now selected by default in _left sidebar_ dropdown menu
   - _General information table_ displays oligonucleotides selected in _left sidebar_ (all by default)

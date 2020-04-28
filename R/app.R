@@ -240,14 +240,10 @@ g4db <- function() {
                 condition = "input.tabs == 'database'",
                 column(12,
                        h3('Load'),
-                       actionBttn(inputId = "db.load",
-                                  label = "load database",
-                                  icon = icon('cloud-download-alt', class = 'regular'),
-                                  style = "fill",
-                                  color = "success",
-                                  size = "sm",
-                                  block = F,
-                                  no_outline = TRUE),
+                       fileInput(
+                           'db.load',
+                           'Select .xlsx file'
+                       ),
                        hr()
                 ),
                 column(12,
@@ -2793,21 +2789,85 @@ g4db <- function() {
 
         #a/input----
 
+        db.file <- reactive({
+            input$db.load
+        })
+
+        db.info <- reactive({
+            read_xlsx(
+                path = db.file()$datapath,
+                sheet = 'info'
+            )  %>% #date formatting
+                mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
+        })
+
+        db.CD <- reactive({
+            read_xlsx(
+                path = db.file()$datapath,
+                sheet = 'CD'
+            )
+        })
+
+        db.cd.select <- reactive({
+            db.CD() %>%
+                filter(cation %in% input$select.cation.db) %>%
+                filter(buffer.id %in% input$select.buffer.id.db) %>%
+                filter(buffer %in% input$select.buffer.db) %>%
+                filter(oligo %in% selected.oligos.db()) %>%
+                filter(wl > min(input$slide.cd.db)) %>%
+                filter(wl < max(input$slide.cd.db)) %>%
+                group_by(oligo, buffer.id, wl, l, con, CD, delta.epsilon) %>%
+                mutate(plot.y = if_else(isTRUE(input$cd.data.select.db), delta.epsilon, CD))
+        })
+
+        db.NMR <- reactive({
+            read_xlsx(
+                path = db.file()$datapath,
+                sheet = 'NMR'
+            )
+        })
+
+        db.nmr.select <- reactive({
+            db.NMR() %>%
+                filter(buffer.id %in% input$select.buffer.id.db) %>%
+                filter(buffer %in% input$select.buffer.db) %>%
+                filter(cation %in% input$select.cation.db) %>%
+                filter(oligo %in% selected.oligos.db())
+        })
+
+        db.MS <- reactive({
+            read_xlsx(
+                path = db.file()$datapath,
+                sheet = 'MS'
+            )
+        })
+
+        db.UV.melting <- reactive({
+            read_xlsx(
+                path = db.file()$datapath,
+                sheet = 'UV-melting'
+            )
+        })
+
         #Oligo selection db
         output$select.oligo.db <- renderUI({
-            pickerInput("select.oligo.db",
-                        label = "Select oligo",
-                        choices = unique(db.info()$oligo),
-                        selected = unique(db.info()$oligo),
-                        multiple = T,
-                        options = pickerOptions(
-                            actionsBox = T,
-                            liveSearch = T
-                        ),
-                        choicesOpt = list(
-                            style = rep(("color: black; background: white; font-weight: normal;"),10)
-                        )
-            )
+            if (is.null(db.file())) {
+                return(NULL)
+            } else {
+                pickerInput("select.oligo.db",
+                            label = "Select oligo",
+                            choices = unique(db.info()$oligo),
+                            selected = unique(db.info()$oligo),
+                            multiple = T,
+                            options = pickerOptions(
+                                actionsBox = T,
+                                liveSearch = T
+                            ),
+                            choicesOpt = list(
+                                style = rep(("color: black; background: white; font-weight: normal;"),10)
+                            )
+                )
+            }
         })
 
         selected.oligos.db <- reactive({
@@ -2826,62 +2886,6 @@ g4db <- function() {
 
         })
 
-        db.info <- eventReactive(input$db.load, {
-            read_xlsx(
-                path = 'db.xlsx',
-                sheet = 'info'
-            )  %>% #date formatting
-                mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
-        })
-
-        db.CD <- eventReactive(input$db.load, {
-            read_xlsx(
-                path = 'db.xlsx',
-                sheet = 'CD'
-            )
-        })
-
-        db.cd.select <- reactive({
-            db.CD() %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(buffer.id %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(oligo %in% selected.oligos.db()) %>%
-                filter(wl > min(input$slide.cd.db)) %>%
-                filter(wl < max(input$slide.cd.db)) %>%
-                group_by(oligo, buffer.id, wl, l, con, CD, delta.epsilon) %>%
-                mutate(plot.y = if_else(isTRUE(input$cd.data.select.db), delta.epsilon, CD))
-        })
-
-        db.NMR <- eventReactive(input$db.load, {
-            read_xlsx(
-                path = 'db.xlsx',
-                sheet = 'NMR'
-            )
-        })
-
-        db.nmr.select <- reactive({
-            db.NMR() %>%
-                filter(buffer.id %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(oligo %in% selected.oligos.db())
-        })
-
-        db.MS <- eventReactive(input$db.load, {
-            read_xlsx(
-                path = 'db.xlsx',
-                sheet = 'MS'
-            )
-        })
-
-        db.UV.melting <- eventReactive(input$db.load, {
-            read_xlsx(
-                path = 'db.xlsx',
-                sheet = 'UV-melting'
-            )
-        })
-
         buffer.list.db <- reactive({
 
             buffer.collect <- data.frame(buffers = unique(db.CD()$buffer)) %>%
@@ -2896,20 +2900,23 @@ g4db <- function() {
         })
 
         output$select.buffer.db <- renderUI({
-
-            pickerInput("select.buffer.db",
-                        label = "Select electrolyte",
-                        choices = buffer.list.db(),
-                        selected = buffer.list.db(),
-                        multiple = T,
-                        options = pickerOptions(
-                            actionsBox = T,
-                            liveSearch = T
-                        ),
-                        choicesOpt = list(
-                            style = rep(("color: black; background: white; font-weight: normal;"),10)
-                        )
-            )
+            if (is.null(db.file())) {
+                return(NULL)
+            } else {
+                pickerInput("select.buffer.db",
+                            label = "Select electrolyte",
+                            choices = buffer.list.db(),
+                            selected = buffer.list.db(),
+                            multiple = T,
+                            options = pickerOptions(
+                                actionsBox = T,
+                                liveSearch = T
+                            ),
+                            choicesOpt = list(
+                                style = rep(("color: black; background: white; font-weight: normal;"),10)
+                            )
+                )
+            }
         })
 
         buffer.id.list.db <- reactive({
@@ -2926,20 +2933,23 @@ g4db <- function() {
         })
 
         output$select.buffer.id.db <- renderUI({
-
-            pickerInput("select.buffer.id.db",
-                        label = "Select buffer",
-                        choices = buffer.id.list.db(),
-                        selected = buffer.id.list.db(),
-                        multiple = T,
-                        options = pickerOptions(
-                            actionsBox = T,
-                            liveSearch = T
-                        ),
-                        choicesOpt = list(
-                            style = rep(("color: black; background: white; font-weight: normal;"),10)
-                        )
-            )
+            if (is.null(input$input.info.db_rows_selected)) {
+                return(NULL)
+            } else {
+                pickerInput("select.buffer.id.db",
+                            label = "Select buffer",
+                            choices = buffer.id.list.db(),
+                            selected = buffer.id.list.db(),
+                            multiple = T,
+                            options = pickerOptions(
+                                actionsBox = T,
+                                liveSearch = T
+                            ),
+                            choicesOpt = list(
+                                style = rep(("color: black; background: white; font-weight: normal;"),10)
+                            )
+                )
+            }
         })
 
         cation.list.db <- reactive({
@@ -2958,21 +2968,23 @@ g4db <- function() {
         })
 
         output$select.cation.db <- renderUI({
-
-            pickerInput("select.cation.db",
-                        label = "Select cation",
-                        choices = cation.list.db(),
-                        selected = cation.list.db(),
-                        multiple = T,
-                        options = pickerOptions(
-                            actionsBox = T,
-                            liveSearch = T
-                        ),
-                        choicesOpt = list(
-                            style = rep(("color: black; background: white; font-weight: normal;"),10)
-                        )
-            )
-
+            if (is.null(input$input.info.db_rows_selected)) {
+                return(NULL)
+            } else {
+                pickerInput("select.cation.db",
+                            label = "Select cation",
+                            choices = cation.list.db(),
+                            selected = cation.list.db(),
+                            multiple = T,
+                            options = pickerOptions(
+                                actionsBox = T,
+                                liveSearch = T
+                            ),
+                            choicesOpt = list(
+                                style = rep(("color: black; background: white; font-weight: normal;"),10)
+                            )
+                )
+            }
         })
 
         #b/tables----
