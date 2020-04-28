@@ -1818,8 +1818,9 @@ g4db <- function() {
             p.NMR <- input.NMR() %>%
                 ggplot(aes(x = shift, y = int, color = oligo)) +
                 geom_line(size = input$nmr.size.line) +
-                geom_text_repel(aes(x = shift, y = int, label = peak.number, color = oligo),
+                geom_text_repel(aes(x = shift, y = 1.25*int, label = peak.number, color = oligo),
                                 force = 2,
+                                direction = 'y',
                                 min.segment.length = 0.25,
                                 alpha = 0.85,
                                 size =5,
@@ -3291,13 +3292,14 @@ g4db <- function() {
             p.NMR.db <- db.nmr.select() %>%
                 filter(shift > min(input$slide.nmr.db)) %>%
                 filter(shift < max(input$slide.nmr.db)) %>%
-                ggplot(aes(x = shift, y = int, color = oligo)) +
+                ggplot(aes(x = shift, y = 1.25*int, color = oligo)) +
                 geom_line(size = input$nmr.size.line.db) +
                 geom_text_repel(aes(x = shift, y = int, label = peak.number, color = oligo),
                                 force = 2,
                                 min.segment.length = 0.25,
+                                direction = 'y',
                                 alpha = 0.85,
-                                size =5,
+                                size = 5,
                                 fontface = 'bold',
                                 segment.color = 'grey50',
                                 show.legend = F) +
