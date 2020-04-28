@@ -1,3 +1,9 @@
+#' G4 biophysics database management and visualization
+#'
+#' @return Launches the shiny app.
+#' @examples
+#' g4db()
+
 g4db <- function() {
 
     #libraries----
@@ -21,6 +27,7 @@ g4db <- function() {
     library(assertive.types)
 
     library(ggsci)
+    library(ggpmisc)
     library(ggpmisc)
     library(ggpubr)
     library(ggthemes)

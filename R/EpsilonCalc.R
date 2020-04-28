@@ -1,3 +1,11 @@
+#' Calculates extinction coefficient from oligonucleotide sequence
+#'
+#' @param sequence A string.
+#' @return The extinction coefficient of \code{sequence}.
+#' @examples
+#' epsilon.calculator("GGGTTAGGGTTAGGGTTAGGG")
+#' epsilon.calculator("TTTTTT")
+
 epsilon.calculator <- function(sequence = NULL){
 
   #extinction coefficient database
