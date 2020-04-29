@@ -127,7 +127,8 @@ g4db <- function() {
                            no_outline = TRUE),
                 column(12,
                        em("Load the database first")
-                )
+                ),
+                downloadButton("downloadData", "Download")
             ),
             conditionalPanel(
                 condition = "input.tabs == 'meltR'",
@@ -589,6 +590,14 @@ g4db <- function() {
                                        collapsed = T,
                                        width = 12,
                                        footer = DTOutput("input.info")
+                           ),
+                           gradientBox(id = 'input.infoinfo',
+                                       title = 'General information',
+                                       gradientColor = 'teal',
+                                       collapsible = T,
+                                       collapsed = T,
+                                       width = 12,
+                                       footer = DTOutput("infoinfo")
                            )
                     ),
                     column(12,
@@ -1035,7 +1044,8 @@ g4db <- function() {
             }
 
             data.collector <- data.collector %>%
-                mutate(cation = replace_na(cation, 'none'))
+                mutate(cation = replace_na(cation, 'none')) %>%
+                filter(oligo %in% selected.oligos())
 
             return(data.collector)
 
@@ -1066,7 +1076,7 @@ g4db <- function() {
                         magrittr::set_colnames(c('peak.number', 'shift', 'oligo', 'buffer', 'cation')) %>%
                         mutate(buffer.id = ifelse(is.na(cation), buffer, paste(buffer, '+', cation))) %>%
                         mutate(rshift = shift) %>%
-                        convert(num('peak.number', 'shift')) #converts some columns to numeric type
+                        convert(num('shift')) #converts some columns to numeric type
                     #binds data
                     label.collector <- rbind(label.collector, label.buffer,
                                              make.row.names = F)
@@ -1333,7 +1343,6 @@ g4db <- function() {
                 filter(buffer.id %in% input$select.buffer.id) %>%
                 filter(buffer %in% input$select.buffer) %>%
                 filter(cation %in% input$select.cation) %>%
-                filter(oligo %in% selected.oligos()) %>%
                 filter(wl > min(input$slide.cd)) %>%
                 filter(wl < max(input$slide.cd)) %>%
                 group_by(oligo, buffer.id, wl, l, con) %>%
@@ -1378,13 +1387,13 @@ g4db <- function() {
 
             if (is.null(raw.melting())) {
                 fit.melt.result.df() %>%
-                    filter(buffer.id %in% input$select.buffer.id) %>%
+                    filter(comment %in% input$select.buffer.id) %>%
                     filter(buffer %in% input$select.buffer) %>%
                     filter(cation %in% input$select.cation) %>%
                     filter(oligo %in% selected.oligos())
             } else {
                 raw.melting()  %>%
-                    filter(buffer.id %in% input$select.buffer.id) %>%
+                    filter(comment %in% input$select.buffer.id) %>%
                     filter(buffer %in% input$select.buffer) %>%
                     filter(cation %in% input$select.cation) %>%
                     filter(oligo %in% selected.oligos())
@@ -1470,8 +1479,10 @@ g4db <- function() {
 
         buffer.list <- reactive({
 
+
+
             buffer.collect <- data.frame(buffers = unique(input.CD()$buffer)) %>%
-                # rbind(buffers = unique(input.NMR()$buffer)) %>%
+                # rbind(buffers = unique(input.UV.melting()$buffer)) %>%
                 unique()
 
             buffer.list <- as.vector(buffer.collect$buffer)
@@ -1638,23 +1649,37 @@ g4db <- function() {
 
         output$input.UV.melting <- DT::renderDT({
             if(is.null(input$raw.data.input)) {return(NULL)}else{
-                datatable(
-                    calc.UV(),
-                    extensions = c('Buttons', 'Responsive', 'Scroller'),
-                    rownames = F,
-                    escape = T,
-                    filter = 'top',
-                    autoHideNavigation = T,
-                    options = list(
-                        deferRender = TRUE,
-                        scrollY = 200,
-                        scroller = F,
-                        pageLength = 25,
-                        autoWidth = F,
-                        dom = 'Bfrtip', #button position
-                        buttons = c('copy', 'csv', 'excel', 'colvis') #buttons
-                    )
-                )
+                calc.UV() %>%
+                    setcolorder(c('id', 'oligo', 'comment', 'ramp', 'T.K', 'abs.melt', 'folded.fraction.base', 'abs.raw')) %>%
+                    datatable(
+                        extensions = c('Buttons', 'Responsive', 'Scroller'),
+                        rownames = F,
+                        escape = T,
+                        filter = 'top',
+                        autoHideNavigation = T,
+                        colnames = c(
+                            'Oligonucleotide' = 'oligo',
+                            'Buffer' = 'comment',
+                            'Electrolyte' = 'buffer',
+                            'Cation' = 'cation',
+                            'Ramp' = 'ramp',
+                            'T (K)' = 'T.K',
+                            'Folded fraction' = 'abs.melt',
+                            'Model' = 'folded.fraction.base',
+                            'Absorbance' = 'abs.raw'
+                        ),
+                        options = list(
+                            deferRender = TRUE,
+                            scrollY = 200,
+                            scroller = F,
+                            pageLength = 25,
+                            autoWidth = F,
+                            dom = 'Bfrtip', #button position
+                            buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
+                            columnDefs = list(list(visible=FALSE, targets=c(0,6,8:37)))
+                        )
+                    ) %>%
+                    formatRound(c('Model', 'Folded fraction', 'Absorbance'), digits = 3)
             }
         })
 
@@ -1662,66 +1687,107 @@ g4db <- function() {
 
         output$input.CD <- DT::renderDT({
             if(is.null(input$raw.data.input)) {return(NULL)}else{
-                datatable(
-                    calc.cd(),
-                    extensions = c('Buttons', 'Responsive', 'Scroller'),
-                    escape = T,
-                    filter = 'top',
-                    autoHideNavigation = T,
-                    options = list(
-                        deferRender = TRUE,
-                        scrollY = 200,
-                        scroller = F,
-                        pageLength = 25,
-                        autoWidth = F,
-                        dom = 'Bfrtip', #button position
-                        buttons = c('copy', 'csv', 'excel', 'colvis') #buttons
-                    )
-                )
+                calc.cd() %>%
+                    setcolorder(c('oligo', 'buffer.id')) %>%
+                    datatable(
+                        extensions = c('Buttons', 'Responsive', 'Scroller'),
+                        escape = T,
+                        rownames = F,
+                        filter = 'top',
+                        autoHideNavigation = T,
+                        colnames = c(
+                            'Wavelength (nm)' = 'wl',
+                            'CD (mdeg)' = 'CD',
+                            'Electrolyte' = 'buffer',
+                            'Cation' = 'cation',
+                            'Buffer' = 'buffer.id',
+                            'Oligonucleotide' = 'oligo',
+                            'Path length (cm)' = 'l',
+                            'Concentration (microM)' = 'con',
+                            'Delta Epsilon (M-1 cm-1)' = 'delta.epsilon',
+                            'Plotted data' = 'plot.y'
+                        ),
+                        options = list(
+                            deferRender = TRUE,
+                            scrollY = 200,
+                            scroller = F,
+                            pageLength = 25,
+                            autoWidth = F,
+                            dom = 'Bfrtip', #button position
+                            buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
+                            columnDefs = list(list(visible=FALSE, targets=c(4, 5, 6, 7, 8, 9)))
+                        )
+                    ) %>%
+                    formatRound(c('CD (mdeg)', 'Delta Epsilon (M-1 cm-1)', 'Plotted data'),
+                                digits = 2)
             }
         })
 
         output$input.NMR <- DT::renderDT({
             if(is.null(input$raw.data.input)) {return(NULL)}else{
-                datatable(
-                    input.NMR(),
-                    extensions = c('Buttons', 'Responsive', 'Scroller'),
-                    rownames = F,
-                    escape = T,
-                    filter = 'top',
-                    autoHideNavigation = T,
-                    options = list(
-                        deferRender = TRUE,
-                        scrollY = 200,
-                        scroller = F,
-                        pageLength = 25,
-                        autoWidth = F,
-                        dom = 'Bfrtip', #button position
-                        buttons = c('copy', 'csv', 'excel', 'colvis') #buttons
+                input.NMR() %>%
+                    setcolorder(c('oligo', 'buffer.id', 'shift', 'int')) %>%
+                    datatable(
+                        extensions = c('Buttons', 'Responsive', 'Scroller'),
+                        rownames = F,
+                        escape = T,
+                        filter = 'top',
+                        autoHideNavigation = T,
+                        colnames = c(
+                            'Intensity' ='int',
+                            'Chemical shift (ppm)'='shift',
+                            'Oligonucleotide' = 'oligo',
+                            'Buffer' = 'buffer.id',
+                            'Electrolyte' = 'buffer',
+                            'Cation' = 'cation'
+                        ),
+                        options = list(
+                            deferRender = TRUE,
+                            scrollY = 200,
+                            scroller = F,
+                            pageLength = 25,
+                            autoWidth = F,
+                            dom = 'Bfrtip', #button position
+                            buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
+                            columnDefs = list(list(visible=FALSE, targets=c(4, 5, 6, 7)))
+                        )
                     )
-                )
             }
         })
 
         output$input.MS <- DT::renderDT({
             if(is.null(input$raw.data.input)) {return(NULL)}else{
-                datatable(
-                    input.MS(),
-                    extensions = c('Buttons', 'Responsive', 'Scroller'),
-                    rownames = F,
-                    escape = T,
-                    filter = 'top',
-                    autoHideNavigation = T,
-                    options = list(
-                        deferRender = TRUE,
-                        scrollY = 200,
-                        scroller = F,
-                        pageLength = 25,
-                        autoWidth = F,
-                        dom = 'Bfrtip', #button position
-                        buttons = c('copy', 'csv', 'excel', 'colvis') #buttons
-                    )
-                )
+                input.MS() %>%
+                    setcolorder(c('oligo', 'buffer.id', 'tune', 'rep', 'mz', 'norm.int')) %>%
+                    datatable(
+                        extensions = c('Buttons', 'Responsive', 'Scroller'),
+                        rownames = F,
+                        escape = T,
+                        filter = 'top',
+                        autoHideNavigation = T,
+                        colnames = c(
+                            'm/z' = 'mz',
+                            'Intensity' = 'int',
+                            'Oligonucleotide' = 'oligo',
+                            'Buffer' = 'buffer.id',
+                            'Electrolyte' = 'buffer',
+                            'Cation' = 'cation',
+                            'Normalized intensity' = 'norm.int',
+                            'Tune' = 'tune',
+                            'Replicate' = 'rep'
+                        ),
+                        options = list(
+                            deferRender = TRUE,
+                            scrollY = 200,
+                            scroller = F,
+                            pageLength = 25,
+                            autoWidth = F,
+                            dom = 'Bfrtip', #button position
+                            buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
+                            columnDefs = list(list(visible=FALSE, targets=c(7:13)))
+                        )
+                    ) %>%
+                    formatRound(c('Normalized intensity'), digits = 3)
             }
         })
 
@@ -2813,7 +2879,8 @@ g4db <- function() {
             read_xlsx(
                 path = db.file()$datapath,
                 sheet = 'CD'
-            )
+            ) %>%
+                filter(oligo %in% selected.oligos.db())
         })
 
         db.cd.select <- reactive({
@@ -2821,7 +2888,6 @@ g4db <- function() {
                 filter(cation %in% input$select.cation.db) %>%
                 filter(buffer.id %in% input$select.buffer.id.db) %>%
                 filter(buffer %in% input$select.buffer.db) %>%
-                filter(oligo %in% selected.oligos.db()) %>%
                 filter(wl > min(input$slide.cd.db)) %>%
                 filter(wl < max(input$slide.cd.db)) %>%
                 group_by(oligo, buffer.id, wl, l, con, CD, delta.epsilon) %>%
@@ -2997,12 +3063,15 @@ g4db <- function() {
 
         #b/tables----
 
+        output$infoinfo <- DT::renderDT({
+            datatable(write.db()$info)
+        })
+
         output$input.info.db <- DT::renderDT({
 
             if (is.null(input$select.oligo.db)) {
                 return(NULL)
             } else {
-
                 db.info() %>%
                     filter(oligo == input$select.oligo.db) %>%
                     setcolorder(c('oligo', 'DOI', 'submitted_by', 'depo.date',
@@ -3656,7 +3725,7 @@ g4db <- function() {
 
         #6-Write to db----
 
-        write.db <- observeEvent(input$write.db.bttn,{
+        write.db <- eventReactive(input$write.db.bttn,{
 
             withProgress(message = 'Database edition',
                          detail = 'Please wait', value = 0, {
@@ -3737,24 +3806,48 @@ g4db <- function() {
 
                                  incProgress(amount=7/8)
 
-                                 write_xlsx(
-                                     x = list('info' = db.info.export,
-                                              'CD' = db.CD.export,
-                                              'NMR' = db.NMR.export,
-                                              'MS' = db.MS.export,
-                                              'UV-melting' = db.UV.melting.export
-                                     ),
-                                     path = "db.xlsx",
-                                     col_names = T,
-                                     format_headers = T
+                                 # write_xlsx(
+                                 #     x = list('info' = db.info.export,
+                                 #              'CD' = db.CD.export,
+                                 #              'NMR' = db.NMR.export,
+                                 #              'MS' = db.MS.export,
+                                 #              'UV-melting' = db.UV.melting.export
+                                 #     ),
+                                 #     path = 'db-updated.xlsx',
+                                 #     col_names = T,
+                                 #     format_headers = T
+                                 # )
+
+                                 export.list <- list('info' = db.info.export,
+                                                     'CD' = db.CD.export,
+                                                     'NMR' = db.NMR.export,
+                                                     'MS' = db.MS.export,
+                                                     'UV' = db.UV.melting.export
                                  )
 
                                  incProgress(amount=8/8)
+
+                                 return(export.list)
                              }
                          })
         })
 
-        # output$blob <- DT::renderDT(write.db())
+
+        output$downloadData <- downloadHandler(
+            filename = function() {
+                paste("dataset-", Sys.Date(), ".xlsx", sep="")
+            },
+            content = function(file) {
+                write_xlsx(list('info' = write.db()$info,
+                                'CD' = write.db()$CD,
+                                'NMR' = write.db()$NMR,
+                                'MS' = write.db()$MS,
+                                'UV-melting' = write.db()$UV),
+                           file)
+            }
+        )
+
+
 
         #################X__X#################
 

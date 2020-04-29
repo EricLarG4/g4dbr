@@ -1,7 +1,7 @@
 ---
 title: "g4db 0.48"
 author: "Eric Largy"
-date: "2020/04/27"
+date: "2020/04/29"
 output:
   pdf_document:
     df_print: kable
@@ -56,11 +56,12 @@ library(writexl)
   - Any oligonucleotide information field (including potential new ones) can now be used for data selection via the table with no UI/server code change
 + _Buffer_ selection now also possible by _electrolyte_ and _cation_ selection
   - Further selection by existing individual _electrolyte_ + _cation_ combination still possible
+  - Values gathered from selected oligonucleotides only
   - All values selected by default
   - Displayed data is intersection of _electrolyte_, _cation_, and _buffer_ selections (e.g. if KCl is not selected in _cation_ then TMAA + KCl data will not displayed even if it selected in _buffer_)
   _ When no _cation_ is specified in the input data (e.g. sample in TMAA alone), a `none` value is automatically attributed to allow selection of cation-less data in the dropdown menu. Another consequence is that there a now empty _cation_ row in the database
 + _MS_ can now be filtered by _tunes_ and _replicates_
-  - _Tune_ names and _replicate_ numbers filter now available in the _right sidebar_ of the MS plot box
+  - _Tune_ names and _replicate_ numbers filter now available in the _right sidebar_ of the MS plot box, gathered only from selected oligonucleotides.
   - _Tune_ names and _replicate_ numbers are collected from the oligonucleotide- and electrolyte/cation/buffer-filtered MS data (i.e. only relevant _tunes_ and _replicates_ are proposed)
   _ Multiple selections possible
   _ Values default to the first available ones
@@ -73,6 +74,7 @@ library(writexl)
 + _meltR_ now manages data that cannot be baseline-subtracted
   - Export raw data button added in _left sidebar_
   - Absorbance normalised to [0,1] for plotting in the baseline-subtracted data figure (same y-axis scale)
++ NMR peak labelling now accepts character strings
 
 ## v. 0.37
 
