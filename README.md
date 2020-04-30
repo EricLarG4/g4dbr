@@ -21,7 +21,7 @@ In R (e.g. the console of RStudio), run:
 
 ```{r install_online}
 install.packages("devtools")
-devtools::install_github('EricLarG4/g4db-team', auth_token = 'XXX', build_vignettes = T, build_manual = T)
+devtools::install_github('g4db-team/g4dbr', auth_token = 'XXX', build_vignettes = T, build_manual = T)
 ```
 Where `XXX` is your token (40 characters).
 
