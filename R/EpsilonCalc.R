@@ -8,6 +8,8 @@
 
 epsilon.calculator <- function(sequence = NULL){
 
+  library(stringr)
+
   #extinction coefficient database
   epsilondb <- epsilondb
 
