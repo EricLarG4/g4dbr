@@ -55,6 +55,14 @@ library(g4dbr)
 g4db()
 ```
 
+#### Download-less installation
+
+An example database (db.xlsx) a demo input file (demo_input.xlsx) are located in the extdata subfolder of your package installation path, e.g. `C:\Users\username\Documents\R\win-library\4.0\g4dbr`. **These files will be overridden if the package is re-installed, and removed is the package in uninstalled.** 
+
+#### Zip-based installation
+
+The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx) in the inst/extdata subfolder. To use these files extract them from the archives then load into the g4db interface, in the _database_ and _ImportR_ tabs respectively.
+
 ### Standalone extinction coefficient calculation
 
 To use epsilon.calculator, run:
@@ -64,14 +72,6 @@ library(g4dbr)
 epsilon.calculator("SEQUENCE")
 ```
 where `SEQUENCE` is the DNA sequence of choice.
-
-### Download-less installation
-
-An example database (db.xlsx) a demo input file (demo_input.xlsx) are located in the extdata subfolder of your package installation path, e.g. `C:\Users\username\Documents\R\win-library\4.0\g4dbr`. **These files will be overridden if the package is re-installed, and removed is the package in uninstalled.** 
-
-###Zip-based installation
-
-The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx) in the inst/extdata subfolder. To use these files extract them from the archives then load into the g4db interface, in the _database_ and _ImportR_ tabs respectively.
 
 ## License
 
