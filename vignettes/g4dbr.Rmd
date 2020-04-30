@@ -1,10 +1,10 @@
 ---
 title: "g4dbr"
-author: "Eric Largy"
+author: 'Eric Largy'
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{g4dbr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,4 +20,4 @@ knitr::opts_chunk$set(
 library(g4dbr)
 ```
 
-Test vignette XXX
+test tst tt
