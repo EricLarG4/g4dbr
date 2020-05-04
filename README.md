@@ -25,6 +25,8 @@ devtools::install_github('g4db-team/g4dbr', auth_token = 'XXX', build_vignettes 
 ```
 Where `XXX` is your token (40 characters).
 
+Restart your R session before use.
+
 ### Zip-download installation
 
 To install, download the zip archive.
