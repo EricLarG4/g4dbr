@@ -34,9 +34,6 @@ library(writexl)
 ```{r mirror, message=FALSE, warning=FALSE, paged.print=FALSE}
 # to mirror repository to team repo:
 # D:\ownCloud\Projects\G4 database\g4dbr> git push --mirror https://github.com/g4db-team/g4dbr
-
-#to do:
-#- make NMR label as text for comma separated labels
 ```
 
 ## v. 0.48 
@@ -74,7 +71,9 @@ library(writexl)
 + _meltR_ now manages data that cannot be baseline-subtracted
   - Export raw data button added in _left sidebar_
   - Absorbance normalised to [0,1] for plotting in the baseline-subtracted data figure (same y-axis scale)
-+ NMR peak labelling now accepts character strings
++ NMR peak labelling
+  _ Character strings are accepted (possibility to assign several protons to the same peak/poorly resolved peaks)
+  _ The labels are now vertically aligned to the peak, properly repelled from other labels and data points, and linked to the peaks with a segment
 
 ## v. 0.37
 
@@ -333,7 +332,7 @@ The selected data is also shown in a table under the plot. Further filtering of 
 
 #### NMR.
 
-The ^1^H NMR spectra are presented as a line plot colored by oligonucleotide (changeable). The chemical shift is presented in descending order, as is tradition, and can be filtered. The same stacking options than for CD are available, but the default is unstacked for clarity. No data with different buffers was submitted, so it is unclear whether buffer (un)stacking is necessary (but it is implemented nonetheless). The line size can be changed.
+The ^1^H NMR spectra are presented as a line plot colored by oligonucleotide (changeable). The chemical shift is presented in descending order, as is tradition, and can be filtered. The same stacking options than for CD are available, but the default is unstacked for clarity. Peak labels are shown above the corresponding peaks, and linked by a segment. They are automatically repelled from other labels and data points. The spectra line size can be changed.
 
 A data table is available, with the same remarks as previously.
 
