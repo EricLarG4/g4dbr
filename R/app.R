@@ -335,10 +335,18 @@ g4db <- function() {
                                            sliderInput(
                                                inputId = "cd.size.pt.db",
                                                label = "point size",
-                                               min = 0.5,
+                                               min = 0,
                                                max = 10,
                                                value = 2,
                                                step = 0.5
+                                           ),
+                                           sliderInput(
+                                               inputId = "cd.size.line.db",
+                                               label = "line size",
+                                               min = 0,
+                                               max = 5,
+                                               value = 0,
+                                               step = 0.25
                                            ),
                                            sliderInput(
                                                inputId = "cd.alpha.pt.db",
@@ -3299,6 +3307,8 @@ g4db <- function() {
             p.CD.db <- db.cd.select() %>%
                 ggplot(aes(x = wl, y = plot.y, color = buffer.id, shape = oligo)) +
                 geom_point(size = input$cd.size.pt.db,
+                           alpha = input$cd.alpha.pt.db) +
+                geom_line(size = input$cd.size.line.db,
                            alpha = input$cd.alpha.pt.db) +
                 theme_pander() +
                 xlab("Wavelength (nm)") +
