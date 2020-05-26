@@ -1881,25 +1881,38 @@ g4db <- function() {
         })
 
         p.NMR <- reactive({
-            p.NMR <- input.NMR() %>%
+
+            nmr.bounds <- input.NMR() %>%
+                group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
+                mutate(int = (int - min(int))/(max(int) - min(int)))
+
+            limits <- c(0.8*max(nmr.bounds$int), 1.3*max(nmr.bounds$int)) #y-scale labelling limits
+
+            p.NMR <- nmr.bounds %>%
+                mutate(peak.number = if_else(is.na(peak.number), "", peak.number)) %>% #assigns empty labels to avoid label over data points
                 ggplot(aes(x = shift, y = int, color = oligo)) +
-                geom_line(size = input$nmr.size.line) +
-                geom_text_repel(aes(x = shift, y = 1.25*int, label = peak.number, color = oligo),
+                geom_line(size = input$nmr.size.line.db) +
+                geom_text_repel(aes(x = shift, y = int, label = peak.number,
+                                    color = oligo, segment.color = oligo),
                                 force = 2,
                                 direction = 'y',
-                                min.segment.length = 0.25,
-                                alpha = 0.85,
-                                size =5,
+                                min.segment.length = 0.15,
+                                segment.size = 0.5,
+                                box.padding = 1,
+                                alpha = 1,
+                                size = 6,
                                 fontface = 'bold',
-                                segment.color = 'grey50',
-                                show.legend = F) +
+                                show.legend = F,
+                                ylim = limits
+                ) +
                 scale_x_reverse() + #inverted x scale for chemical shift
                 theme_pander() +
                 xlab("Chemical shift (ppm)") +
                 theme(
                     axis.text.y = element_blank(),
                     axis.title.y = element_blank()
-                )
+                ) + #allows for some extra space on the y-scale for labelling
+                coord_cartesian(ylim = c(min(nmr.bounds$int), max(nmr.bounds$int)*1.2))
 
             if (input$nmr.superimpose == "none") {
                 if (input$nmr.free == 'free') {
@@ -3358,27 +3371,39 @@ g4db <- function() {
 
         p.NMR.db <- reactive({
 
-            p.NMR.db <- db.nmr.select() %>%
-                filter(shift > min(input$slide.nmr.db)) %>%
+            nmr.bounds <- db.nmr.select() %>%
+                filter(shift > min(input$slide.nmr.db)) %>% #x-scale range selection
                 filter(shift < max(input$slide.nmr.db)) %>%
-                ggplot(aes(x = shift, y = 1.25*int, color = oligo)) +
+                group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
+                mutate(int = (int - min(int))/(max(int) - min(int)))
+
+            limits <- c(0.8*max(nmr.bounds$int), 1.3*max(nmr.bounds$int)) #y-scale labelling limits
+
+            p.NMR.db <- nmr.bounds %>%
+                mutate(peak.number = if_else(is.na(peak.number), "", peak.number)) %>% #assigns empty labels to avoid label over data points
+                ggplot(aes(x = shift, y = int, color = oligo)) +
                 geom_line(size = input$nmr.size.line.db) +
-                geom_text_repel(aes(x = shift, y = int, label = peak.number, color = oligo),
+                geom_text_repel(aes(x = shift, y = int, label = peak.number,
+                                    color = oligo, segment.color = oligo),
                                 force = 2,
-                                min.segment.length = 0.25,
                                 direction = 'y',
-                                alpha = 0.85,
-                                size = 5,
+                                min.segment.length = 0.15,
+                                segment.size = 0.5,
+                                box.padding = 1,
+                                alpha = 1,
+                                size = 6,
                                 fontface = 'bold',
-                                segment.color = 'grey50',
-                                show.legend = F) +
+                                show.legend = F,
+                                ylim = limits
+                ) +
                 scale_x_reverse() + #inverted x scale for chemical shift
                 theme_pander() +
                 xlab("Chemical shift (ppm)") +
                 theme(
                     axis.text.y = element_blank(),
                     axis.title.y = element_blank()
-                )
+                ) + #allows for some extra space on the y-scale for labelling
+                coord_cartesian(ylim = c(min(nmr.bounds$int), max(nmr.bounds$int)*1.2))
 
             if (input$nmr.superimpose.db == "none") {
                 if (input$nmr.free.db == 'free') {
