@@ -324,9 +324,9 @@ From the sequence are computed the number of each and all nucleotides, the atomi
 
 #### Circular Dichroism.
 
-The circular dichroism data is presented as a scatter plot colored by buffer and shaped by oligonucleotide (both changeable). The data can be shown in mdeg or molar ellipticities (default), and filtered by wavelength. Molar ellipticities are calculated automatically from the supplied mdeg data.
+The circular dichroism data is presented as a scatter and line plot colored by buffer and shaped by oligonucleotide (both changeable). The data can be shown in mdeg or molar ellipticities (default), and filtered by wavelength. Molar ellipticities are calculated automatically from the supplied mdeg data.
 
-The spectra can be all overlaid (default), overlaid by oligonucleotide or buffer, or not overlaid at all, to ease the comparison of data sets.
+The spectra can be all overlaid (default), overlaid by oligonucleotide or buffer, or not overlaid at all, to ease the comparison of data sets. By default, only the data points are shown, but it is possible to add lines (by increasing their size), remove points (by decreasing their size), or display both.
 
 The selected data is also shown in a table under the plot. Further filtering of the table does not alter the plot, nor does filtering from the the plot's _right sidebar_. 
 
