@@ -3,7 +3,6 @@
 library(knitr)
 ```
 
-
 # Data
 
 ```{r selected.oligos, include=FALSE}
@@ -40,19 +39,19 @@ knitr::kable(db.info,
 
 ## CD
 
-```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
+```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.cap="Circular dichroism spectra"}
 p.CD.db()
 ```
 
 ## 1H-NMR
 
-```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
+```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.cap="1H NMR spectra"}
 p.NMR.db()
 ```
 
 ## UV-melting
 
-```{r UVplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
+```{r UVplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.cap="UV-melting plot"}
 p.UV.fit.db() + theme(legend.position="bottom",
                       legend.direction = 'horizontal')
 p.UV.melting.db() + 
@@ -62,6 +61,7 @@ p.UV.melting.db() +
 ```
 
 ```{r print.option, include=FALSE}
+#controls whether MS section is knitted or not based on the use of the plotMS button
 if(input$plotMS.db == 0) {
   print.option <- FALSE
 } else {
@@ -69,16 +69,14 @@ if(input$plotMS.db == 0) {
 }
 ```
 
-
-```{r MS.header, echo=FALSE}
+```{r MS.header, echo=FALSE, eval= print.option}
+#conditional MS section title
 asis_output("## Native ESI-MS")
 ```
 
-```{r MSplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
-if(input$plotMS.db > 0) {
+```{r MSplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", eval = print.option, fig.cap="Native ESI-MS spectra"}
   p.MS.db() + theme(legend.position="bottom",
                     legend.direction = 'horizontal')
-}
 ```
 
 
