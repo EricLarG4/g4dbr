@@ -21,7 +21,7 @@ title_var <- paste(paste(selected.oligos.db(), collapse="/"), "report")
 title: `r title_var`
 ---
 
-```{r oligo.table, message=FALSE, warning=FALSE, include=FALSE, paged.print=TRUE}
+```{r oligo.table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
 #table of oligonucleotides properties (pageable)
 db.info <- db.info() %>%
   filter(oligo %in% selected.oligos.db()) %>% #only display selected oligos data
@@ -40,7 +40,7 @@ knitr::kable(db.info,
 p.CD.db()
 ```
 
-## NMR
+## 1H-NMR
 
 ```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
 p.NMR.db()
@@ -50,12 +50,18 @@ p.NMR.db()
 
 ```{r UVplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
 p.UV.fit.db() + theme(legend.position="bottom",
-                      legend.direction = 'vertical')
+                      legend.direction = 'horizontal')
 p.UV.melting.db() + 
   theme(legend.position="bottom",
         legend.direction = "horizontal") +
   guides(colour=guide_legend(nrow=3*length(selected.oligos.db())))
 ```
 
+## Native ESI-MS
+
+```{r MSplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
+p.MS.db() + theme(legend.position="bottom",
+                      legend.direction = 'horizontal')
+```
 
 
