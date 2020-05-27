@@ -266,7 +266,16 @@ g4db <- function() {
                        h3('Colours')
                 ),
                 uiOutput('select.import.palette.fam.db'),
-                uiOutput('select.import.palette.db')
+                uiOutput('select.import.palette.db'),
+                column(12,
+                       hr(),
+                       h3('Report')
+                ),
+                radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+                             inline = TRUE),
+                column(12,
+                       downloadButton('downloadReport')
+                )
             )
         ),
         #body----
@@ -3309,7 +3318,7 @@ g4db <- function() {
                 geom_point(size = input$cd.size.pt.db,
                            alpha = input$cd.alpha.pt.db) +
                 geom_line(size = input$cd.size.line.db,
-                           alpha = input$cd.alpha.pt.db) +
+                          alpha = input$cd.alpha.pt.db) +
                 theme_pander() +
                 xlab("Wavelength (nm)") +
                 labs(colour = "buffer",
@@ -3882,11 +3891,36 @@ g4db <- function() {
             }
         )
 
+        #7-Report download----
 
+        output$downloadReport <- downloadHandler(
+            filename = function() {
+                paste('my-report', sep = '.', switch(
+                    input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+                ))
+            },
+
+            content = function(file) {
+                src <- normalizePath('report.Rmd')
+
+                # temporarily switch to the temp dir, in case you do not have write
+                # permission to the current working directory
+                owd <- setwd(tempdir())
+                on.exit(setwd(owd))
+                file.copy(src, 'report.Rmd', overwrite = TRUE)
+
+                library(rmarkdown)
+                out <- render('report.Rmd', switch(
+                    input$format,
+                    PDF = pdf_document(), HTML = html_document(), Word = word_document()
+                ))
+                file.rename(out, file)
+            }
+        )
 
         #################X__X#################
 
-        #7-Palettes-------
+        #8-Palettes-------
         #palettes for import data
         palette.modifier <- function(plot = NULL){
             if (input$select.import.palette.fam == 'd3') {

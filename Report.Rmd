@@ -1,0 +1,16 @@
+# g4db report
+
+This is report generated from 
+
+## CD
+
+```{r CDplot, fig.height=5}
+p.CD.db()
+```
+## NMR
+
+```{r NMRplot, fig.height=5}
+p.NMR.db()
+```
+
+
