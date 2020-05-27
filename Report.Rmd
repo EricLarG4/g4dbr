@@ -1,4 +1,8 @@
 
+```{r library, include=FALSE}
+library(knitr)
+```
+
 
 # Data
 
@@ -57,11 +61,24 @@ p.UV.melting.db() +
   guides(colour=guide_legend(nrow=3*length(selected.oligos.db())))
 ```
 
-## Native ESI-MS
+```{r print.option, include=FALSE}
+if(input$plotMS.db == 0) {
+  print.option <- FALSE
+} else {
+  print.option <- TRUE
+}
+```
+
+
+```{r MS.header, echo=FALSE}
+asis_output("## Native ESI-MS")
+```
 
 ```{r MSplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
-p.MS.db() + theme(legend.position="bottom",
-                      legend.direction = 'horizontal')
+if(input$plotMS.db > 0) {
+  p.MS.db() + theme(legend.position="bottom",
+                    legend.direction = 'horizontal')
+}
 ```
 
 

@@ -3535,6 +3535,9 @@ g4db <- function() {
 
 
         p.MS.db <- reactive({
+
+            req(db.ms.select())
+
             p.MS.db <- db.ms.select() %>%
                 filter(rep %in% input$select.rep.db) %>%
                 filter(tune %in% input$select.tune.db) %>%
