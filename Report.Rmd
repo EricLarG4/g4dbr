@@ -21,13 +21,15 @@ title_var <- paste(paste(selected.oligos.db(), collapse="/"), "report")
 title: `r title_var`
 ---
 
-```{r oligo.table}
-#table of oligonucleotides properties
+```{r oligo.table, message=FALSE, warning=FALSE, include=FALSE, paged.print=TRUE}
+#table of oligonucleotides properties (pageable)
 db.info <- db.info() %>%
   filter(oligo %in% selected.oligos.db()) %>% #only display selected oligos data
   select(c('oligo', 'sequence', 'submitted_by', 'depo.date', 'DOI'))
 
-knitr::kable(db.info, caption = 'General oligonucleotide information')
+knitr::kable(db.info,
+             caption = 'General oligonucleotide information',
+             escape = F) #DOI parsed in HTML reports
 ```
 
 # Figures
