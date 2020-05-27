@@ -3719,7 +3719,7 @@ g4db <- function() {
                 filter(T.K < max(input$slide.uv.fit.db))
         })
 
-        output$p.UV.fit.db <- renderPlot({
+        p.UV.fit.db <- reactive({
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
                 p.UV.melting.db <- db.uv.melting.select() %>%
@@ -3740,7 +3740,11 @@ g4db <- function() {
             }
         })
 
-        output$p.UV.melting.db <- renderPlot({
+        output$p.UV.fit.db <- renderPlot({
+            p.UV.fit.db()
+        })
+
+        p.UV.melting.db <- reactive({
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
                 p.UV.melting.db <- db.uv.melting.select() %>%
@@ -3757,6 +3761,10 @@ g4db <- function() {
 
                 return(p.UV.melting.db)
             }
+        })
+
+        output$p.UV.melting.db <- renderPlot({
+            p.UV.melting.db()
         })
 
         output$p.UV.melting.ui.db <- renderUI({

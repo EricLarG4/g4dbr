@@ -31,7 +31,8 @@ Imports:
   ggthemes,
   ggrepel,
   plotly,
-  devtools
+  devtools,
+  kableExtra
 Remotes:
   github::AnalytixWare/ShinySky,
   github::DavidBarke/QWUtils
