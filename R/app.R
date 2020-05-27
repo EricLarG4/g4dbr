@@ -3903,7 +3903,7 @@ g4db <- function() {
 
         output$downloadReport <- downloadHandler(
             filename = function() {
-                paste('my-report', sep = '.', switch(
+                paste('g4db report', sep = '.', switch(
                     input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
                 ))
             },

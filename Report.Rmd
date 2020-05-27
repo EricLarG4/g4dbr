@@ -1,7 +1,4 @@
 
-```{r libraries, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
-library(kableExtra)
-```
 
 # Data
 
@@ -25,13 +22,12 @@ title: `r title_var`
 ---
 
 ```{r oligo.table}
-db.info() %>%
-  filter(oligo == input$select.oligo.db) %>%
-  kable("latex", booktabs = T,
-        escape = F, 
-        linesep = '') %>% 
-  kable_styling(latex_options = "striped")%>% 
-  add_header_above(c('', 'Filtered long format' = 2), bold = T, italic = T)
+#table of oligonucleotides properties
+db.info <- db.info() %>%
+  filter(oligo %in% selected.oligos.db()) %>% #only display selected oligos data
+  select(c('oligo', 'sequence', 'submitted_by', 'depo.date', 'DOI'))
+
+knitr::kable(db.info, caption = 'General oligonucleotide information')
 ```
 
 # Figures
