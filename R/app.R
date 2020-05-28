@@ -34,6 +34,7 @@ g4db <- function() {
     library(ggrepel)
     library(plotly)
 
+    library(rmarkdown)
 
     #sources----
     # source('EpsilonCalc.R')
