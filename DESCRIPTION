@@ -32,7 +32,8 @@ Imports:
   ggrepel,
   plotly,
   devtools,
-  knitr
+  knitr,
+  rmarkdown
 Remotes:
   github::AnalytixWare/ShinySky,
   github::DavidBarke/QWUtils
