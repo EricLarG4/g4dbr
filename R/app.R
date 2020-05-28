@@ -3907,27 +3907,27 @@ g4db <- function() {
 
         output$downloadReport <- downloadHandler(
             filename = function() {
-                paste('g4db report', sep = '.', switch(
+                paste(paste('g4db report -', paste(selected.oligos.db(), collapse=", ")), sep = '.', switch(
                     input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
                 ))
             },
+                content = function(file) {
+                    src <- normalizePath('report.Rmd')
 
-            content = function(file) {
-                src <- normalizePath('report.Rmd')
+                    # temporarily switch to temp dir, in case there is no write permission to current wording dir
+                    owd <- setwd(tempdir())
+                    on.exit(setwd(owd))
+                    file.copy(src, 'report.Rmd', overwrite = TRUE)
 
-                # temporarily switch to the temp dir, in case you do not have write
-                # permission to the current working directory
-                owd <- setwd(tempdir())
-                on.exit(setwd(owd))
-                file.copy(src, 'report.Rmd', overwrite = TRUE)
-
-                library(rmarkdown)
-                out <- render('report.Rmd', switch(
-                    input$format,
-                    PDF = pdf_document(), HTML = html_document(), Word = word_document()
-                ))
-                file.rename(out, file)
-            }
+                    # "word_document" used instead of word_document() so that template is taken into account
+                    # To modify template, locate it with:
+                    # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
+                    out <- rmarkdown::render('report.Rmd', switch(
+                        input$format,
+                        PDF = pdf_document(), HTML = html_document(), Word = "word_document"
+                    ))
+                    file.rename(out, file)
+                }
         )
 
         #################X__X#################
