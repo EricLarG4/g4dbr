@@ -8,6 +8,25 @@ output:
 library(knitr)
 ```
 
+```{r subchunkify, include=FALSE}
+subchunkify <- function(g, fig_height=7, fig_width=5) {
+  g_deparsed <- paste0(deparse(
+    function() {g}
+  ), collapse = '')
+  
+  sub_chunk <- paste0("
+  `","``{r sub_chunk_", floor(runif(1) * 10000), ", fig.height=", fig_height, ", fig.width=", fig_width, ", echo=FALSE}",
+  "\n(", 
+    g_deparsed
+    , ")()",
+  "\n`","``
+  ")
+  
+  cat(knitr::knit(text = knitr::knit_expand(text = sub_chunk), quiet = TRUE))
+}
+```
+
+
 # Data
 
 ```{r selected.oligos, include=FALSE}
@@ -50,21 +69,23 @@ knitr::kable(db.info,
 
 ## CD
 
-```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%", dpi=600, fig.cap='CD spectra', fig.align='center'}
-p.CD.db()
+```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, dpi=600, fig.cap='CD spectra', fig.align='center', results='asis'}
+pcd <- p.CD.db()
+subchunkify(pcd, 3 * row.p.CD.db(), 7)
 ```
 
 
 ## 1H-NMR
 
-```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%", dpi=600, fig.cap='1H NMR spectra', fig.align='center'}
-p.NMR.db()
+```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, dpi=600, fig.cap='1H NMR spectra', fig.align='center', results='asis'}
+pnmr <- p.NMR.db()
+subchunkify(pnmr, 3 * row.p.NMR.db(), 7)
 ```
 
 
 ## UV-melting
 
-```{r UVplot.raw, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%", dpi=600, fig.cap='Raw UV-melting plot', fig.align='center'}
+```{r UVplot.raw, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, dpi=600, fig.cap='Raw UV-melting plot', fig.align='center'}
 p.UV.melting.db() + 
   theme(legend.position="bottom",
         legend.direction = "horizontal") +
@@ -72,7 +93,7 @@ p.UV.melting.db() +
 ```
 
 
-```{r UVplot.fit, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%", dpi=600, fig.cap='Folded fraction', fig.align='center'}
+```{r UVplot.fit, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, dpi=600, fig.cap='Folded fraction', fig.align='center'}
 p.UV.fit.db() + 
   theme(legend.position="bottom",
         legend.direction = 'horizontal') +
@@ -81,7 +102,7 @@ p.UV.fit.db() +
 
 
 
-```{r print.option, include=FALSE}
+```{r print.option, message=FALSE, warning=FALSE, include=FALSE}
 #controls whether MS section is knitted or not based on the use of the plotMS button
 if(input$plotMS.db == 0) {
   print.option <- FALSE
@@ -95,10 +116,11 @@ if(input$plotMS.db == 0) {
 asis_output("## Native ESI-MS")
 ```
 
-```{r MSplot, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%", eval = print.option, dpi=600 , fig.cap='Folded fraction', fig.align='center'}
-p.MS.db() + 
+```{r MSplot, eval=print.option, echo=FALSE, fig.align='center', fig.cap='Folded fraction', message=FALSE, warning=FALSE, dpi=600, results='asis'}
+pms <- p.MS.db() + 
   theme(legend.position="bottom",
         legend.direction = 'horizontal')
+subchunkify(pms, 3 * row.p.MS.db(), 7)
 ```
 
 
