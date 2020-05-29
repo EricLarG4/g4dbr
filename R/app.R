@@ -25,6 +25,7 @@ g4db <- function() {
     library(DescTools)
     library(hablar)
     library(assertive.types)
+    library(magrittr)
 
     library(ggsci)
     library(ggpmisc)
@@ -610,7 +611,7 @@ g4db <- function() {
                                        footer = DTOutput("input.info")
                            ),
                            gradientBox(id = 'input.infoinfo',
-                                       title = 'General information',
+                                       title = 'info written to db for debug',
                                        gradientColor = 'teal',
                                        collapsible = T,
                                        collapsed = T,
@@ -3540,11 +3541,15 @@ g4db <- function() {
             }
         })
 
-        #extraction of number of rows in grid
+        #extracts number of rows in MS plot to adjust UI output dimension
         row.p.MS.db <- reactive({
             gg_facet_nrow_ng(p.MS.db())
         })
 
+        #extracts number of columns in MS plot to adjust UI output dimension
+        col.p.MS.db <- reactive({
+            gg_facet_ncol_ng(p.MS.db())
+        })
 
         p.MS.db <- reactive({
 
@@ -3892,7 +3897,14 @@ g4db <- function() {
                                                      'UV' = db.UV.melting.export
                                  )
 
-                                 incProgress(amount=8/8)
+                                 # write_xlsx(
+                                 #     x = export.list,
+                                 #     path =  db.file()$datapath,
+                                 #     col_names = T,
+                                 #     format_headers = T
+                                 # )
+                                 #
+                                 # incProgress(amount=8/8)
 
                                  return(export.list)
                              }
