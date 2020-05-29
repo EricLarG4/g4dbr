@@ -9,19 +9,24 @@ library(knitr)
 ```
 
 ```{r subchunkify, include=FALSE}
+# allows figure sizing within r chunck
+# gotten from http://michaeljw.com/blog/post/subchunkify/
 subchunkify <- function(g, fig_height=7, fig_width=5) {
-  g_deparsed <- paste0(deparse(
+  #g argument is object to plot
+  g_deparsed <- paste0(deparse( #deparse turns function() {g} into string that Knitr can interpret
     function() {g}
   ), collapse = '')
   
   sub_chunk <- paste0("
-  `","``{r sub_chunk_", floor(runif(1) * 10000), ", fig.height=", fig_height, ", fig.width=", fig_width, ", echo=FALSE}",
+  `","``{r sub_chunk_", floor(runif(1) * 10000), #give the generated sub-chunk a unique name
+  ", fig.height=", fig_height, ", fig.width=", fig_width, ", echo=FALSE}",
   "\n(", 
     g_deparsed
     , ")()",
   "\n`","``
   ")
   
+  #knitr::knit() compiles the generated sub-chunk
   cat(knitr::knit(text = knitr::knit_expand(text = sub_chunk), quiet = TRUE))
 }
 ```
@@ -71,7 +76,7 @@ knitr::kable(db.info,
 
 ```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, dpi=600, fig.cap='CD spectra', fig.align='center', results='asis'}
 pcd <- p.CD.db()
-subchunkify(pcd, 3 * row.p.CD.db(), 7)
+subchunkify(pcd, 3 * row.p.CD.db(), 7) #figure height based on number of figure rows in the app
 ```
 
 
@@ -79,7 +84,7 @@ subchunkify(pcd, 3 * row.p.CD.db(), 7)
 
 ```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, dpi=600, fig.cap='1H NMR spectra', fig.align='center', results='asis'}
 pnmr <- p.NMR.db()
-subchunkify(pnmr, 3 * row.p.NMR.db(), 7)
+subchunkify(pnmr, 3 * row.p.NMR.db(), 7) #figure height based on number of figure rows in the app
 ```
 
 
@@ -89,7 +94,7 @@ subchunkify(pnmr, 3 * row.p.NMR.db(), 7)
 p.UV.melting.db() + 
   theme(legend.position="bottom",
         legend.direction = "horizontal") +
-  guides(colour=guide_legend(nrow=length(selected.oligos.db())))
+  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) #figure height based on number of figure rows in the app
 ```
 
 
@@ -97,7 +102,7 @@ p.UV.melting.db() +
 p.UV.fit.db() + 
   theme(legend.position="bottom",
         legend.direction = 'horizontal') +
-  guides(colour=guide_legend(nrow=length(selected.oligos.db())))
+  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) #figure height based on number of figure rows in the app
 ```
 
 
@@ -120,7 +125,7 @@ asis_output("## Native ESI-MS")
 pms <- p.MS.db() + 
   theme(legend.position="bottom",
         legend.direction = 'horizontal')
-subchunkify(pms, 3 * row.p.MS.db(), 7)
+subchunkify(pms, 3 * row.p.MS.db(), 7) #figure height based on number of figure rows in the app
 ```
 
 
