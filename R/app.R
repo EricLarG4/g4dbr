@@ -3878,33 +3878,12 @@ g4db <- function() {
 
                                  incProgress(amount=7/8)
 
-                                 # write_xlsx(
-                                 #     x = list('info' = db.info.export,
-                                 #              'CD' = db.CD.export,
-                                 #              'NMR' = db.NMR.export,
-                                 #              'MS' = db.MS.export,
-                                 #              'UV-melting' = db.UV.melting.export
-                                 #     ),
-                                 #     path = 'db-updated.xlsx',
-                                 #     col_names = T,
-                                 #     format_headers = T
-                                 # )
-
                                  export.list <- list('info' = db.info.export,
                                                      'CD' = db.CD.export,
                                                      'NMR' = db.NMR.export,
                                                      'MS' = db.MS.export,
                                                      'UV' = db.UV.melting.export
                                  )
-
-                                 # write_xlsx(
-                                 #     x = export.list,
-                                 #     path =  db.file()$datapath,
-                                 #     col_names = T,
-                                 #     format_headers = T
-                                 # )
-                                 #
-                                 # incProgress(amount=8/8)
 
                                  return(export.list)
                              }
