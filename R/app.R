@@ -3302,8 +3302,14 @@ g4db <- function() {
 
         #c/figures----
 
+        #extracts number of rows in CD plot to adjust UI output dimension
         row.p.CD.db <- reactive({
             gg_facet_nrow_ng(p.CD.db())
+        })
+
+        #extracts number of columns in cD plot to adjust UI output dimension
+        col.p.CD.db <- reactive({
+            gg_facet_ncol_ng(p.CD.db())
         })
 
         output$p.CD.db <- renderPlot({
@@ -3378,9 +3384,14 @@ g4db <- function() {
             }
         })
 
-
+        #extracts number of rows in NMR plot to adjust UI output dimension
         row.p.NMR.db <- reactive({
             gg_facet_nrow_ng(p.NMR.db())
+        })
+
+        #extracts number of columns in NMR plot to adjust UI output dimension
+        col.p.NMR.db <- reactive({
+            gg_facet_ncol_ng(p.NMR.db())
         })
 
         output$p.NMR.db <- renderPlot({
