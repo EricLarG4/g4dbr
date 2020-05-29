@@ -20,7 +20,7 @@ subchunkify <- function(g, cap=NULL, fig_height=7, fig_width=5) {
   
   sub_chunk <- paste0("
   `","``{r sub_chunk_", floor(runif(1) * 10000), #give the generated sub-chunk a unique name
-  ", fig.height=", fig_height, ", fig.width=", fig_width, ", fig.cap=", cap, ", echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}",
+  ", fig.height=", fig_height, ", fig.width=", fig_width, ", fig.cap=", cap, ", echo=FALSE, message=FALSE, warning=FALSE, fig.align='center', dpi = 300}",
   "\n(", 
   g_deparsed
   , ")()",
@@ -74,7 +74,7 @@ knitr::kable(db.info,
 
 ## CD
 
-```{r CDplot, echo=FALSE, results='asis', message=FALSE, warning=FALSE,}
+```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 if (length(selected.oligos.db()) > 1) {
   subchunkify(g = p.CD.db(), #plot
               cap = "paste('Circular dichroism spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
@@ -84,8 +84,8 @@ if (length(selected.oligos.db()) > 1) {
 } else {
   subchunkify(g = p.CD.db(), 
               cap = "paste('Circular dichroism spectra of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
-              fig_height = 2.5 * row.p.CD.db(), #dynamic figure dimensions
-              fig_width = (8*col.p.CD.db())/(col.p.CD.db()+0.5)
+              fig_height = 2.5 * row.p.CD.db(), #dynamic figure height
+              fig_width = (8*col.p.CD.db())/(col.p.CD.db()+0.5) #dynamic figure width
   )
 }
 
@@ -93,31 +93,69 @@ if (length(selected.oligos.db()) > 1) {
 
 ## 1H-NMR
 
-```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, dpi=600, fig.cap='1H NMR spectra', fig.align='center', results='asis'}
-pnmr <- p.NMR.db()
-subchunkify(pnmr, 2.5 * row.p.NMR.db(), (9*col.p.NMR.db())/(col.p.NMR.db()+0.4)) #figure height based on number of figure rows in the app
-```
+```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+# pnmr <- p.NMR.db()
+# subchunkify(pnmr, 2.5 * row.p.NMR.db(), (9*col.p.NMR.db())/(col.p.NMR.db()+0.4)) #figure height based on number of figure rows in the app
 
+if (length(selected.oligos.db()) > 1) {
+  subchunkify(g = p.NMR.db(), #plot
+              cap = "paste('NMR spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              fig_height = 2.5 * row.p.NMR.db(), #dynamic figure height
+              fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
+  ) 
+} else {
+  subchunkify(g = p.NMR.db(), 
+              cap = "paste('NMR spectrum of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              fig_height = 2.5 * row.p.NMR.db(), #dynamic figure height
+              fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
+  )
+}
+
+```
 
 
 ## UV-melting
 
-```{r UVplot.raw, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, dpi=600, fig.cap='Raw UV-melting plot', fig.align='center'}
-p.UV.melting.db() + 
-  theme(legend.position="bottom",
-        legend.direction = "horizontal") +
-  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) #figure height based on number of figure rows in the app
+```{r UVplot.raw, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+puv <- p.UV.melting.db() + 
+  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) 
+
+if (length(selected.oligos.db()) > 1) {
+  subchunkify(g = puv, #plot
+              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              fig_height = 3,
+              fig_width = 7
+  ) 
+} else {
+  subchunkify(g = puv, 
+              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              fig_height = 3,
+              fig_width = 7
+  )
+}
+
+
 ```
 
+```{r UVplot.fit, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+puf <- p.UV.fit.db() + 
+  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) 
 
-```{r UVplot.fit, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, dpi=600, fig.cap='Folded fraction', fig.align='center'}
-p.UV.fit.db() + 
-  theme(legend.position="bottom",
-        legend.direction = 'horizontal') +
-  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) #figure height based on number of figure rows in the app
+if (length(selected.oligos.db()) > 1) {
+  subchunkify(g = puf, #plot
+              cap = "paste('Folded fraction from UV-melting experiments of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              fig_height = 3,
+              fig_width = 7
+  ) 
+} else {
+  subchunkify(g = puf, 
+              cap = "paste('Folded fraction from UV-melting experiments of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              fig_height = 3,
+              fig_width = 7
+  )
+}
+
 ```
-
-
 
 ```{r print.option, message=FALSE, warning=FALSE, include=FALSE}
 #controls whether MS section is knitted or not based on the use of the plotMS button
@@ -133,11 +171,25 @@ if(input$plotMS.db == 0) {
 asis_output("## Native ESI-MS")
 ```
 
-```{r MSplot, eval=print.option, echo=FALSE, fig.align='center', fig.cap='Folded fraction', message=FALSE, warning=FALSE, dpi=600, results='asis'}
+```{r MSplot, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 pms <- p.MS.db() + 
   theme(legend.position="bottom",
         legend.direction = 'horizontal')
-subchunkify(pms, 3 * row.p.MS.db(), 7) #figure height based on number of figure rows in the app
+
+if (length(selected.oligos.db()) > 1) {
+  subchunkify(g = pms, #plot
+              cap = "paste('Native MS spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              fig_height = 3 * row.p.MS.db(), #dynamic figure heights
+              fig_width = (9*col.p.MS.db())/(col.p.MS.db()+0.4) #dynamic figure width
+  ) 
+} else {
+  subchunkify(g = pms, 
+              cap = "paste('Native MS spectra of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              fig_height = 3 * row.p.MS.db(), #dynamic figure height
+              fig_width = (9*col.p.MS.db())/(col.p.MS.db()+0.4) #dynamic figure width
+  )
+}
+
 ```
 
 
