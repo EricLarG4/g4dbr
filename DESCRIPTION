@@ -33,7 +33,8 @@ Imports:
   plotly,
   devtools,
   knitr,
-  rmarkdown
+  rmarkdown,
+  magrittr
 Remotes:
   github::AnalytixWare/ShinySky,
   github::DavidBarke/QWUtils
