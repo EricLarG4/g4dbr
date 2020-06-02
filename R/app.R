@@ -1617,7 +1617,7 @@ g4db <- function() {
 
         #b/tables----
 
-        output$input.info <- DT::renderDT({
+        output$input.info <- DT::renderDT(server=FALSE,{
             if(is.null(input$raw.data.input)) {return(NULL)}else{
 
                 info.epsilon() %>%
@@ -1742,7 +1742,7 @@ g4db <- function() {
             }
         })
 
-        output$input.NMR <- DT::renderDT({
+        output$input.NMR <- DT::renderDT(server=FALSE,{
             if(is.null(input$raw.data.input)) {return(NULL)}else{
                 input.NMR() %>%
                     setcolorder(c('oligo', 'buffer.id', 'shift', 'int')) %>%
@@ -1774,7 +1774,7 @@ g4db <- function() {
             }
         })
 
-        output$input.MS <- DT::renderDT({
+        output$input.MS <- DT::renderDT(server=FALSE,{
             if(is.null(input$raw.data.input)) {return(NULL)}else{
                 input.MS() %>%
                     setcolorder(c('oligo', 'buffer.id', 'tune', 'rep', 'mz', 'norm.int')) %>%
@@ -2371,7 +2371,7 @@ g4db <- function() {
 
         })
 
-        output$melt.filtered <- DT::renderDT({
+        output$melt.filtered <- DT::renderDT(server=FALSE,{
             melt.filtered()
             # melt()
         })
@@ -2579,7 +2579,7 @@ g4db <- function() {
         })
 
         #fit results table output
-        output$nlfit.melt.results <- DT::renderDT({
+        output$nlfit.melt.results <- DT::renderDT(server=FALSE,{
             datatable(
                 nlfit.melt(),
                 extensions = c('Buttons', 'Responsive', 'Scroller'),
@@ -2797,7 +2797,7 @@ g4db <- function() {
         })
 
         #summary table output
-        output$fit.melt.result.summary <- DT::renderDT({
+        output$fit.melt.result.summary <- DT::renderDT(server=FALSE,{
             # if(is.null(input$input.file)) {return(NULL)}
             # else {
             datatable(
@@ -3151,7 +3151,7 @@ g4db <- function() {
             }
         })
 
-        output$input.CD.db <- DT::renderDT({
+        output$input.CD.db <- DT::renderDT(server=FALSE,{
             if (is.null(selected.oligos.db())) {
                 return(NULL)
             } else {
@@ -3191,7 +3191,7 @@ g4db <- function() {
             }
         })
 
-        output$input.NMR.db <- DT::renderDT({
+        output$input.NMR.db <- DT::renderDT(server=FALSE,{
             if (is.null(selected.oligos.db())) {
                 return(NULL)
             } else {
@@ -3225,7 +3225,7 @@ g4db <- function() {
             }
         })
 
-        output$input.UV.db <- DT::renderDT({
+        output$input.UV.db <- DT::renderDT(server=FALSE,{
             if (is.null(selected.oligos.db())) {
                 return(NULL)
             } else {
@@ -3263,7 +3263,7 @@ g4db <- function() {
             }
         })
 
-        output$input.ms.db <- DT::renderDT({
+        output$input.ms.db <- DT::renderDT(server=FALSE,{
             if (is.null(selected.oligos.db())) {
                 return(NULL)
             } else {
