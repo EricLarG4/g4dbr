@@ -1382,49 +1382,43 @@ g4db <- function() {
 
         #e/UV-melting----
 
-        #Raw melting export management
-        raw.melting <- eventReactive(input$bttn.raw.export, {
-            melt.filtered() %>%
-                group_by(id) %>%
-                mutate(nb.data.pt = NA,
-                       init.Tm = NA,
-                       RSS = NA,
-                       SE.residual = NA,
-                       P1 = NA, P1SD = NA,
-                       P2 = NA, P2SD = NA,
-                       P3 = NA, P3SD = NA,
-                       P4 = NA, P4SD = NA,
-                       P5 = NA, P5SD = NA,
-                       P6 = NA, P6SD = NA,
-                       fit.Tm.K = NA, fit.Tm.C = NA,
-                       DeltaH = NA, DeltaS = NA,
-                       folded.fraction = NA) %>%
-                mutate(min.abs = min(abs.melt),
-                       max.abs = max(abs.melt)) %>%
-                group_by(id, T.K) %>%
-                mutate(folded.fraction.base = (abs.melt - min.abs)/(max.abs - min.abs)) %>%
-                select(-c(min.abs, max.abs)) %>%
-                mutate(raw.fit.y = NA,
-                       low.T.baseline = NA, high.T.baseline = NA)
-        }
-        )
+        #export UV-melting data to importR
+        calc.UV <- eventReactive(input$bttn.uv.export, {
 
-        calc.UV <- reactive({
-
-            if (is.null(raw.melting())) {
-                fit.melt.result.df() %>%
-                    filter(comment %in% input$select.buffer.id) %>%
-                    filter(buffer %in% input$select.buffer) %>%
-                    filter(cation %in% input$select.cation) %>%
-                    filter(oligo %in% selected.oligos())
+            if (isTRUE(input$fit.or.raw)) {
+                calc.UV <- fit.melt.result.df() #export of fitted data as is
             } else {
-                raw.melting()  %>%
-                    filter(comment %in% input$select.buffer.id) %>%
-                    filter(buffer %in% input$select.buffer) %>%
-                    filter(cation %in% input$select.cation) %>%
-                    filter(oligo %in% selected.oligos())
+                calc.UV <- melt.filtered() %>% #export of raw data
+                    group_by(id) %>%
+                    mutate(nb.data.pt = NA, #generation of missing columns (kept empty)
+                           init.Tm = NA,
+                           RSS = NA,
+                           SE.residual = NA,
+                           P1 = NA, P1SD = NA,
+                           P2 = NA, P2SD = NA,
+                           P3 = NA, P3SD = NA,
+                           P4 = NA, P4SD = NA,
+                           P5 = NA, P5SD = NA,
+                           P6 = NA, P6SD = NA,
+                           fit.Tm.K = NA, fit.Tm.C = NA,
+                           DeltaH = NA, DeltaS = NA,
+                           folded.fraction = NA) %>%
+                    #calculation of a normalized absobance in lieu of the folded fraction
+                    mutate(min.abs = min(abs.melt),
+                           max.abs = max(abs.melt)) %>%
+                    group_by(id, T.K) %>%
+                    mutate(folded.fraction.base = (abs.melt - min.abs)/(max.abs - min.abs)) %>%
+                    select(-c(min.abs, max.abs)) %>%
+                    mutate(raw.fit.y = NA,
+                           low.T.baseline = NA, high.T.baseline = NA)
             }
 
+            #data filtering
+            calc.UV <- calc.UV %>%
+                filter(comment %in% input$select.buffer.id) %>%
+                filter(buffer %in% input$select.buffer) %>%
+                filter(cation %in% input$select.cation) %>%
+                filter(oligo %in% selected.oligos())
         })
 
         #3-outputs----
