@@ -617,14 +617,14 @@ g4db <- function() {
                                        width = 12,
                                        footer = DTOutput("input.info")
                            ),
-                           gradientBox(id = 'input.infoinfo',
-                                       title = 'info written to db for debug',
-                                       gradientColor = 'teal',
-                                       collapsible = T,
-                                       collapsed = T,
-                                       width = 12,
-                                       footer = DTOutput("infoinfo")
-                           )
+                           # gradientBox(id = 'input.info.debug',
+                           #             title = 'info written to db for debug',
+                           #             gradientColor = 'teal',
+                           #             collapsible = T,
+                           #             collapsed = T,
+                           #             width = 12,
+                           #             footer = DTOutput("info.debug")
+                           # )
                     ),
                     column(12,
                            textOutput("selected.oligos")),
