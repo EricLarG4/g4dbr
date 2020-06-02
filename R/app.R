@@ -1667,10 +1667,14 @@ g4db <- function() {
             }
         })
 
-        output$input.UV.melting <- DT::renderDT({
+        output$input.UV.melting <- DT::renderDT(server=FALSE,{
             if(is.null(input$raw.data.input)) {return(NULL)}else{
                 calc.UV() %>%
-                    setcolorder(c('id', 'oligo', 'comment', 'ramp', 'T.K', 'abs.melt', 'folded.fraction.base', 'abs.raw')) %>%
+                    filter(oligo %in% selected.oligos()) %>%
+                    mutate(blk.sub = ifelse(blk.sub == 1, 'yes', 'no')) %>%
+                    setcolorder(c('id', 'oligo', 'buffer', 'cation', 'comment', 'ramp', 'rep',
+                                  'T.unk', 'T.K', 'abs.raw', 'abs.blk', 'blk.sub',
+                                  'abs.melt', 'raw.fit.y', 'folded.fraction.base', 'folded.fraction')) %>%
                     datatable(
                         extensions = c('Buttons', 'Responsive', 'Scroller'),
                         rownames = F,
@@ -1684,9 +1688,15 @@ g4db <- function() {
                             'Cation' = 'cation',
                             'Ramp' = 'ramp',
                             'T (K)' = 'T.K',
-                            'Folded fraction' = 'abs.melt',
-                            'Model' = 'folded.fraction.base',
-                            'Absorbance' = 'abs.raw'
+                            'Blank subtracted Abs' = 'abs.melt',
+                            'Folded fraction' = 'folded.fraction.base',
+                            'Absorbance' = 'abs.raw',
+                            'Modeled folded fraction' = 'folded.fraction',
+                            'Modeled absorbance' = 'raw.fit.y',
+                            'Blank absorbance' = 'abs.blk',
+                            'Input T' = 'T.unk',
+                            'Blank subtraced?' = 'blk.sub',
+                            'Replicate' = 'rep'
                         ),
                         options = list(
                             deferRender = TRUE,
@@ -1696,16 +1706,18 @@ g4db <- function() {
                             autoWidth = F,
                             dom = 'Bfrtip', #button position
                             buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
-                            columnDefs = list(list(visible=FALSE, targets=c(0,6,8:37)))
+                            columnDefs = list(list(visible=FALSE, targets=c(0,2,3,7,9:13,15:37)))
                         )
                     ) %>%
-                    formatRound(c('Model', 'Folded fraction', 'Absorbance'), digits = 3)
+                    formatRound(c('Modeled folded fraction', 'Folded fraction', 'Blank subtracted Abs',
+                                  'Absorbance', 'Modeled absorbance', 'Blank absorbance'),
+                                digits = 3)
             }
         })
 
 
 
-        output$input.CD <- DT::renderDT({
+        output$input.CD <- DT::renderDT(server=FALSE,{
             if(is.null(input$raw.data.input)) {return(NULL)}else{
                 calc.cd() %>%
                     setcolorder(c('oligo', 'buffer.id')) %>%
