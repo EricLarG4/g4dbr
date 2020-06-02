@@ -147,8 +147,15 @@ g4db <- function() {
                                 value = TRUE,
                                 size = 'normal',
                                 width = 'auto'),
-                    actionBttn(inputId = "bttn.raw.export", #initiates fit
-                               label = "Export raw data",
+                    switchInput(inputId = "fit.or.raw",
+                                label = "select data",
+                                onLabel = "fit",
+                                offLabel = 'raw',
+                                value = T,
+                                size = 'normal',
+                                width = 'auto'),
+                    actionBttn(inputId = "bttn.uv.export", #initiates fit
+                               label = "Send to importR",
                                icon = icon('sign-in-alt', class = 'regular'),
                                style = "simple",
                                color = "primary",
