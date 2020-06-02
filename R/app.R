@@ -3838,7 +3838,7 @@ g4db <- function() {
                                      db.CD.export <- db.CD.export[!duplicated(paste(db.CD.export$oligo, db.CD.export$wl, db.CD.export$buffer.id)), ]
 
                                  } else {
-                                     CD.to.db <- NULL
+                                     # CD.to.db <- NULL
 
                                      db.CD.export <- db.CD()
                                  }
