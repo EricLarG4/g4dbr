@@ -3108,11 +3108,11 @@ g4db <- function() {
 
         #b/tables----
 
-        output$infoinfo <- DT::renderDT({
-            datatable(write.db()$info)
-        })
+        # output$info.debug <- DT::renderDT({
+        #     datatable(write.db()$info)
+        # })
 
-        output$input.info.db <- DT::renderDT({
+        output$input.info.db <- DT::renderDT(server=FALSE,{
 
             if (is.null(input$select.oligo.db)) {
                 return(NULL)
@@ -3926,23 +3926,23 @@ g4db <- function() {
                     input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
                 ))
             },
-                content = function(file) {
-                    src <- normalizePath('report.Rmd')
+            content = function(file) {
+                src <- normalizePath('report.Rmd')
 
-                    # temporarily switch to temp dir, in case there is no write permission to current wording dir
-                    owd <- setwd(tempdir())
-                    on.exit(setwd(owd))
-                    file.copy(src, 'report.Rmd', overwrite = TRUE)
+                # temporarily switch to temp dir, in case there is no write permission to current wording dir
+                owd <- setwd(tempdir())
+                on.exit(setwd(owd))
+                file.copy(src, 'report.Rmd', overwrite = TRUE)
 
-                    # "word_document" used instead of word_document() so that template is taken into account
-                    # To modify template, locate it with:
-                    # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
-                    out <- rmarkdown::render('report.Rmd', switch(
-                        input$format,
-                        PDF = pdf_document(), HTML = html_document(), Word = "word_document"
-                    ))
-                    file.rename(out, file)
-                }
+                # "word_document" used instead of word_document() so that template is taken into account
+                # To modify template, locate it with:
+                # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
+                out <- rmarkdown::render('report.Rmd', switch(
+                    input$format,
+                    PDF = pdf_document(), HTML = html_document(), Word = "word_document"
+                ))
+                file.rename(out, file)
+            }
         )
 
         #################X__X#################
