@@ -1315,8 +1315,6 @@ g4db <- function() {
 
             #More filtering and normalize imported MS data
             data.collector <- data.collector %>%
-                filter(mz > min(input$slide.ms)) %>%
-                filter(mz < max(input$slide.ms)) %>%
                 group_by(oligo, buffer.id) %>%
                 mutate(int.min = min(int), int.max = max(int)) %>%
                 group_by(mz, oligo, buffer.id, tune, rep) %>%
@@ -2065,6 +2063,8 @@ g4db <- function() {
             p.MS <- input.MS() %>%
                 filter(tune %in% input$select.tune) %>% #filter by tune name
                 filter(rep %in% input$select.rep) %>% #filter by replicate number
+                filter(mz > min(input$slide.ms)) %>%
+                filter(mz < max(input$slide.ms)) %>%
                 ggplot(aes(x = mz, y = norm.int)) +
                 theme_pander() +
                 theme(
