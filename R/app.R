@@ -746,6 +746,46 @@ g4db <- function() {
                            )
                     ),
                     column(12,
+                           dropdownButton(
+                               tags$h3("Data reduction"),
+                               sliderInput(
+                                   inputId = "mz.filter.range",
+                                   label = "m/z range",
+                                   min = 300,
+                                   max = 3000,
+                                   value = c(300, 3000),
+                                   step = 25
+                               ),
+                               switchInput(
+                                   inputId = "switch.base.filter",
+                                   label = 'intensity filtering',
+                                   onLabel = "yes",
+                                   offLabel = 'no'
+                               ),
+                               sliderInput(
+                                   inputId = "mz.baseline.range",
+                                   label = "baseline range",
+                                   min = 300,
+                                   max = 3000,
+                                   value = c(2500, 3000),
+                                   step = 25
+                               ),
+                               sliderInput(
+                                   inputId = "baseline.int",
+                                   label = "filtering multiplicator",
+                                   min = 0,
+                                   max = 5,
+                                   value = 1,
+                                   step = 0.1
+                               ),
+                               circle = TRUE,
+                               status = "danger",
+                               icon = icon("gear"),
+                               width = "100px",
+                               tooltip = tooltipOptions(title = "Click to access data reduction tools!")
+                           )
+                    ),
+                    column(12,
                            boxPlus(id = 'output.MS',
                                    title = 'Native ESI-MS',
                                    collapsible = T,
@@ -758,7 +798,8 @@ g4db <- function() {
                                               color = "danger",
                                               size = "sm",
                                               block = F,
-                                              no_outline = TRUE),
+                                              no_outline = TRUE
+                                   ),
                                    uiOutput("p.MS.ui"),
                                    enable_sidebar = T,
                                    sidebar_width = 20,
@@ -1243,18 +1284,37 @@ g4db <- function() {
                 }
             }
 
-
             #selects calculated average MW
             info.labels <- info.mass() %>%
                 select(oligo, averagemw)
 
-            #filters and normalize imported MS data
+            #data reduction - m/z
             data.collector <- data.collector %>%
                 mutate(cation = replace_na(cation, 'none')) %>%
                 filter(oligo %in% selected.oligos()) %>%
                 filter(buffer.id %in% input$select.buffer.id) %>%
                 filter(buffer %in% input$select.buffer) %>%
                 filter(cation %in% input$select.cation) %>%
+                filter(mz > min(input$mz.filter.range)) %>%
+                filter(mz < max(input$mz.filter.range))
+
+            #data reduction - intensity
+            if (isTRUE(input$switch.base.filter)) { #filters by intensity if switch is ON
+               baseline.filter <- data.collector %>%
+                group_by(oligo, buffer.id, tune, rep) %>%
+                filter(mz < max(input$mz.baseline.range)) %>%
+                filter(mz > min(input$mz.baseline.range)) %>%
+                summarise(basemean = mean(int)*input$baseline.int) #intensity threshold (mean times the multiplicator)
+
+            data.collector <- data.collector %>%
+                left_join(baseline.filter, by = c("oligo", "buffer.id", "tune", 'rep')) %>%
+                group_by(oligo, buffer.id, tune, rep) %>%
+                filter(int > basemean) %>%
+                select(-c(basemean))
+            }
+
+            #More filtering and normalize imported MS data
+            data.collector <- data.collector %>%
                 filter(mz > min(input$slide.ms)) %>%
                 filter(mz < max(input$slide.ms)) %>%
                 group_by(oligo, buffer.id) %>%
@@ -1262,7 +1322,6 @@ g4db <- function() {
                 group_by(mz, oligo, buffer.id, tune, rep) %>%
                 mutate(norm.int = (int - int.min)/(int.max - int.min))
 
-            #calculates average masses of H and K from referencedb file (massdb sheet)
 
             ave.mass <- massdb %>%
                 filter(atom %in% c('K', 'H')) %>%
