@@ -1679,7 +1679,7 @@ g4db <- function() {
 
         #b/tables----
 
-        output$input.info <- DT::renderDT(server=FALSE,{
+        output$input.info <- DT::renderDT({
             if(is.null(input$raw.data.input)) {return(NULL)}else{
 
                 info.epsilon() %>%
@@ -1848,7 +1848,7 @@ g4db <- function() {
             }
         })
 
-        output$input.MS <- DT::renderDT(server=FALSE,{
+        output$input.MS <- DT::renderDT({
             if(is.null(input$raw.data.input)) {return(NULL)}else{
                 input.MS() %>%
                     setcolorder(c('oligo', 'buffer.id', 'tune', 'rep', 'mz', 'norm.int')) %>%
