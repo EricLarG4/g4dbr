@@ -2960,23 +2960,29 @@ g4db <- function() {
 
         #a/input----
 
+        #db file selection
         db.file <- reactive({
             input$db.load
         })
 
+        #info loading
         db.info <- reactive({
-            read_xlsx(
-                path = db.file()$datapath,
-                sheet = 'info'
-            )  %>% #date formatting
+
+            load(db.file()$datapath)
+
+            db.info %>% #date formatting
                 mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
         })
 
+        db.CD.0 <- reactive({
+
+            load(db.file()$datapath)
+
+            db.CD
+        })
+
         db.CD <- reactive({
-            read_xlsx(
-                path = db.file()$datapath,
-                sheet = 'CD'
-            ) %>%
+            db.CD.0() %>%
                 filter(oligo %in% selected.oligos.db())
         })
 
@@ -2992,10 +2998,10 @@ g4db <- function() {
         })
 
         db.NMR <- reactive({
-            read_xlsx(
-                path = db.file()$datapath,
-                sheet = 'NMR'
-            )
+
+            load(db.file()$datapath)
+
+            db.NMR
         })
 
         db.nmr.select <- reactive({
@@ -3007,17 +3013,25 @@ g4db <- function() {
         })
 
         db.MS <- reactive({
-            read_xlsx(
-                path = db.file()$datapath,
-                sheet = 'MS'
-            )
+            load(db.file()$datapath)
+
+            db.MS
         })
 
-        db.UV.melting <- reactive({
-            read_xlsx(
-                path = db.file()$datapath,
-                sheet = 'UV-melting'
-            )
+        db.UV <- reactive({
+            load(db.file()$datapath)
+
+            db.UV
+        })
+
+        db.UV.select <- reactive({
+            db.UV() %>%
+                filter(cation %in% input$select.cation.db) %>%
+                filter(comment %in% input$select.buffer.id.db) %>%
+                filter(buffer %in% input$select.buffer.db) %>%
+                filter(oligo %in% selected.oligos.db()) %>%
+                filter(T.K > min(input$slide.uv.fit.db)) %>%
+                filter(T.K < max(input$slide.uv.fit.db))
         })
 
         #Oligo selection db
@@ -3061,7 +3075,7 @@ g4db <- function() {
 
             buffer.collect <- data.frame(buffers = unique(db.CD()$buffer)) %>%
                 # rbind(buffers = unique(db.NMR()$buffer)) %>%
-                rbind(buffers = unique(db.UV.melting()$comment)) %>%
+                # rbind(buffers = unique(db.UV()$comment)) %>%
                 unique()
 
 
@@ -3094,7 +3108,7 @@ g4db <- function() {
 
             buffer.id.collect <- data.frame(buffers.id = unique(db.CD()$buffer.id)) %>%
                 # rbind(buffers = unique(db.NMR()$buffer)) %>%
-                rbind(buffers.id = unique(db.UV.melting()$comment)) %>%
+                rbind(buffers.id = unique(db.UV()$comment)) %>%
                 unique()
 
 
@@ -3126,7 +3140,8 @@ g4db <- function() {
         cation.list.db <- reactive({
 
             cation.collect <- data.frame(cations = unique(db.CD()$cation)) %>%
-                # rbind(buffers = unique(input.NMR()$buffer)) %>%
+                # rbind(cations = if_else(length(unique(db.NMR()$cation) > 0, unique(db.NMR()$cation, NULL)))) %>%
+                # rbind(cations = unique(db.UV()$cation)) %>%
                 unique()
 
             cation.list.db <- as.vector(cation.collect$cations)
@@ -3164,7 +3179,7 @@ g4db <- function() {
         #     datatable(write.db()$info)
         # })
 
-        output$input.info.db <- DT::renderDT(server=FALSE,{
+        output$input.info.db <- DT::renderDT({
 
             if (is.null(input$select.oligo.db)) {
                 return(NULL)
@@ -3294,7 +3309,7 @@ g4db <- function() {
             if (is.null(selected.oligos.db())) {
                 return(NULL)
             } else {
-                db.uv.melting.select() %>%
+                db.UV.select() %>%
                     setcolorder(c('id', 'oligo', 'comment', 'ramp', 'T.K', 'abs.melt', 'folded.fraction.base', 'abs.raw')) %>%
                     datatable(
                         extensions = c('Buttons', 'Responsive', 'Scroller'),
@@ -3794,20 +3809,11 @@ g4db <- function() {
                        height = 300*row.p.MS.db())
         })
 
-        db.uv.melting.select <- reactive({
-            db.UV.melting() %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(comment %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(oligo %in% selected.oligos.db()) %>%
-                filter(T.K > min(input$slide.uv.fit.db)) %>%
-                filter(T.K < max(input$slide.uv.fit.db))
-        })
 
         p.UV.fit.db <- reactive({
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
-                p.UV.melting.db <- db.uv.melting.select() %>%
+                p.UV.melting.db <- db.UV.select() %>%
                     ggplot() +
                     geom_point(aes(x = T.K, y = abs.melt, color = id),
                                size = input$uv.fit.size.pt.db, alpha = input$uv.fit.alpha.pt.db,
@@ -3832,7 +3838,7 @@ g4db <- function() {
         p.UV.melting.db <- reactive({
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
-                p.UV.melting.db <- db.uv.melting.select() %>%
+                p.UV.melting.db <- db.UV.select() %>%
                     ggplot() +
                     geom_point(aes(x = T.K, y = folded.fraction.base, color = id),
                                size = input$uv.size.pt.db, alpha = input$uv.alpha.pt.db,
