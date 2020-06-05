@@ -2056,8 +2056,6 @@ g4db <- function() {
             p.MS <- input.MS() %>%
                 filter(tune %in% input$select.tune) %>% #filter by tune name
                 filter(rep %in% input$select.rep) %>% #filter by replicate number
-                filter(mz > min(input$slide.ms)) %>%
-                filter(mz < max(input$slide.ms)) %>%
                 ggplot(aes(x = mz, y = norm.int)) +
                 theme_pander() +
                 theme(
