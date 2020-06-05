@@ -3868,111 +3868,95 @@ g4db <- function() {
 
         #6-Write to db----
 
-        write.db <- eventReactive(input$write.db.bttn,{
+        output$downloadData <- downloadHandler(
+            filename = function() {
+                paste("database-", Sys.Date(), ".Rda", sep="")
+            },
+            content = function(file) {
 
-            withProgress(message = 'Database edition',
-                         detail = 'Please wait', value = 0, {
+                withProgress(message = 'Database edition',
+                             detail = 'Please wait', value = 0, {
 
-                             incProgress(amount=1/8)
+                                 incProgress(amount=1/8)
 
-                             if (input$pwd.db == "1111") { #password protection
-
-                                 db.info.export <- info.epsilon() %>%
+                                 # info
+                                 db.info <- info.epsilon() %>%
                                      filter(oligo %in% selected.oligos()) %>%
                                      rbind(db.info())
 
+                                 db.info <- db.info[!duplicated(db.info$oligo), ]
+
                                  incProgress(amount=2/8)
 
-                                 #removes rows with duplicated oligo names -> no duplicates in db
-                                 db.info.export <- db.info.export[!duplicated(db.info.export$oligo), ]
+                                 # CD
+                                 if (isTRUE(input$exp.CD)) { #only write to database if switch is on
+                                     db.CD <- rbind.data.frame(db.CD(), calc.cd())
+
+                                     db.CD <- db.CD[!duplicated(paste(db.CD$oligo, db.CD$wl, db.CD$buffer.id)), ]
+
+                                 } else {
+                                     db.CD <- db.CD()
+                                 }
 
                                  incProgress(amount=3/8)
 
-                                 if (isTRUE(input$exp.CD)) { #only write to database if switch is on
+                                 #UV-melting
+                                 if (isTRUE(input$exp.melt)) { #only write to database if switch is on
+                                     db.UV <- calc.UV() %>%
+                                         filter(oligo %in% input$select.oligo) %>%
+                                         rbind(db.UV())
 
-                                     db.CD.export <- rbind.data.frame(db.CD(), calc.cd())
-
-                                     #removes rows with duplicated data -> no duplicates in db
-                                     db.CD.export <- db.CD.export[!duplicated(paste(db.CD.export$oligo, db.CD.export$wl, db.CD.export$buffer.id)), ]
+                                     db.UV <- db.UV[!duplicated(paste(db.UV$id, db.UV$T.K)), ]
 
                                  } else {
-                                     # CD.to.db <- NULL
-
-                                     db.CD.export <- db.CD()
+                                     db.UV <- db.UV()
                                  }
 
                                  incProgress(amount=4/8)
 
+                                 #NMR
                                  if (isTRUE(input$exp.NMR)) { #only write to database if switch is on
 
-                                     db.NMR.export <- rbind.data.frame(db.NMR(), input.NMR())
+                                     db.NMR <- rbind.data.frame(db.NMR(), input.NMR())
                                      #removes rows with duplicated data -> no duplicates in db
-                                     db.NMR.export <- db.NMR.export[!duplicated(paste(db.NMR.export$oligo, db.NMR.export$shift, db.NMR.export$buffer.id)), ]
+                                     db.NMR <- db.NMR[!duplicated(paste(db.NMR$oligo, db.NMR$shift, db.NMR$buffer.id)), ]
 
                                  } else {
-                                     db.NMR.export <- db.NMR()
+                                     db.NMR <- db.NMR()
                                  }
 
                                  incProgress(amount=5/8)
 
+                                 #MS
                                  if (isTRUE(input$exp.MS)) { #only write to database if switch is on
 
-                                     input.MS() %>%
+                                     filtered.MS <- input.MS() %>%
                                          filter(tune %in% input$select.tune) %>%
                                          filter(rep %in% input$select.rep)
 
-                                     db.MS.export <- rbind.data.frame(db.MS(), input.MS())
+                                     incProgress(amount=6/8)
+
+                                     db.MS <- rbind.data.frame(db.MS(), filtered.MS)
                                      #removes rows with duplicated data -> no duplicates in db
-                                     db.MS.export <- db.MS.export[!duplicated(paste(db.MS.export$oligo, db.MS.export$mz, db.MS.export$buffer.id,
-                                                                                    db.MS.export$tune, db.MS.export$rep)), ]
+                                     db.MS <- db.MS[!duplicated(paste(db.MS$oligo, db.MS$mz, db.MS$buffer.id,
+                                                                      db.MS$tune, db.MS$rep)), ]
 
                                  } else {
-                                     db.MS.export <- db.MS()
-                                 }
-
-                                 incProgress(amount=6/8)
-
-                                 if (isTRUE(input$exp.melt)) { #only write to database if switch is on
-                                     UV.melting.to.db <- calc.UV() %>%
-                                         filter(oligo %in% input$select.oligo)
-
-                                     db.UV.melting.export <- rbind.data.frame(db.UV.melting(), UV.melting.to.db)
-
-                                     db.UV.melting.export <- db.UV.melting.export[!duplicated(paste(db.UV.melting.export$id, db.UV.melting.export$T.K)), ]
-
-
-                                 } else {
-                                     UV.melting.to.db <- NULL
-
-                                     db.UV.melting.export <- db.UV.melting()
+                                     db.MS <- db.MS()
                                  }
 
                                  incProgress(amount=7/8)
+                                 #File save
+                                 save(db.info,
+                                      db.CD,
+                                      db.NMR,
+                                      db.MS,
+                                      db.UV,
+                                      file = file)
 
-                                 export.list <- list('info' = db.info.export,
-                                                     'CD' = db.CD.export,
-                                                     'NMR' = db.NMR.export,
-                                                     'MS' = db.MS.export,
-                                                     'UV' = db.UV.melting.export
-                                 )
+                                 incProgress(amount=8/8)
+                             })
 
-                                 return(export.list)
-                             }
-                         })
-        })
-
-
-        output$downloadData <- downloadHandler(
-            filename = function() {
-                paste("dataset-", Sys.Date(), ".xlsx", sep="")
-            },
-            content = function(file) {
-                write_xlsx(list('info' = write.db()$info,
-                                'CD' = write.db()$CD,
-                                'NMR' = write.db()$NMR,
-                                'MS' = write.db()$MS,
-                                'UV-melting' = write.db()$UV),
-                           file)
             }
         )
 
