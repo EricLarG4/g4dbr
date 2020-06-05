@@ -88,9 +88,6 @@ g4db <- function() {
                        hr(),
                        h3('Export')
                 ),
-                passwordInput(inputId = 'pwd.db', #database editing password protection
-                              label = "Database edition",
-                              placeholder = 'password'),
                 switchInput(inputId = 'exp.melt',
                             label = 'UV',
                             offLabel = 'No',
