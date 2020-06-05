@@ -753,18 +753,12 @@ g4db <- function() {
                                    value = c(300, 3000),
                                    step = 25
                                ),
-                               switchInput(
-                                   inputId = "switch.base.filter",
-                                   label = 'intensity filtering',
-                                   onLabel = "yes",
-                                   offLabel = 'no'
-                               ),
                                sliderInput(
                                    inputId = "mz.baseline.range",
                                    label = "baseline range",
                                    min = 300,
                                    max = 3000,
-                                   value = c(2500, 3000),
+                                   value = c(1750, 2000),
                                    step = 25
                                ),
                                sliderInput(
@@ -772,7 +766,7 @@ g4db <- function() {
                                    label = "filtering multiplicator",
                                    min = 0,
                                    max = 5,
-                                   value = 1,
+                                   value = 0,
                                    step = 0.1
                                ),
                                circle = TRUE,
