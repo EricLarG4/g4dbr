@@ -753,18 +753,12 @@ g4db <- function() {
                                    value = c(300, 3000),
                                    step = 25
                                ),
-                               switchInput(
-                                   inputId = "switch.base.filter",
-                                   label = 'intensity filtering',
-                                   onLabel = "yes",
-                                   offLabel = 'no'
-                               ),
                                sliderInput(
                                    inputId = "mz.baseline.range",
                                    label = "baseline range",
                                    min = 300,
                                    max = 3000,
-                                   value = c(2500, 3000),
+                                   value = c(1750, 2000),
                                    step = 25
                                ),
                                sliderInput(
@@ -772,7 +766,7 @@ g4db <- function() {
                                    label = "filtering multiplicator",
                                    min = 0,
                                    max = 5,
-                                   value = 1,
+                                   value = 0,
                                    step = 0.1
                                ),
                                circle = TRUE,
@@ -1296,22 +1290,24 @@ g4db <- function() {
                 filter(mz < max(input$mz.filter.range))
 
             #data reduction - intensity
-            if (isTRUE(input$switch.base.filter)) { #filters by intensity if switch is ON
-               baseline.filter <- data.collector %>%
-                group_by(oligo, buffer.id, tune, rep) %>%
-                filter(mz < max(input$mz.baseline.range)) %>%
-                filter(mz > min(input$mz.baseline.range)) %>%
-                summarise(basemean = mean(int)*input$baseline.int) #intensity threshold (mean times the multiplicator)
+            if (input$baseline.int > 0) { #filters by intensity if switch is ON
+                baseline.filter <- data.collector %>%
+                    group_by(oligo, buffer.id, tune, rep) %>%
+                    filter(mz < max(input$mz.baseline.range)) %>%
+                    filter(mz > min(input$mz.baseline.range)) %>%
+                    summarise(basemean = mean(int)*input$baseline.int) #intensity threshold (mean times the multiplicator)
 
-            data.collector <- data.collector %>%
-                left_join(baseline.filter, by = c("oligo", "buffer.id", "tune", 'rep')) %>%
-                group_by(oligo, buffer.id, tune, rep) %>%
-                filter(int > basemean) %>%
-                select(-c(basemean))
+                data.collector <- data.collector %>%
+                    left_join(baseline.filter, by = c("oligo", "buffer.id", "tune", 'rep')) %>%
+                    group_by(oligo, buffer.id, tune, rep) %>%
+                    filter(int > basemean) %>%
+                    select(-c(basemean))
             }
 
             #More filtering and normalize imported MS data
             data.collector <- data.collector %>%
+                filter(mz > min(input$slide.ms)) %>%
+                filter(mz < max(input$slide.ms)) %>%
                 group_by(oligo, buffer.id) %>%
                 mutate(int.min = min(int), int.max = max(int)) %>%
                 group_by(mz, oligo, buffer.id, tune, rep) %>%
