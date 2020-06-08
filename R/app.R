@@ -1553,13 +1553,13 @@ g4db <- function() {
         output$select.buffer <- renderUI({
             if(is.null(input$raw.data.input)) {
                 pickerInput("select.buffer",
-                            label = "Select electrolyte",
+                            label = "Electrolyte",
                             choices = "upload data first",
                             multiple = T
                 )
             } else {
                 pickerInput("select.buffer",
-                            label = "Select electrolyte",
+                            label = "Electrolyte",
                             choices = buffer.list(),
                             selected = buffer.list(),
                             multiple = T,
@@ -1592,13 +1592,13 @@ g4db <- function() {
         output$select.buffer.id <- renderUI({
             if(is.null(input$raw.data.input)) {
                 pickerInput("select.buffer.id",
-                            label = "Select buffer",
+                            label = "Buffer",
                             choices = "upload data first",
                             multiple = T
                 )
             } else {
                 pickerInput("select.buffer.id",
-                            label = "Select buffer",
+                            label = "Buffer",
                             choices = buffer.id.list(),
                             selected = buffer.id.list(),
                             multiple = T,
@@ -1631,13 +1631,13 @@ g4db <- function() {
         output$select.cation <- renderUI({
             if(is.null(input$raw.data.input)) {
                 pickerInput("select.cation",
-                            label = "Select cation",
+                            label = "Cation",
                             choices = "upload data first",
                             multiple = T
                 )
             } else {
                 pickerInput("select.cation",
-                            label = "Select cation",
+                            label = "Cation",
                             choices = cation.list(),
                             selected = cation.list(),
                             multiple = T,
@@ -3068,7 +3068,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 pickerInput("select.oligo.db",
-                            label = "Select oligo",
+                            label = "Oligonucleotides",
                             choices = unique(db.info()$oligo),
                             selected = unique(db.info()$oligo),
                             multiple = T,
@@ -3117,7 +3117,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 pickerInput("select.buffer.db",
-                            label = "Select electrolyte",
+                            label = "Electrolyte",
                             choices = buffer.list.db(),
                             selected = buffer.list.db(),
                             multiple = T,
@@ -3150,7 +3150,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 pickerInput("select.buffer.id.db",
-                            label = "Select buffer",
+                            label = "Buffer",
                             choices = buffer.id.list.db(),
                             selected = buffer.id.list.db(),
                             multiple = T,
@@ -3186,7 +3186,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 pickerInput("select.cation.db",
-                            label = "Select cation",
+                            label = "Cation",
                             choices = cation.list.db(),
                             selected = cation.list.db(),
                             multiple = T,
