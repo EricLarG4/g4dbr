@@ -1,9 +1,10 @@
-#' Erases all data from a database while maintaining its structure for reuse
+#' Erases the data of all of selected oligonucleotides from a g4dbr database while maintaining its structure for reuse
 #'
-#' @param database An .Rda file path.
-#' @return Return a list of empty dataframes with the correct structure for g4db use
+#' @param db.to.erase An .Rda file path to erase
+#' @param remove.oligos A vector containg strings of the \code{oligo} names
+#' @return Return a list of partially of fully emptied dataframes with the correct structure for g4db use
 #' @examples
-#' database.eraser(file)
+#' database.eraser("this is a filepath")
 #'
 
 database.eraser <- function(db.to.erase = NULL, remove.oligos = NULL){
