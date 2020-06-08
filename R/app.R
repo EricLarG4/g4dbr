@@ -243,10 +243,7 @@ g4db <- function() {
                 condition = "input.tabs == 'database'",
                 column(12,
                        h3('Load'),
-                       fileInput(
-                           'db.load',
-                           'Select .xlsx file'
-                       ),
+                       uiOutput('db.file.select'),
                        hr()
                 ),
                 column(12,
@@ -2947,9 +2944,45 @@ g4db <- function() {
 
         #a/input----
 
-        #db file selection
-        db.file <- reactive({
+        #database file selection
+
+        #UI in db tab
+        output$db.file.select <- renderUI({
+            fileInput(
+                'db.load',
+                'Select .Rda file'
+            )
+        })
+
+        #UI in importR tab
+        output$db.file.select.2 <- renderUI({
+            fileInput(
+                'db.load.2',
+                'Select .Rda file'
+            )
+        })
+
+        #file choice variable initialization
+        db.load.choice <- reactiveValues(reactInd = 0)
+
+        #file choice variable assignment based on last uploaded file
+        observe({ #file uploaded in db tab
             input$db.load
+            db.load.choice$reactInd <- 1
+        })
+        observe({ #file uploaded in importR tab
+            input$db.load.2
+            db.load.choice$reactInd <- 2
+        })
+
+        #db file selection based on choice variable assignment
+        db.file <- reactive({
+            #select the last provided file (from db or import tabs)
+            if (db.load.choice$reactInd == 1) { #imports from db tab
+                input$db.load
+            } else { #inports from importR tab
+                input$db.load.2
+            }
         })
 
         #info loading
