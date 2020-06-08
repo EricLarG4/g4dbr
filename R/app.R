@@ -2994,6 +2994,7 @@ g4db <- function() {
                 mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
         })
 
+        #CD loading
         db.CD.0 <- reactive({
 
             load(db.file()$datapath)
@@ -3001,11 +3002,13 @@ g4db <- function() {
             db.CD
         })
 
+        #CD pre-filtering
         db.CD <- reactive({
             db.CD.0() %>%
                 filter(oligo %in% selected.oligos.db())
         })
 
+        #CD filtering
         db.cd.select <- reactive({
             db.CD() %>%
                 filter(cation %in% input$select.cation.db) %>%
@@ -3017,6 +3020,7 @@ g4db <- function() {
                 mutate(plot.y = if_else(isTRUE(input$cd.data.select.db), delta.epsilon, CD))
         })
 
+        #NMR loading
         db.NMR <- reactive({
 
             load(db.file()$datapath)
@@ -3024,6 +3028,7 @@ g4db <- function() {
             db.NMR
         })
 
+        #NMR filtering
         db.nmr.select <- reactive({
             db.NMR() %>%
                 filter(buffer.id %in% input$select.buffer.id.db) %>%
@@ -3032,18 +3037,21 @@ g4db <- function() {
                 filter(oligo %in% selected.oligos.db())
         })
 
+        #MS loading
         db.MS <- reactive({
             load(db.file()$datapath)
 
             db.MS
         })
 
+        #UV loading
         db.UV <- reactive({
             load(db.file()$datapath)
 
             db.UV
         })
 
+        #UV filtering
         db.UV.select <- reactive({
             db.UV() %>%
                 filter(cation %in% input$select.cation.db) %>%
@@ -3911,7 +3919,7 @@ g4db <- function() {
                                  initial.info <- as.data.frame(db.info())
 
                                  db.info <- rbind.data.frame(db.info, initial.info)
-                                                             # make.row.names = T)
+                                 # make.row.names = T)
 
                                  db.info <- db.info[!duplicated(db.info$oligo), ]
 
@@ -3923,7 +3931,7 @@ g4db <- function() {
                                  if (isTRUE(input$exp.CD)) { #only write to database if switch is on
                                      db.CD <- rbind(calc.cd(), db.CD.0())
 
-                                         # rbind.data.frame(db.CD(), calc.cd())
+                                     # rbind.data.frame(db.CD(), calc.cd())
 
                                      db.CD <- db.CD[!duplicated(paste(db.CD$oligo, db.CD$wl, db.CD$buffer.id)), ]
 
