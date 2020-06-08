@@ -267,6 +267,15 @@ g4db <- function() {
                              inline = TRUE),
                 column(12,
                        downloadButton('downloadReport')
+                ),
+                column(12,
+                       hr(),
+                       h3('Erase db'),
+                       h5('1/ Select oligonucleotides to erase from the sidebar filter'),
+                       h5('The following oligonucleotides will be erased:'),
+                       textOutput('oligos.to.remove'),
+                       h5('2/ Download the curated database:'),
+                       downloadButton("erase.db", "Erase to a db file"),
                 )
             )
         ),
@@ -3898,7 +3907,7 @@ g4db <- function() {
 
         output$downloadData <- downloadHandler(
             filename = function() {
-                paste("database-", Sys.Date(), ".Rda", sep="")
+                paste("Database-", Sys.Date(), ".Rda", sep="")
             },
             content = function(file) {
 
@@ -4001,6 +4010,48 @@ g4db <- function() {
 
             }
         )
+
+        output$erase.db <- downloadHandler(
+            filename = function() {
+                paste("Modified database-", Sys.Date(), ".Rda", sep="")
+            },
+            content = function(file) {
+
+                db.collection <- database.eraser(db.to.erase = db.file()$datapath,
+                                                 remove.oligos =  input$select.oligo.db)
+
+                db.CD <- db.collection$db.CD
+                db.info <- db.collection$db.info
+                db.NMR <- db.collection$db.NMR
+                db.MS <- db.collection$db.MS
+                db.UV <- db.collection$db.UV
+
+                save(db.info,
+                     db.CD,
+                     db.NMR,
+                     db.MS,
+                     db.UV,
+                     file = file)
+            })
+
+        oligos.to.remove <- reactive({
+
+            if(length(input$select.oligo.db) == length(unique(db.info()$oligo))) {
+                oligos.to.remove <- 'All of them!'
+            } else {
+                oligos.to.remove <- paste(input$select.oligo.db, collapse=", ")
+            }
+
+        })
+
+        output$oligos.to.remove <- renderText({
+
+            validate(
+                need(db.file(), 'load a database first')
+            )
+
+            oligos.to.remove()
+        })
 
         #7-Report download----
 
