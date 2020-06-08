@@ -17,5 +17,4 @@ Calculates extinction coefficient from oligonucleotide sequence
 }
 \examples{
 epsilon.calculator("GGGTTAGGGTTAGGGTTAGGG")
-epsilon.calculator("TTTTTT")
 }
