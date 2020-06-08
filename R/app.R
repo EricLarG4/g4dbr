@@ -119,14 +119,6 @@ g4db <- function() {
                 column(12,
                        em("Load the database first")
                 ),
-                actionBttn(inputId = "write.db.bttn", #database editing
-                           label = "Commit data to db",
-                           icon = icon('cloud-upload-alt', class = 'regular'),
-                           style = "simple",
-                           color = "primary",
-                           size = "sm",
-                           block = F,
-                           no_outline = TRUE),
                 column(12,
                        downloadButton("downloadData", "Write to db file")
                 )
