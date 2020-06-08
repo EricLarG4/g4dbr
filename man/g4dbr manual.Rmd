@@ -1,7 +1,7 @@
 ---
 title: "g4db 0.48"
 author: "Eric Largy"
-date: "2020/04/29"
+date: "2020/06/08"
 output:
   pdf_document:
     df_print: kable
@@ -31,7 +31,7 @@ library(writexl)
 
 # Added features
 
-```{r mirror, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r mirror, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 # to mirror repository to team repo:
 # D:\ownCloud\Projects\G4 database\g4dbr> git push --mirror https://github.com/g4db-team/g4dbr
 ```
@@ -41,7 +41,7 @@ library(writexl)
 + Creation of a package to encapsulate the app, additinal functions and datasets
   - Creation of datasets in .Rda format to replace the .xlsx files containing the mass and isotope references
   - These can still be modified but require to convert the modified excel file into .Rda within the package using `devtools::use_data()`
-  - Three functions: _g4db_ to launch the app, _epsilon.calculator_ to calculate extinction coefficients of oligonucleotides (used within g4db but can be used as a standalone function), and _nb_row_extract_ that determines the number of rows in panelled figures to adjust their size within _g4db_.
+  - Five functions: _g4db_ to launch the app, _epsilon.calculator_ to calculate extinction coefficients of oligonucleotides (used within g4db but can be used as a standalone function), and _nb_row_extract_ and _nb_col_extract_ that determine the number of rows and columns in panelled figures to adjust their size within _g4db_, and _database.eraser_ to selectively delete data from a database.
   - Documentation of the functions
   - Documentation of the datasets
 + Database load button replaced by file import button
@@ -62,6 +62,10 @@ library(writexl)
   - _Tune_ names and _replicate_ numbers are collected from the oligonucleotide- and electrolyte/cation/buffer-filtered MS data (i.e. only relevant _tunes_ and _replicates_ are proposed)
   _ Multiple selections possible
   _ Values default to the first available ones
+  + _MS_ data size reduction
+  _ Large MS file size can now be reduced before exporting to a database file using a data reduction pop up.
+  _ Data reduction is performed by removing data outside of a provided _m/z_ range, and below an intensity threshold, both defined by the user.
+  _ The intensity threshold is calculated as the mean of the intensity from a user-defined _m/z_ range (preferably where there is only noise), multiplied by a user-defined value (set at zero by default, i.e. no reduction occurs)
 + _MS_ figure grid layout can now be customized:
   - All variable couples among _oligonucleotide_, _buffer_, _replicate_ and _tune_ can be plotted
   - Switch added to transpose the grid
@@ -71,9 +75,22 @@ library(writexl)
 + _meltR_ now manages data that cannot be baseline-subtracted
   - Export raw data button added in _left sidebar_
   - Absorbance normalised to [0,1] for plotting in the baseline-subtracted data figure (same y-axis scale)
-+ NMR peak labelling
++ _NMR_ peak labelling
   _ Character strings are accepted (possibility to assign several protons to the same peak/poorly resolved peaks)
   _ The labels are now vertically aligned to the peak, properly repelled from other labels and data points, and linked to the peaks with a segment
++ Database edition
+  _ Database are now exported and read as .Rda files, instead of Excel files.
+  _ Database files can now also be uploaded from the importR sidebar, to ease their edition (addition of new data). Only the last uploaded database (regardless of the tab that was used) is opened at any given time.
+  _ Database edition is now easier (simpler UI) and faster (.Rda vs. Excel writing)
+  _ Database filename automatically include the date.
+  _ Databases can now be selectively (by oligonucleotide names selection) or entirely emptied. If emptied, the structure is conserved and can be re-populated.
+  _ Password protection was removed because exporting a database file does not overwrite the opened file.
++ Swtiched the generation of datatables client-side (as opposed to server-side) to allow for the exporting of full datasets, rather than only what is displayed.
++ Fixed issue with the magrittr library sometimes not loading
++ Many UI improvements and corrections
++ Added an automated report generation
+  _ pdf, HTML and Word formats can be selected
+  _ all data, figure captions, figure sizing, file name, etc. are entirely automated
 
 ## v. 0.37
 
