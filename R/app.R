@@ -1401,7 +1401,7 @@ g4db <- function() {
             }
 
             info.epsilon <- info.mass() %>%
-                add_column(ext.coeff.260 = eps.values) %>%
+                add_column(ext.coeff.260 = unlist(eps.values)) %>%
                 filter(oligo %in% input$select.oligo)
 
             return(info.epsilon)
