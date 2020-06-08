@@ -69,15 +69,6 @@ g4db <- function() {
                 uiOutput("select.buffer.id"),
                 uiOutput("select.buffer"),
                 uiOutput("select.cation"),
-                switchInput(inputId = 'collect.buffer.ms',
-                            label = 'Collect from MS?',
-                            value = F,
-                            onLabel = 'Yes',
-                            offLabel = 'No',
-                            onStatus = 'info',
-                            offStatus = 'danger',
-                            size = 'small',
-                            width = '400px'),
                 column(12,
                        hr(),
                        h3('Colours')
@@ -86,41 +77,45 @@ g4db <- function() {
                 uiOutput('select.import.palette'),
                 column(12,
                        hr(),
-                       h3('Export')
+                       h3('Export'),
+                       h5('1/ Open a database')
+                ),
+                uiOutput('db.file.select.2'),
+                column(12,
+                       h5('2/ Select methods to export')
                 ),
                 switchInput(inputId = 'exp.melt',
                             label = 'UV',
-                            offLabel = 'No',
-                            onLabel = 'Yes',
+                            offLabel = 'Off',
+                            onLabel = 'On',
                             onStatus = 'info',
                             offStatus = 'danger'
                 ),
                 switchInput(inputId = 'exp.MS',
                             label = 'MS',
-                            offLabel = 'No',
-                            onLabel = 'Yes',
+                            offLabel = 'Off',
+                            onLabel = 'On',
                             onStatus = 'info',
                             offStatus = 'danger'
                 ),
                 switchInput(inputId = 'exp.CD',
                             label = 'CD',
-                            offLabel = 'No',
-                            onLabel = 'Yes',
+                            offLabel = 'Off',
+                            onLabel = 'On',
                             onStatus = 'info',
                             offStatus = 'danger'
                 ),
                 switchInput(inputId = 'exp.NMR',
                             label = 'NMR',
-                            offLabel = 'No',
-                            onLabel = 'Yes',
+                            offLabel = 'Off',
+                            onLabel = 'On',
                             onStatus = 'info',
                             offStatus = 'danger'
                 ),
                 column(12,
-                       em("Load the database first")
-                ),
-                column(12,
-                       downloadButton("downloadData", "Write to db file")
+                       h5('3/ Write on the database'),
+                       downloadButton("downloadData", "Write to db file"),
+                       hr()
                 )
             ),
             conditionalPanel(
