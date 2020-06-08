@@ -3872,22 +3872,35 @@ g4db <- function() {
                                  incProgress(amount=1/8)
 
                                  # info
-                                 db.info <- info.epsilon() %>%
+
+                                 info.db <- as.data.frame(info.epsilon())
+                                 # rownames(info.db) <- info.db$oligo
+
+                                 db.info <- info.db %>%
                                      filter(oligo %in% selected.oligos()) %>%
-                                     rbind(db.info())
+                                     as.data.frame()
+
+                                 initial.info <- as.data.frame(db.info())
+
+                                 db.info <- rbind.data.frame(db.info, initial.info)
+                                                             # make.row.names = T)
 
                                  db.info <- db.info[!duplicated(db.info$oligo), ]
+
+                                 # db.info <- as.data.frame(db.info)
 
                                  incProgress(amount=2/8)
 
                                  # CD
                                  if (isTRUE(input$exp.CD)) { #only write to database if switch is on
-                                     db.CD <- rbind.data.frame(db.CD(), calc.cd())
+                                     db.CD <- rbind(calc.cd(), db.CD.0())
+
+                                         # rbind.data.frame(db.CD(), calc.cd())
 
                                      db.CD <- db.CD[!duplicated(paste(db.CD$oligo, db.CD$wl, db.CD$buffer.id)), ]
 
                                  } else {
-                                     db.CD <- db.CD()
+                                     db.CD <- db.CD.0()
                                  }
 
                                  incProgress(amount=3/8)
@@ -3910,6 +3923,7 @@ g4db <- function() {
                                  if (isTRUE(input$exp.NMR)) { #only write to database if switch is on
 
                                      db.NMR <- rbind.data.frame(db.NMR(), input.NMR())
+
                                      #removes rows with duplicated data -> no duplicates in db
                                      db.NMR <- db.NMR[!duplicated(paste(db.NMR$oligo, db.NMR$shift, db.NMR$buffer.id)), ]
 
