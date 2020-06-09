@@ -3223,7 +3223,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 db.info() %>%
-                    filter(oligo == input$select.oligo.db) %>%
+                    filter(oligo %in% input$select.oligo.db) %>%
                     setcolorder(c('oligo', 'DOI', 'submitted_by', 'depo.date',
                                   'sequence', 'nbN', 'averagemw', 'monomw',
                                   'ext.coeff.260')) %>%
