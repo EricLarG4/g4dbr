@@ -394,7 +394,7 @@ g4db <- function() {
                                                label = "chemical shift (ppm)",
                                                min = 8,
                                                max = 13,
-                                               value = c(10.5, 12.5),
+                                               value = c(10, 12.5),
                                                step = 0.25
                                            ),
                                            sliderInput(
@@ -703,7 +703,7 @@ g4db <- function() {
                                            label = "chemical shift (ppm)",
                                            min = 8,
                                            max = 13,
-                                           value = c(10.5, 12.5),
+                                           value = c(10, 12.5),
                                            step = 0.25
                                        ),
                                        sliderInput(
