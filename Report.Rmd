@@ -59,6 +59,7 @@ word_document:
 reference_docx: word-styles-reference.docx
 ---
 
+
 ```{r oligo.table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
 #table of oligonucleotides properties (pageable)
 db.info <- db.info() %>%
@@ -70,19 +71,28 @@ knitr::kable(db.info,
              escape = F) #DOI parsed in HTML reports
 ```
 
+
 # Figures
+
 
 ## CD
 
+
 ```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 if (length(selected.oligos.db()) > 1) {
-  subchunkify(g = p.CD.db(), #plot
+  subchunkify(g = p.CD.db() +
+                theme(legend.position = 'bottom',
+                      legend.title = element_text(size = 8),
+                      legend.title = element_text(size = 9)), #plot
               cap = "paste('Circular dichroism spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
               fig_height = 2.5 * row.p.CD.db(), #dynamic figure height
               fig_width = (8*col.p.CD.db())/(col.p.CD.db()+0.5) #dynamic figure width
   ) 
 } else {
-  subchunkify(g = p.CD.db(), 
+  subchunkify(g = p.CD.db()+
+                theme(legend.position = 'bottom',
+                      legend.title = element_text(size = 8),
+                      legend.title = element_text(size = 9)), 
               cap = "paste('Circular dichroism spectra of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
               fig_height = 2.5 * row.p.CD.db(), #dynamic figure height
               fig_width = (8*col.p.CD.db())/(col.p.CD.db()+0.5) #dynamic figure width
@@ -91,20 +101,28 @@ if (length(selected.oligos.db()) > 1) {
 
 ```
 
+
 ## 1H-NMR
+
 
 ```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # pnmr <- p.NMR.db()
 # subchunkify(pnmr, 2.5 * row.p.NMR.db(), (9*col.p.NMR.db())/(col.p.NMR.db()+0.4)) #figure height based on number of figure rows in the app
 
 if (length(selected.oligos.db()) > 1) {
-  subchunkify(g = p.NMR.db(), #plot
+  subchunkify(g = p.NMR.db()+
+                theme(legend.position = 'bottom',
+                      legend.title = element_text(size = 8),
+                      legend.title = element_text(size = 9)), #plot
               cap = "paste('NMR spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
               fig_height = 2.5 * row.p.NMR.db(), #dynamic figure height
               fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
   ) 
 } else {
-  subchunkify(g = p.NMR.db(), 
+  subchunkify(g = p.NMR.db()+
+                theme(legend.position = 'bottom',
+                      legend.title = element_text(size = 8),
+                      legend.title = element_text(size = 9)), 
               cap = "paste('NMR spectrum of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
               fig_height = 2.5 * row.p.NMR.db(), #dynamic figure height
               fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
@@ -116,46 +134,63 @@ if (length(selected.oligos.db()) > 1) {
 
 ## UV-melting
 
-```{r UVplot.raw, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-puv <- p.UV.melting.db() + 
-  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) 
 
-if (length(selected.oligos.db()) > 1) {
-  subchunkify(g = puv, #plot
-              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
-              fig_height = 3,
-              fig_width = 7
-  ) 
-} else {
-  subchunkify(g = puv, 
-              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
-              fig_height = 3,
-              fig_width = 7
-  )
-}
+### Raw data
 
-
-```
 
 ```{r UVplot.fit, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 puf <- p.UV.fit.db() + 
-  guides(colour=guide_legend(nrow=length(selected.oligos.db()))) 
+  guides(colour=guide_legend(nrow=length(selected.oligos.db())),
+         ncol = 3) +
+  theme(legend.position = 'bottom',
+        legend.title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 
 if (length(selected.oligos.db()) > 1) {
   subchunkify(g = puf, #plot
               cap = "paste('Folded fraction from UV-melting experiments of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
-              fig_height = 3,
-              fig_width = 7
+              fig_height = 4,
+              fig_width = 6
   ) 
 } else {
   subchunkify(g = puf, 
               cap = "paste('Folded fraction from UV-melting experiments of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
-              fig_height = 3,
-              fig_width = 7
+              fig_height = 4,
+              fig_width = 6
   )
 }
 
 ```
+
+
+### Processed data
+
+
+```{r UVplot.raw, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+puv <- p.UV.melting.db() + 
+  guides(colour=guide_legend(nrow=length(selected.oligos.db())),
+         ncol = 3) +
+  theme(legend.position = 'bottom',
+        legend.title = element_text(size = 8),
+        legend.title = element_text(size = 9))
+
+if (length(selected.oligos.db()) > 1) {
+  subchunkify(g = puv, #plot
+              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              fig_height = 4,
+              fig_width = 6
+  ) 
+} else {
+  subchunkify(g = puv, 
+              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              fig_height = 4,
+              fig_width = 6
+  )
+}
+
+
+```
+
 
 ```{r print.option, message=FALSE, warning=FALSE, include=FALSE}
 #controls whether MS section is knitted or not based on the use of the plotMS button
@@ -166,15 +201,19 @@ if(input$plotMS.db == 0) {
 }
 ```
 
+
 ```{r MS.header, echo=FALSE, eval= print.option}
 #conditional MS section title
 asis_output("## Native ESI-MS")
 ```
 
+
 ```{r MSplot, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 pms <- p.MS.db() + 
   theme(legend.position="bottom",
-        legend.direction = 'horizontal')
+        legend.direction = 'horizontal',
+        legend.title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 
 if (length(selected.oligos.db()) > 1) {
   subchunkify(g = pms, #plot

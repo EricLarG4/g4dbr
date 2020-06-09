@@ -73,8 +73,8 @@ library(writexl)
   - Label colours mirroring those of the spectra
 + Dynamic _MS_, _CD_ and _NMR_ figure dimension: grid height expands with number of rows automatically
 + _meltR_ now manages data that cannot be baseline-subtracted
-  - Export raw data button added in _left sidebar_
-  - Absorbance normalised to [0,1] for plotting in the baseline-subtracted data figure (same y-axis scale)
+  - Export data button with a switch between raw and fitted data added in _left sidebar_
+  - Absorbance normalised to [0,1] for plotting when the baseline-subtraction is not performed.
 + _NMR_ peak labelling
   _ Character strings are accepted (possibility to assign several protons to the same peak/poorly resolved peaks)
   _ The labels are now vertically aligned to the peak, properly repelled from other labels and data points, and linked to the peaks with a segment
