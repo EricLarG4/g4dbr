@@ -57,6 +57,8 @@ library(g4dbr)
 g4db()
 ```
 
+For more details, consult the package and function documentation here using `help(package = 'g4dbr')`.
+
 #### Demo files
 
 <ins>**Local file system.**</ins> An example database (`demo_database.Rda`), an empty database (`empty_database.Rda`), and a demo input file (`demo_input.xlsx`) are located in the extdata subfolder of your package installation path. 
