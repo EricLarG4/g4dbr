@@ -960,10 +960,10 @@ g4db <- function() {
                                        'Filter',
                                        sliderInput("slider.therm",
                                                    "Filter temperatures", #Temperature for deltaG calculation
-                                                   min = 270,
+                                                   min = 275,
                                                    max = 375,
                                                    step = 0.5,
-                                                   value = c(276, 370)),
+                                                   value = c(276, 363)),
                                        uiOutput("select.melting.oligo"),
                                        uiOutput("select.melting.ramp"),
                                        uiOutput("select.melting.comment"),
