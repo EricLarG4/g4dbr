@@ -1346,7 +1346,8 @@ g4db <- function() {
                 left_join(ms.labels,
                           by = c('oligo', 'buffer.id', 'tune', 'rep', unique('rmz'))) %>%
                 group_by(oligo, buffer.id, charge) %>%
-                mutate(species = replace(species, duplicated(paste(charge, species)), NA)) #remove potentially duplicated labels for a given charge state
+                #remove potentially duplicated labels for a given charge state
+                mutate(species = replace(species, duplicated(paste(charge, species, oligo, tune, rep, buffer.id)), NA))
 
             return(data.collector)
         })
