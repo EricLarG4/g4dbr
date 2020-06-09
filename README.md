@@ -59,15 +59,14 @@ g4db()
 
 #### Demo files
 
-**Local file system.** An example database (`demo_database.Rda`), an empty database (`empty_database.Rda`), and a demo input file (`demo_input.xlsx`) are located in the extdata subfolder of your package installation path. 
+<ins>**Local file system.**</ins> An example database (`demo_database.Rda`), an empty database (`empty_database.Rda`), and a demo input file (`demo_input.xlsx`) are located in the extdata subfolder of your package installation path. 
 
 To locate these files, use `system.file("extdata/", package = 'g4dbr')` in R. The output should be something like `C:\Users\username\Documents\R\win-library\4.0\g4dbr`. 
 **These files will be overridden if the package is re-installed, and removed is the package in uninstalled. Do not save file at this location** 
 
-**From source zip.** The zip file contains the example database (`demo_database.Rda`), empty database (`empty_database.Rda`), and demo input file (`demo_input.xlsx`) in the inst/extdata subfolder.
+<ins>**From source zip.**</ins> The zip file contains the example database (`demo_database.Rda`), empty database (`empty_database.Rda`), and demo input file (`demo_input.xlsx`) in the inst/extdata subfolder.
 
-##### Use
-
+<ins>**Use**</ins>
 To use the demo file, load them in the `g4db()` app.
 
 ### Standalone extinction coefficient calculation
