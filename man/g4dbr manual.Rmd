@@ -85,7 +85,7 @@ library(writexl)
   _ Database filename automatically include the date.
   _ Databases can now be selectively (by oligonucleotide names selection) or entirely emptied. If emptied, the structure is conserved and can be re-populated.
   _ Password protection was removed because exporting a database file does not overwrite the opened file.
-+ Swtiched the generation of datatables client-side (as opposed to server-side) to allow for the exporting of full datasets, rather than only what is displayed.
++ Switched the generation of datatables client-side (as opposed to server-side) to allow for the exporting of full datasets, rather than only what is displayed.
 + Fixed issue with the magrittr library sometimes not loading
 + Many UI improvements and corrections
 + Added an automated report generation
