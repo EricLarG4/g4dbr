@@ -13,7 +13,7 @@ If a previous version has been installed, the previous can be removed using `rem
 
 It is also not necessary to reinstall devtools.
 
-### Download-less installation
+### Zip-less installation
 
 For the first installation, [create a private access token](https://github.com/settings/tokens).
 
@@ -57,13 +57,22 @@ library(g4dbr)
 g4db()
 ```
 
-#### Download-less installation
+#### Demo files
 
-An example database (db.xlsx) a demo input file (demo_input.xlsx) are located in the extdata subfolder of your package installation path, e.g. `C:\Users\username\Documents\R\win-library\4.0\g4dbr`. **These files will be overridden if the package is re-installed, and removed is the package in uninstalled.** 
+##### Local file system
 
-#### Zip-based installation
+An example database (`demo_database.Rda`), an empty database (`empty_database.Rda`), and a demo input file (`demo_input.xlsx`) are located in the extdata subfolder of your package installation path. 
 
-The zip file contains the database (db.xlsx) and a demo input file (demo_input.xlsx) in the inst/extdata subfolder. To use these files extract them from the archives then load into the g4db interface, in the _database_ and _ImportR_ tabs respectively.
+To locate these files, use `system.file("extdata/", package = 'g4dbr')` in R. The output should be something like `C:\Users\username\Documents\R\win-library\4.0\g4dbr`. 
+**These files will be overridden if the package is re-installed, and removed is the package in uninstalled. Do not save file at this location** 
+
+##### From source zip
+
+The zip file contains the example database (`demo_database.Rda`), empty database (`empty_database.Rda`), and demo input file (`demo_input.xlsx`) in the inst/extdata subfolder.
+
+##### Use
+
+To use the demo file, load them in the `g4db()` app.
 
 ### Standalone extinction coefficient calculation
 
