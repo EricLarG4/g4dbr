@@ -1395,17 +1395,6 @@ g4db <- function() {
         #calculates epsilon for each oligo
         info.epsilon <- reactive({
 
-            # eps.values <- data.frame()
-            #
-            # for (i in 1:nrow(info.mass())) {
-            #     buffer <- epsilon.calculator(info.mass()$sequence[[i]])
-            #     eps.values <- rbind(eps.values, buffer)
-            # }
-            #
-            # info.epsilon <- info.mass() %>%
-            #     add_column(ext.coeff.260 = unlist(eps.values)) %>%
-            #     filter(oligo %in% input$select.oligo)
-
             info.epsilon <- info.mass() %>%
                 add_column(ext.coeff.260 = NULL)
 
