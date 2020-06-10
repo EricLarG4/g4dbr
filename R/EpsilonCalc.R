@@ -10,7 +10,7 @@ epsilon.calculator <- function(sequence = NULL){
   library(stringr)
   library(tidyverse)
 
-  #extinction coefficient database
+  #extinction coefficient database loading
   epsilondb <- epsilondb
 
   #initialization of result data frame
@@ -18,6 +18,7 @@ epsilon.calculator <- function(sequence = NULL){
   buffer <- data.frame()
   result <- data.frame()
 
+  #extraction of individual bases and their 3' nearest neighbor
   for (i in 1:str_length(sequence)) {
     buffer <- data.frame(position = i,
                          nucleo = substr(sequence, i, i),
@@ -26,15 +27,16 @@ epsilon.calculator <- function(sequence = NULL){
     epsilon.calc <- rbind(epsilon.calc, buffer)
   }
 
+  #attribution of individual and nearest neighbor contributions
   epsilon.calc <- epsilon.calc %>%
     mutate(
-      indiv.base = case_when(
+      indiv.base.cont = case_when( #individual
         nucleo == 'G' ~ epsilondb$epsilon[epsilondb$base == 'G'],
         nucleo == 'C' ~ epsilondb$epsilon[epsilondb$base == 'C'],
         nucleo == 'T' ~ epsilondb$epsilon[epsilondb$base == 'T'],
         nucleo == 'A' ~ epsilondb$epsilon[epsilondb$base == 'A']
       ),
-      nn = case_when(
+      nn.cont = case_when( #nearest neighbor
         nucleo == 'G' ~ case_when(
           nn == 'G' ~ epsilondb$Gcorr[epsilondb$base == 'G'],
           nn == 'C' ~ epsilondb$Ccorr[epsilondb$base == 'G'],
@@ -62,10 +64,11 @@ epsilon.calculator <- function(sequence = NULL){
       )
     )
 
-  epsilon.calc$indiv.base[1] = 0
-  epsilon.calc$indiv.base[str_length(sequence)] = 0
+  epsilon.calc$indiv.base.cont[1] = 0 #attributes 0 to the first nucleobase individual contribution
+  epsilon.calc$indiv.base.cont[str_length(sequence)] = 0 #attributes 0 to the last nucleobase individual contribution
 
-  result <- sum(epsilon.calc$nn, na.rm = T) - sum(epsilon.calc$indiv.base, na.rm = T)
+  #sum of indiv cont subtracted from sum of nn cont.
+  result <- sum(epsilon.calc$nn.cont, na.rm = T) - sum(epsilon.calc$indiv.base.cont, na.rm = T)
 
   return(result)
 }
