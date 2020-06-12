@@ -29,7 +29,6 @@ g4db <- function() {
 
     library(ggsci)
     library(ggpmisc)
-    library(ggpmisc)
     library(ggpubr)
     library(ggthemes)
     library(ggrepel)
