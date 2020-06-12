@@ -2,11 +2,14 @@
 title: "g4dbr"
 author: 'Eric Largy'
 date: "`r Sys.Date()`"
-output: 
-  rmarkdown::html_vignette:
-    toc: true
-    number_sections: true
-    toc_depth: '3'
+output:
+    bookdown::html_document2:
+      base_format: rmarkdown::html_vignette
+      toc: true
+      number_sections: true
+      toc_depth: '3'
+      fig_caption: true
+link-citations: yes
 bibliography: bibliography.bibtex
 csl: american-chemical-society.csl
 vignette: >
@@ -46,9 +49,9 @@ Of course, the template can be natively imported in the *g4db* app. The advantag
 
 Any data treatment and filtering perfomed within *g4db* is not saved into the .xlsx file. To save this into a new or existing database file, the second approach must be used:
 
-### .Rda file
+### Rdata file
 
-*g4db* allows exporting selected datasets into an .Rda file where the data is consolidated and all calculation has already been performed. This leads to faster figure display, smaller file size, and is amenable to host very large dataset (where Excel is limited in row numbers).
+*g4db* allows exporting selected datasets into an RData (.Rda) file where the data is consolidated and all calculation has already been performed. This leads to faster figure display, smaller file size, and is amenable to host very large dataset (where Excel is limited in row numbers).
 
 The downside of this approach is that it cannot be handled outside of R. Note, however, that *g4db* is not required to open and use the data, it can be natively loaded in R using the `load` function, for instance below for a demo database provided in the package:
 
@@ -147,21 +150,45 @@ The interface is divided in 3 tabs that can be selected at the top of the screen
 
 + _database_, to visualize, report, and remove data from a database file.
 + _importR_, to visualize and process raw data, and export all or part of it to a database file,
-+ _meltR_, to visualize and treat UV-melting data, and export all or part of it to the a database (via _importR_),
++ _meltR_, to visualize and treat UV-melting data, and export all or part of it to the a database (via _importR_).
 
-### database
+The tabs make use of various sidebars, mainly to perform data importing, filtering, processing, exporting and reporting.
 
-This tab contain all *intended* end-user functionalities, that is 
+### Figures and tables
 
-### importR
+In the main area of the interface are the figures and tables, within collapsible and closable boxes, letting the user select what data to display.
 
-### meltR
+All tables are sortable and filterable to assist in exploring rich data sets, and find specific data points rapidly. The data is presented in _long format_, which makes it easier to filter through, and to map variables into figures, because each variable is contained in its own column. Columns can be selectively hidden, and some of the less relevent ones are hidden by default.
 
-## Consulting a database
+Data presented in figures and tables reflects the values given to the different filters. On the contrary, filtering the tables does *not* alter the figures, it is only a mean of accessing and/or exporting a subset of the data. 
 
-### Database architecture
+All tables can be exported as .csv, .xlsx, or in the clipboard. All columns will be exported, regardless of their visibility in the app.
 
-The data from a given database is gathered in a single .Rda file that contains five dataframes: one dedicated to the general oligonucleotide information (`db.info`), and the four other ones to each analytical technique (`db.CD`, `db.NMR`, `db.MS`, `db.UV`). 
+### Sidebars and panels
+
+#### Left sidebars and panels
+
+Each tab has a sidebar on the left-hand side, which contains a number of tools for data importing, exporting, filtering, and formatting. This _left sidebar_ is collapsible to release some space for figures and tables on smaller screens. Each tab has a specific and independent _left sidebar_, and the values from those _left sidebar_ modifies the data for *all* the content of the tab (and almost always only this tab). Drop-down menus contain *select all/deselect all* buttons for quick data selection. 
+
+Given the amount of menus necessary for the _meltR_ tab, a large portion is hosted in two collapsible and movable "hovering" panels.
+
+The sidebar from the _database_ and _importR_ tabs, and a panel of _meltR_ also contain a color palette selection menu, and submenu for certain palettes having variations. The available palettes include:
+
+ + The well known Brewer palettes that include [qualitative, diverging, and sequential palettes ](https://a2.typepad.com/6a0105360ba1c6970c01b7c7187af2970b-pi),
+ + Some [discrete palettes](https://observablehq.com/@d3/working-with-color) from [D3.js](https://d3js.org/), a JavaScript library for producing interactive data visualizations (imported from the `ggsci` package),
+ + Several palettes inspired by the colors used by scientific journals/publishers (NPG, AAAS, NEJM, Lancet, JAMA, JCO, etc.; imported from the `ggsci` package).
+ 
+#### Right sidebars
+ 
+Some figure boxes feature a _right sidebar_. They contain filtering and data formatting filters that are applied *only* on the corresponding figure (contrary to the _left sidebars_ that affect entire tabs). These sidebars are collapsible as well, and hidden by default.
+
+## Database tab
+
+The database tab is dedicated to visualizing, exporting, and reporting on the data of a curated database file.
+
+### Database input
+
+The data from a given database must be gathered in a single .Rda file generated in the _importR_ tab. It contains five dataframes: one dedicated to the general oligonucleotide information (`db.info`), and the four other ones to each analytical technique (`db.CD`, `db.NMR`, `db.MS`, `db.UV`). 
 
 *g4db* extracts automatically all the data, but it can also be loaded in the global environment (*i.e.* without using *g4db*) using `load()`. For instance, to load the demo database, run:
 
@@ -169,7 +196,76 @@ The data from a given database is gathered in a single .Rda file that contains f
 load(system.file("extdata/demo_database.Rda", package = 'g4dbr'))
 ```
 
-The global environment should now contain five dataframes that can be opended and worked with.
+The global environment should now contain five dataframes that can be opended and worked with. When using `g4db()`, the data will be loaded in the package environment and will therefore not appear in the global environment.
+
+### Database use
+
+#### Data loading
+
+Upon opening the database file, the interface should be devoid of data. The first step is to import a database file:
+
+1. Click on _Browse_ in the _Load_ section of the _left sidebar_ (Figure \@ref(fig:dbempty)),
+2. Select a .Rda file that has been prepared in _importR_
+
+```{r dbempty, echo=FALSE, fig.cap='Empty database view', out.width='100%'}
+knitr::include_graphics('ressources/database_empty.png')
+```
+
+The _General information and oligonucleotide selection_ table should now be populated by a list of the oligonucleotides for which the database file contains at least information data (Figure \@ref(fig:dbimport)-1).
+
+The content of this table is controlled by a drop-down menu in the *left sidebar*, and by the oligonucleotide column filter (in that order) (Figure \@ref(fig:dbimport)-2). By default, all oligonucleotides are shown, but none are selected for analytical result display (to avoid wait times when the table content is changed).
+
+```{r dbimport, echo=FALSE, fig.cap='Demo database loaded in the *database* tab: the general oligonucleotide information should be displayed (1). The visible oligonucleotides can be filtered in the table or from the dropdown menu in the *left sidebar* (2). The table (1), and other tables in *g4db*, can be exported (a), their column visibility changed (b), and their content sorted, filtered or searched through (c)', out.width='100%'}
+knitr::include_graphics('ressources/database_import.png')
+```
+
+#### Data display
+
+To start visualizing data, the _oligonucleotide(s)_ of interest must be selected from the *General information* table, by clicking on one or several rows (Figure \@ref(fig:dbselection)-1). Clicking again on a row deselects it.
+
+The *CD*, *NMR* and *UV-melting* data should now be displayed (Figures \@ref(fig:dbselection)-2 and \@ref(fig:dbmassplot)-1). By default, the data aquired for all *buffer* conditions (i.e. all *cation* + *electrolyte*) are shown, but it can be restricted to only certan *buffers*, *electrolytes* or *cations*, using the menus from the *left sidebar* (Figure \@ref(fig:dbselection)-3). Individual *cation* and *electrolyte* selections supersede the *buffer* selection. For instance, if the buffers "TMAA + KCl" and "Kp + KCl" are selected, but the "Kp" electrolyte is excluded, then only "TMAA + KCl" will effectively be selected.
+
+Note that the *buffers*, *electrolytes* and *cations* are not a static list, but are automatically collected from the _CD_ and _UV-melting_ data. It is therefore important to keep their naming consistent across the entire database.
+
+```{r dbselection, echo=FALSE, fig.cap='Database data display: both oligonucleotides have been selected (1). Their data is displayed (2) but was buffer-filtered (3): only KCl-containing solutions are selected (a). Using the *right sidebar*, the *CD* data was panelled by *oligonucleotide* (b)', out.width='100%'}
+knitr::include_graphics('ressources/database_selection.png')
+```
+
+To also display MS data (\@ref(fig:dbmassplot)-2), the *Plot MS* button must be used \@ref(fig:dbmassplot)-3. This avoid long refresh times when selecting oligonucleotides. Any change in the *oligonucleotide*, *buffer*, *tunes*, *replicates*, and *m/z* selections will only be effective if the figure is replotted.
+
+```{r dbmassplot, echo=FALSE, fig.cap='Database data display: UV-melting (1) and native MS (2) display. To display the MS data, the *Plot MS* button must be used (3)', out.width='100%'}
+knitr::include_graphics('ressources/database_massplot.png')
+```
+For all these analytical methods, all data points are gathered in table, collapsed by default. These data points can be sorted, filtered, and exported in .xlsx or .csv files, or copied in the clipboard. Again, filtering data in the tables does **not** affects the figures, only the *left* and *right sidebars* do.
+
+### Data content and customization
+
+#### General information
+The general information table contains nineteen fields, ten of which are shown by default.
+
+#### Circular dichroism
+
+
+#### NMR
+
+
+#### UV-melting
+
+
+#### Native MS
+
+
+### Reporting
+
+## importR tab
+
+## meltR tab
+
+## Consulting a database
+
+### Database architecture
+
+
 
 ## Importing data
 
