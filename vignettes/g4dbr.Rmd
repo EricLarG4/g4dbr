@@ -18,11 +18,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
   
-  ```{r, include = FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>"
 )
+```
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 1000)
 ```
 
 > *Copyright 2020 [Eric Largy](https://github.com/EricLarG4). Licensed under the GPL-3 license.*
@@ -172,11 +176,17 @@ Each tab has a sidebar on the left-hand side, which contains a number of tools f
 
 Given the amount of menus necessary for the _meltR_ tab, a large portion is hosted in two collapsible and movable "hovering" panels.
 
-The sidebar from the _database_ and _importR_ tabs, and a panel of _meltR_ also contain a color palette selection menu, and submenu for certain palettes having variations. The available palettes include:
+The sidebar from the _database_ and _importR_ tabs, and a panel of _meltR_ also contain a color palette selection menu, and submenu for certain palettes having variations (Figure \@ref(fig:colors)). The available palettes include:
 
  + The well known Brewer palettes that include [qualitative, diverging, and sequential palettes ](https://a2.typepad.com/6a0105360ba1c6970c01b7c7187af2970b-pi),
  + Some [discrete palettes](https://observablehq.com/@d3/working-with-color) from [D3.js](https://d3js.org/), a JavaScript library for producing interactive data visualizations (imported from the `ggsci` package),
  + Several palettes inspired by the colors used by scientific journals/publishers (NPG, AAAS, NEJM, Lancet, JAMA, JCO, etc.; imported from the `ggsci` package).
+ 
+ The selected colour palette is applied to all the figures of the tab, but does not affect other tabs.
+ 
+```{r colors, echo=FALSE, fig.cap='Colour palette selection. Some palette families (1) containing several palette variations (2)', out.width='100%'}
+knitr::include_graphics('ressources/colours.png')
+```
  
 #### Right sidebars
  
@@ -231,29 +241,66 @@ Note that the *buffers*, *electrolytes* and *cations* are not a static list, but
 knitr::include_graphics('ressources/database_selection.png')
 ```
 
+The UV-melting data is displayed in two separate figures ((\@ref(fig:dbmassplot)-1)): on the left is shown the raw data with the fit line, and on the right is processed data. Depending on whether the data was processed by non-linear fitting or not, the processed data will either be the *folded fraction* or the absorbance normalized in [0,1]. This allows to plot the data of highly stable or unstable species on the same figure as those for which the T_m could be determined. 
+
 To also display MS data (\@ref(fig:dbmassplot)-2), the *Plot MS* button must be used \@ref(fig:dbmassplot)-3. This avoid long refresh times when selecting oligonucleotides. Any change in the *oligonucleotide*, *buffer*, *tunes*, *replicates*, and *m/z* selections will only be effective if the figure is replotted.
 
 ```{r dbmassplot, echo=FALSE, fig.cap='Database data display: UV-melting (1) and native MS (2) display. To display the MS data, the *Plot MS* button must be used (3)', out.width='100%'}
 knitr::include_graphics('ressources/database_massplot.png')
 ```
-For all these analytical methods, all data points are gathered in table, collapsed by default. These data points can be sorted, filtered, and exported in .xlsx or .csv files, or copied in the clipboard. Again, filtering data in the tables does **not** affects the figures, only the *left* and *right sidebars* do.
+For all these analytical methods, all data points are gathered in table, collapsed by default. These data points can be sorted, filtered, and exported in .xlsx or .csv files, or copied in the clipboard \@ref(fig:dbimport). Again, filtering data in the tables does **not** affects the figures, only the *left* and *right sidebars* do.
 
 ### Data content and customization
 
 #### General information
-The general information table contains nineteen fields, ten of which are shown by default.
+
+**The general information table contains nineteen fields, ten of which are shown by default.**
 
 #### Circular dichroism
 
+The data is shown as points and lines, colored by *buffer*. The *oligonucleotides* are differentiated by point shape. 
 
-#### NMR
+The *right sidebar* contain the following settings:
 
++ *normalized* switch: choose to display molar ellipticities (as automatically calculated in *importR*; default) or raw data (i.e. in mdeg).
++ *superimposition* dropdown menu: choose to display all data superimposed (default), grouped in panels by *oligonucleotide* or *buffer*, or not superimposed at all.
+  + The figure size will automatically adjust with the number of panels
++ *scale* dropdown menu: select whether all panels must have the same y-axis scale (*not free*) or can be rescaled to better fit their content (*free*)
++ *Wavelength* slider: select the wavelength range to display (default: 220-330)
++ *point size* and *line size* sliders: adjust the size of points and lines
++ *transparency* slider: adjust the transparency of both points and lines
 
-#### UV-melting
+#### 1^H^ NMR
 
+The data is shown as a line, colored by *oligonucleotide*, and is normalized so that all spectra will share the same y-axis range. By default, each spectrum is shown in its own panel. Peak numbers are shown above their peaks and linked by a segment.
 
-#### Native MS
+The *right sidebar* contains some settings identical to the CD one (*superimposition*, *scale*, *line size*). In addition, it contains a *chemical shift (ppm)* slider to select the chemical shift range to display (default: 10-12.5 ppm)
 
+#### UV-melting 
+
+UV-melting data is plotted with points, and in the case of the raw data with an additional fit line.
+
+The *right sidebar* contains some settings identical to some described above (*point size*, *line size*, *line transparency*). In addition, it contains a *Temperature (K)* slider to select the temperature range to display (default: 278-368 K).
+
+#### Native mass spectrometry
+
+The mass spectrometry data is shown as line (Figure \@ref(fig:dbmslayout)). By default, spectra are panelled by *oligonucleotide* (columns) and *buffer* (rows), which should typically lead to a single spectrum per panel. Peak labels appear above their corresponding peak. Zooming in might be necessary to see all peaks
+
+Besided a *line size* slider, the *right sidebar* contains:
+
++ *m/z* slider: select the *m/z* range to display (default: 800-2500 *m/z*).
++ *Tunes* dropdown menu: select the *tunes* to display.
+  + *tunes* are collected automatically from the data
++ *Replicates* dropdown menu: select the *replicates* to display
+  + *replicates* are collected automatically from the data
++ *Layout* dropdown menu: select a panel layout among all combinations of *oligonucleotide*, *tune*, *buffer*, and *replicate*
+  + Six unique combinations can be selected, and the six other ones are accessed using the *transpose grid* switch
+  + If more than one spectrum appears on a panel, the two variables that are not mapped by the layout are combined to be mapped as colours
++ *labels* slider: choose whether to show (default) or hide labels
+
+```{r dbmslayout, echo=FALSE, fig.cap='Detail of native MS data panelled with *oligonucleotides* in columns (a) and *tunes* in row (b). Because several spectra are superimposed, the remaining variables (*replicate* and *buffer*) are combined to map colors (c)', out.width='100%'}
+knitr::include_graphics('ressources/database_mslayout.png')
+```
 
 ### Reporting
 
