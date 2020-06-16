@@ -67,7 +67,7 @@ Install the package with `install.packages('tinytex')`, then finish the installa
 
 Restart your IDE and verify that `tinytex:::is_tinytex()` is `TRUE`.
 
-In case of issue, check the [help page](https://yihui.org/tinytex/r/#debugging)
+In case of issue, check the [help page](https://yihui.org/tinytex/r/#debugging).
 
 #### Demo files
 
