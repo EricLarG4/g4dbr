@@ -57,7 +57,17 @@ library(g4dbr)
 g4db()
 ```
 
-For more details, consult the package and function documentation here using `help(package = 'g4dbr')`.
+For more details, consult the package and function documentation here using `help(package = 'g4dbr')`
+
+#### pdf reports
+
+To be able to generate reports in pdf (Word and HTML are also possible out of the box), `tinytex` (a lightweight LaTeX distribution) must be installed.
+
+Install the package with `install.packages('tinytex')`, then finish the installation using `tinytex::install_tinytex()`.
+
+Restart your IDE and verify that `tinytex:::is_tinytex()` is `TRUE`.
+
+In case of issue, check the [help page](https://yihui.org/tinytex/r/#debugging)
 
 #### Demo files
 
