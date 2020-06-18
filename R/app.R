@@ -3252,7 +3252,7 @@ g4db <- function() {
                             autoWidth = F,
                             dom = 'Bfrtip', #button position
                             buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
-                            columnDefs = list(list(visible=FALSE, targets=c(8, 10:18)))
+                            columnDefs = list(list(visible=FALSE, targets=c(10:18)))
                         )
                     ) %>%
                     formatRound(c('Monoisotopic mass'),
@@ -3294,7 +3294,7 @@ g4db <- function() {
                             autoWidth = F,
                             dom = 'Bfrtip', #button position
                             buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
-                            columnDefs = list(list(visible=FALSE, targets=c(4, 5, 6, 7, 8, 9)))
+                            columnDefs = list(list(visible=FALSE, targets=c(4, 5, 6, 7, 9)))
                         )
                     ) %>%
                     formatRound(c('CD (mdeg)', 'Delta Epsilon (M-1 cm-1)', 'Plotted data'),
