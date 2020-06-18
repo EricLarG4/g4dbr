@@ -352,6 +352,10 @@ Then, modify the **styles** as desired. Local text modifications will **not** be
 
 It is also advised to back up this file in another location, because any new install or update will overwrite it.
 
+### Data deletion
+
+xxxx
+
 ## Importing data in the database: the importR tab
 
 ## Importing UV-melting data: the meltR tab
