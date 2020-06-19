@@ -74,6 +74,13 @@ knitr::kable(db.info,
 
 # Figures
 
+## Deposited structure
+
+
+```{r pdb, echo=TRUE, fig.cap='Structure deposited in the PDB (1^st^ conformation)', out.width='60%'}
+knitr::include_graphics(paste0('/pdb/', oligo, '.png'))
+```
+
 
 ## CD
 
