@@ -1275,7 +1275,7 @@ g4db <- function() {
                 filter(buffer %in% input$select.buffer) %>%
                 filter(cation %in% input$select.cation)
 
-            #data reduction
+            #data reduction with mass.diet()
             data.collector <- mass.diet(fat.mass = data.collector, baseline.int = input$baseline.int,
                                         base.start = min(input$mz.baseline.range), base.end = max(input$mz.baseline.range),
                                         range.start = min(input$mz.filter.range), range.end = max(input$mz.filter.range))

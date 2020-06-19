@@ -15,26 +15,29 @@ mass.diet <- function(fat.mass, base.start, base.end, range.start, range.end, ba
 
   library(tidyverse)
 
-  #data reduction - m/z
+  #m/z range filtering----
   losing.mass <- fat.mass %>%
     filter(mz > min(range.start)) %>%
     filter(mz < max(range.end))
 
-  if (baseline.int > 0) { #filters by intensity if switch is ON
+  #intensity filtering----
+  #intensity threshold determination
+  if (baseline.int > 0) { #filters by intensity if the coefficient is not 0
     baseline.filter <- losing.mass %>%
-      group_by(oligo, buffer.id, tune, rep) %>%
-      filter(mz < base.end) %>%
+      group_by(oligo, buffer.id, tune, rep) %>% #grouping by individual spectra
+      filter(mz < base.end) %>% #selection of baseline range
       filter(mz > base.start) %>%
-      summarise(basemean = mean(int)*baseline.int) #intensity threshold (mean times the multiplier)
+      summarise(basemean = mean(int)*baseline.int) #intensity threshold (mean noise times the multiplier)
 
-    fit.mass <- losing.mass %>%
+    #removal of noise
+    fit.mass <- losing.mass %>% #joins threshold to m/z filtered data
       left_join(baseline.filter, by = c("oligo", "buffer.id", "tune", 'rep')) %>%
-      group_by(oligo, buffer.id, tune, rep) %>%
-      filter(int > basemean) %>%
-      select(-c(basemean))
+      group_by(oligo, buffer.id, tune, rep) %>% #group by spectrum
+      filter(int > basemean) %>% #filters
+      select(-c(basemean)) #removes threshold column
 
   } else {
-
+    #does nothing if coefficient at 0
     fit.mass <- losing.mass
 
   }
