@@ -1201,10 +1201,6 @@ g4db <- function() {
 
             #extract descriptors
             descriptors <- wide.input %>%
-                slice(1:4)
-
-            #extract descriptors
-            descriptors <- wide.input %>%
                 slice(1:6)
 
             #extract data
@@ -1271,30 +1267,18 @@ g4db <- function() {
             info.labels <- info.mass() %>%
                 select(oligo, averagemw)
 
-            #data reduction - m/z
+            #data filtering
             data.collector <- data.collector %>%
                 mutate(cation = replace_na(cation, 'none')) %>%
                 filter(oligo %in% selected.oligos()) %>%
                 filter(buffer.id %in% input$select.buffer.id) %>%
                 filter(buffer %in% input$select.buffer) %>%
-                filter(cation %in% input$select.cation) %>%
-                filter(mz > min(input$mz.filter.range)) %>%
-                filter(mz < max(input$mz.filter.range))
+                filter(cation %in% input$select.cation)
 
-            #data reduction - intensity
-            if (input$baseline.int > 0) { #filters by intensity if switch is ON
-                baseline.filter <- data.collector %>%
-                    group_by(oligo, buffer.id, tune, rep) %>%
-                    filter(mz < max(input$mz.baseline.range)) %>%
-                    filter(mz > min(input$mz.baseline.range)) %>%
-                    summarise(basemean = mean(int)*input$baseline.int) #intensity threshold (mean times the multiplicator)
-
-                data.collector <- data.collector %>%
-                    left_join(baseline.filter, by = c("oligo", "buffer.id", "tune", 'rep')) %>%
-                    group_by(oligo, buffer.id, tune, rep) %>%
-                    filter(int > basemean) %>%
-                    select(-c(basemean))
-            }
+            #data reduction
+            data.collector <- mass.diet(fat.mass = data.collector, baseline.int = input$baseline.int,
+                                        base.start = min(input$mz.baseline.range), base.end = max(input$mz.baseline.range),
+                                        range.start = min(input$mz.filter.range), range.end = max(input$mz.filter.range))
 
             #More filtering and normalize imported MS data
             data.collector <- data.collector %>%
