@@ -90,11 +90,30 @@ if (length(selected.oligos.db()) > 1) {
               fig_width = 6.26
   ) 
 } else {
+  
+  #Extraction of the oligo concentration
+  conc.cd <- db.cd.select() %>%
+  group_by(oligo) %>%
+  filter(oligo == selected.oligos.db()) %>%
+  ungroup() %>%
+  select(con) %>%
+  unique() %>%
+  as.numeric()
+  
+  path.cd <- db.cd.select() %>%
+  group_by(oligo) %>%
+  filter(oligo == selected.oligos.db()) %>%
+  ungroup() %>%
+  select(l) %>%
+  unique() %>%
+  as.numeric()
+  
   subchunkify(g = p.CD.db()+
+                guides(shape = FALSE) +
                 theme(legend.position = 'bottom',
                       legend.text = element_text(size = 8),
                       legend.title = element_text(size = 9)), 
-              cap = "paste('Circular dichroism spectra of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              cap = "paste0('Circular dichroism spectra of', paste(' the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')), ' (', conc.cd, ' μM)', ', acquired at 25°C in ', path.cd, '-cm path length cuvettes')",
               fig_height = 3 * row.p.CD.db(), #dynamic figure height
               fig_width = (8*col.p.CD.db())/(col.p.CD.db()+0.5) #dynamic figure width
   )
@@ -112,14 +131,14 @@ if (length(selected.oligos.db()) > 1) {
                 theme(legend.position = 'bottom',
                       legend.text = element_text(size = 8),
                       legend.title = element_text(size = 9)), #plot
-              cap = "paste('NMR spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              cap = "paste('1H-NMR spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides', , 'acquired at 25°C'))", #figure caption
               fig_height = 4 * row.p.NMR.db(), #dynamic figure height
               fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
   ) 
 } else {
   subchunkify(g = p.NMR.db()+
                 theme(legend.position = 'none'), 
-              cap = "paste('NMR spectrum of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              cap = "paste('1H-NMR spectrum of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide,')), 'acquired at 25°C')",
               fig_height = 4 * row.p.NMR.db(), #dynamic figure height
               fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
   )
@@ -144,13 +163,13 @@ puf <- p.UV.fit.db() +
 
 if (length(selected.oligos.db()) > 1) {
   subchunkify(g = puf, #plot
-              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides', 'acquired at 295 nm')", #figure caption
               fig_height = 4,
               fig_width = 6.26
   ) 
 } else {
   subchunkify(g = puf, 
-              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              cap = "paste('Raw UV-melting plots of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')), 'aquired at 295 nm')",
               fig_height = 4,
               fig_width = 6.26
   )
@@ -172,13 +191,13 @@ puv <- p.UV.melting.db() +
 
 if (length(selected.oligos.db()) > 1) {
   subchunkify(g = puv, #plot
-              cap = "paste('Folded fraction from UV-melting experiments of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              cap = "paste('Folded fraction from UV-melting experiments at 295 nm of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
               fig_height = 4,
               fig_width = 6.26
   ) 
 } else {
   subchunkify(g = puv, 
-              cap = "paste('Folded fraction from UV-melting experiments of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              cap = "paste('Folded fraction from UV-melting experiments at 295 nm of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
               fig_height = 4,
               fig_width = 6.26
   )
@@ -213,13 +232,13 @@ pms <- p.MS.db() +
 
 if (length(selected.oligos.db()) > 1) {
   subchunkify(g = pms, #plot
-              cap = "paste('Native MS spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
+              cap = "paste('Native ESI-MS spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides')", #figure caption
               fig_height = 3 * row.p.MS.db(), #dynamic figure heights
               fig_width = (9*col.p.MS.db())/(col.p.MS.db()+0.4) #dynamic figure width
   ) 
 } else {
   subchunkify(g = pms, 
-              cap = "paste('Native MS spectra of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
+              cap = "paste('Native ESI-MS spectra of', paste('the', paste(selected.oligos.db(), collapse=', ', 'oligonucleotide')))",
               fig_height = 3 * row.p.MS.db(), #dynamic figure height
               fig_width = (9*col.p.MS.db())/(col.p.MS.db()+0.4) #dynamic figure width
   )
