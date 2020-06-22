@@ -100,6 +100,7 @@ if (length(selected.oligos.db()) > 1) {
   unique() %>%
   as.numeric()
   
+  #Extraction of the path length
   path.cd <- db.cd.select() %>%
   group_by(oligo) %>%
   filter(oligo == selected.oligos.db()) %>%
