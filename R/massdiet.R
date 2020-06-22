@@ -17,16 +17,14 @@ mass.diet <- function(fat.mass, base.start, base.end, range.start, range.end, ba
 
   #m/z range filtering----
   losing.mass <- fat.mass %>%
-    filter(mz > min(range.start)) %>%
-    filter(mz < max(range.end))
+    filter(mz > min(range.start) & mz < max(range.end))
 
   #intensity filtering----
   #intensity threshold determination
   if (baseline.int > 0) { #filters by intensity if the coefficient is not 0
     baseline.filter <- losing.mass %>%
       group_by(oligo, buffer.id, tune, rep) %>% #grouping by individual spectra
-      filter(mz < base.end) %>% #selection of baseline range
-      filter(mz > base.start) %>%
+      filter(mz < base.end & mz > base.start) %>% #selection of baseline range
       summarise(basemean = mean(int)*baseline.int) #intensity threshold (mean noise times the multiplier)
 
     #removal of noise
