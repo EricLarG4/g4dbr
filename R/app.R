@@ -1188,8 +1188,7 @@ g4db <- function() {
                 filter(buffer.id %in% input$select.buffer.id) %>%
                 filter(buffer %in% input$select.buffer) %>%
                 filter(cation %in% input$select.cation) %>%
-                filter(shift > min(input$slide.nmr)) %>%
-                filter(shift < max(input$slide.nmr))
+                filter(shift > min(input$slide.nmr) & shift < max(input$slide.nmr))
 
             return(data.collector)
         })
@@ -1282,8 +1281,7 @@ g4db <- function() {
 
             #More filtering and normalize imported MS data
             data.collector <- data.collector %>%
-                filter(mz > min(input$slide.ms)) %>%
-                filter(mz < max(input$slide.ms)) %>%
+                filter(mz > min(input$slide.ms) & mz < max(input$slide.ms)) %>%
                 group_by(oligo, buffer.id) %>%
                 mutate(int.min = min(int), int.max = max(int)) %>%
                 group_by(mz, oligo, buffer.id, tune, rep) %>%
@@ -1392,8 +1390,7 @@ g4db <- function() {
                 filter(buffer.id %in% input$select.buffer.id) %>%
                 filter(buffer %in% input$select.buffer) %>%
                 filter(cation %in% input$select.cation) %>%
-                filter(wl > min(input$slide.cd)) %>%
-                filter(wl < max(input$slide.cd)) %>%
+                filter(wl > min(input$slide.cd) & wl < max(input$slide.cd)) %>%
                 group_by(oligo, buffer.id, wl, l, con) %>%
                 mutate(delta.epsilon = CD/(32980*con/1000000*l)) %>%
                 mutate(plot.y = if_else(isTRUE(input$cd.data.select), delta.epsilon, CD))
@@ -2393,7 +2390,7 @@ g4db <- function() {
                 filter(comment %in% input$select.melting.comment) %>%
                 filter(rep %in% input$select.melting.rep) %>%
                 filter(id %in% input$select.melting.id) %>%
-                filter(T.K > min(input$slider.therm), T.K < max(input$slider.therm))
+                filter(T.K > min(input$slider.therm) & T.K < max(input$slider.therm))
 
             if(input$melt.merge.replicates == T){
                 melt.filtered.buffer <- melt.filtered.buffer %>%
@@ -2662,7 +2659,7 @@ g4db <- function() {
                 mutate(raw.fit.y = (P3+P4*T.K)*1/(1+exp(-P1*(1-T.K/P2)/(8.31451*T.K)))+(P5+P6*T.K)*exp(-P1*(1-T.K/P2)/(8.31451*T.K))/(1+exp(-P1*(1-T.K/P2)/(8.31451*T.K)))) %>%
                 mutate(low.T.baseline = P3+P4*T.K) %>%
                 mutate(high.T.baseline = P5+P6*T.K) %>%
-                filter(T.K > min(input$slider.therm), T.K < max(input$slider.therm))
+                filter(T.K > min(input$slider.therm) & T.K < max(input$slider.therm))
             # }
         })
 
@@ -3001,8 +2998,7 @@ g4db <- function() {
                 filter(cation %in% input$select.cation.db) %>%
                 filter(buffer.id %in% input$select.buffer.id.db) %>%
                 filter(buffer %in% input$select.buffer.db) %>%
-                filter(wl > min(input$slide.cd.db)) %>%
-                filter(wl < max(input$slide.cd.db)) %>%
+                filter(wl > min(input$slide.cd.db) & wl < max(input$slide.cd.db)) %>%
                 group_by(oligo, buffer.id, wl, l, con, CD, delta.epsilon) %>%
                 mutate(plot.y = if_else(isTRUE(input$cd.data.select.db), delta.epsilon, CD))
         })
@@ -3045,8 +3041,7 @@ g4db <- function() {
                 filter(comment %in% input$select.buffer.id.db) %>%
                 filter(buffer %in% input$select.buffer.db) %>%
                 filter(oligo %in% selected.oligos.db()) %>%
-                filter(T.K > min(input$slide.uv.fit.db)) %>%
-                filter(T.K < max(input$slide.uv.fit.db))
+                filter(T.K > min(input$slide.uv.fit.db) & T.K < max(input$slide.uv.fit.db))
         })
 
         #Oligo selection db
@@ -3499,8 +3494,7 @@ g4db <- function() {
         p.NMR.db <- reactive({
 
             nmr.bounds <- db.nmr.select() %>%
-                filter(shift > min(input$slide.nmr.db)) %>% #x-scale range selection
-                filter(shift < max(input$slide.nmr.db)) %>%
+                filter(shift > min(input$slide.nmr.db) & shift < max(input$slide.nmr.db)) %>% #x-scale range selection
                 group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
                 mutate(int = (int - min(int))/(max(int) - min(int)))
 
@@ -3512,13 +3506,13 @@ g4db <- function() {
                 geom_line(size = input$nmr.size.line.db) +
                 geom_text_repel(aes(x = shift, y = int, label = peak.number,
                                     color = oligo, segment.color = oligo),
-                                force = 2,
+                                force = 4,
                                 direction = 'y',
                                 min.segment.length = 0.15,
                                 segment.size = 0.5,
                                 box.padding = 1,
                                 alpha = 1,
-                                size = 6,
+                                size = 5,
                                 fontface = 'bold',
                                 show.legend = F,
                                 ylim = limits
@@ -3583,8 +3577,7 @@ g4db <- function() {
                 filter(buffer %in% input$select.buffer.db) %>%
                 filter(cation %in% input$select.cation.db) %>%
                 filter(oligo %in% selected.oligos.db()) %>%
-                filter(mz > min(input$slide.ms.db)) %>%
-                filter(mz < max(input$slide.ms.db))
+                filter(mz > min(input$slide.ms.db) & mz < max(input$slide.ms.db))
 
         })
 
@@ -4040,21 +4033,35 @@ g4db <- function() {
                 ))
             },
             content = function(file) {
-                src <- normalizePath('report.Rmd')
 
-                # temporarily switch to temp dir, in case there is no write permission to current wording dir
-                owd <- setwd(tempdir())
-                on.exit(setwd(owd))
-                file.copy(src, 'report.Rmd', overwrite = TRUE)
+                withProgress(message = 'Report generation',
+                             detail = 'Please wait', value = 0, {
 
-                # "word_document" used instead of word_document() so that template is taken into account
-                # To modify template, locate it with:
-                # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
-                out <- rmarkdown::render('report.Rmd', switch(
-                    input$format,
-                    PDF = pdf_document(), HTML = html_document(), Word = "word_document"
-                ))
-                file.rename(out, file)
+                                 incProgress(amount=1/7)
+
+                                 src <- normalizePath('report.Rmd')
+
+                                 incProgress(amount=2/7)
+
+                                 # temporarily switch to temp dir, in case there is no write permission to current wording dir
+                                 owd <- setwd(tempdir())
+                                 incProgress(amount=3/7)
+                                 on.exit(setwd(owd))
+                                 incProgress(amount=4/7)
+                                 file.copy(src, 'report.Rmd', overwrite = TRUE)
+                                 incProgress(amount=5/7)
+                                 # "word_document" used instead of word_document() so that template is taken into account
+                                 # To modify template, locate it with:
+                                 # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
+                                 out <- rmarkdown::render('report.Rmd', switch(
+                                     input$format,
+                                     PDF = pdf_document(), HTML = html_document(), Word = "word_document"
+                                 ))
+                                 incProgress(amount=6/7)
+                                 file.rename(out, file)
+                                 incProgress(amount=7/7)
+                             }
+                )
             }
         )
 
