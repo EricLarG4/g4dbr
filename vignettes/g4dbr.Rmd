@@ -546,10 +546,10 @@ $A_T^F$ and $A_T^U$ can be modelled as a linear function of the temperature, whe
 
 $$A_T=(a^FT+b^F) \times \frac{1}{1+K} + (a^UT+b^U) \times \frac{K}{1+K}$$
 
-$K$ can be expressed by thermodynamic quantities of interest: $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$. Note that in meltR, potential changes in heat capacity changes in the evaluated temperature range are not taken into account to avoid over-paramaterization.
+$K$ can be expressed by thermodynamic quantities of interest: $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$. 
 
 $$-RTlnK = \Delta G^0 = \Delta H^0 - T\Delta S^0$$
-At $T = T_m$, $\Delta G_m^0 = \Delta H_m^0 - T\Delta S_m^0 = 0 $, giving $\Delta S_m^0 = \frac{\Delta H_m^0}{T_m} $, and therefore:
+Note that in meltR, potential changes in heat capacity changes in the evaluated temperature range are not taken into account to avoid over-paramaterization. At $T = T_m$, $\Delta G_m^0 = \Delta H_m^0 - T\Delta S_m^0 = 0 $, giving $\Delta S_m^0 = \frac{\Delta H_m^0}{T_m} $, and therefore:
 
 $$\Delta G^0 = \Delta H^0_{T_m} (1- \frac{T}{T_m})$$
 
