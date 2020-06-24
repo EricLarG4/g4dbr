@@ -194,7 +194,7 @@ knitr::include_graphics('ressources/colours.png')
  
 Some figure boxes feature a _right sidebar_. They contain filtering and data formatting filters that are applied *only* on the corresponding figure (contrary to the _left sidebars_ that affect entire tabs). These sidebars are collapsible as well, and hidden by default.
 
-## Consulting a database: the database tab
+## Consulting a database: the *database* tab
 
 The database tab is dedicated to visualizing, exporting, and reporting on the data of a curated database file.
 
@@ -427,6 +427,8 @@ Besides the `oligonucleotide`, `buffer` and `cation` names, the header contains 
 knitr::include_graphics('ressources/template_uv.PNG')
 ```
 
+The melting data must be pasted as is, in particular if both cooling and heating ramps are recorded successively. *MeltR* uses the changes in temperature (increase or decrease) from successive rows to assess whether it deals with a heating or cooling ramps, and eventually dissociates both for further processing.
+
 #### NMR
 
 The *^1^H-NMR* template follows the same principle as the *CD* one: two columns (per *oligonucleotide*/*buffer*/*cation* combination) for the chemical shift and intensity, and three header rows for the `oligonucleotide`, `buffer` and `cation` names (Figure \@ref(fig:demoinputnmr)). 
@@ -472,7 +474,119 @@ knitr::include_graphics('ressources/template_ms_labels.PNG')
 
 Make sure to mirror the header from the MS data tab, so that all spectra are labelled.
 
-## Importing UV-melting data: the *meltR* tab
+### Populating a database
+
+Once the template file is ready, the data can be loaded in *g4db*, processed, filtered, and written into a new or existing database file. All of these steps can be performed in the *importR* tab, except for the *UV-melting* data treatment that is carried out in *meltR* (see section below).
+
+Essentially, *importR* works just like *database*. The main window hosts the same data tables and figures than database (except *UV-melting* figures), with the same functioning (data filtering, figure customization). In the same vein, the *left sidebar* also contains the filters and color palette selection menus. All these common features are described in the *Interface overview* and *Consulting a database: the database tab* sections, and will not be discussed below.
+
+The key aspect of *importR* is that it is a *selective* database writing tool. In that context:
+
++ **What you see is what you write** to the database. Any data point filtered out (whether by *oligonucleotide*, *buffer* compositon, x-axis range), will *not* be written in the database file.
++ Duplicated data points (same technique, *oligonucleotide*, *buffer* composition, x-axis position,...) are discarded. For instance, resubmitting data with a wider x-axis range will have the effect of completing the database (without doubling the already existing points), but resubmitting corrected data on the same range might not replace the initial data. It is therefore better to first remove the erroneous entry (see *Data deletion*). 
++ Individual oligonucleotides and analytical methods can be included or excluded from the database writing.
+
+#### Template file input
+
+The data is imported by selecting a file via the *Browse...* button in the *left sidebar*. 
+
+#### Data filtering and processing
+
+Oligonucleotides are selected from the *General information* table. Further buffer composition filtering can be performed in the *left sidebar*. 
+
+The *CD* and *NMR* calculations (e.g. normalization, labeling) and plotting are automatically performed, without any user input. The MS data is processed and plotted when the *plot MS* button is clicked. Note that if the MS data is not plotted, it cannot be exported to a database.
+
+Method-dependent *filtering* is performed in the corresponding *right sidebars*, as described for the *database* tab.
+
+#### Importing UV-melting data: the *meltR* tab
+
+The processing of UV-melting data is performed in *meltR*, a distinct tab from *importR*, to avoid overcrowding the interface and allow its use outside of the database frame.
+
+The data is sourced from the template file loaded in *importR*, and once the data is processed in *meltR* it can be sent back to *importR* to include in the database. Note that the filtering of temperature range and buffer composition must be performed directly in *meltR*.
+
+The use of *meltR* itself is described below.
+
+### Writing a database file
+
+Once the data has been selected and properly filtered (including or not UV-melting data from *meltR*), it can be written into a database file in three simple steps:
+
+1. Select a database file, either an existing one (to add new entries) or an empty one (to create a new database). This file can be opened in the *Export* section of the *left sidebar* of *importR*, or from the *database* tab. In either way, the data can be consulted in the *database* tab. An empty file is available in the package, and can be found by running:
+```{r empty.db, eval=FALSE, include=TRUE}
+system.file("extdata/empty_database.Rda", package = 'g4dbr')
+```
+
+2. Select the methods to write to the database file, using the switches. The MS and UV-melting data must be generated to be exported.
+3. Click on *Write to db file*. By default, the file will be named following the `Database-YYYY-MM-DD.Rda` template. Rename where necessary.
+4. Optional: load the new/updated database to verify that the import worked correctly.
+
+## Automated processing of UV-melting data: the *meltR tab*
+
+### Principle
+
+#### Purpose
+
+*meltR* is an automated UV-melting data processing software. It determines the melting temperatures ($T_{m}$), $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$ by non linear fitting, then converts the absorbances into folded fractions.[@Mergny2003] 
+
+Folded fractions are a good way to assess to which extent an oligonucleotide is structured (1: all molecules folded, 0: all molecules unfolded), visually observe the $T_{m}$ (folded fraction = 0.5), and normalize the data to different oligonucleotides in different experimental conditions to a common y-scale.
+
+For the non-linear fitting and the folded fraction calculation to work, the data must contain both a *lower* and *higher* baseline.[@Mergny2003] In other words, the oligonucleotide must not be too stable or too unstable. In such cases, *meltR* allows to normalize the data to [0;1] to at least bring all data to a common y-scale.
+
+#### Data modeling
+
+In a melting experiment, changes in the solution temperature lead to changes in the amount of folded (decreases with increasing temperatures) and unfolded species (increases with increasing temperatures). The model relies on the expression of the measured absorbance $A_T$ as the sum of the absorbances from the folded (*F*) and unfolded (*U*) forms, weighted by their abundance expressed from the folded fraction $\theta _T$.
+
+$$A_T=A_T^F \times \theta _T + A_U^T \times (1-\theta _T)$$
+
+The folded fraction is defined by $\theta = \frac{[F]}{[F]+[U]}$. Assuming a simple (and possibly oversimplified) two-state model $F \Leftrightarrow U$ with an equilibrium constant $K$, $\theta$ can be expressed as:
+$$\theta = \frac{1}{1+K}$$
+
+This leads to:
+$$A_T=A_T^F \times \frac{1}{1+K} + A_U^F \times \frac{K}{1+K}$$
+$A_T^F$ and $A_T^U$ can be modelled as a linear function of the temperature, where $a$ is the slope and $b$ the intercept of these baselines:
+
+$$A_T=(a^FT+b^F) \times \frac{1}{1+K} + (a^UT+b^U) \times \frac{K}{1+K}$$
+
+$K$ can be expressed by thermodynamic quantities of interest: $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$. Note that in meltR, potential changes in heat capacity changes in the evaluated temperature range are not taken into account to avoid over-paramaterization.
+
+$$-RTlnK = \Delta G^0 = \Delta H^0 - T\Delta S^0$$
+At $T = T_m$, $\Delta G_m^0 = \Delta H_m^0 - T\Delta S_m^0 = 0 $, giving $\Delta S_m^0 = \frac{\Delta H_m^0}{T_m} $, and therefore:
+
+$$\Delta G^0 = \Delta H^0_{T_m} (1- \frac{T}{T_m})$$
+
+Finally, K can be expressed as:
+
+$$exp(-\frac{\Delta H^0_{T_m} (1- \frac{T}{T_m})}{RT})$$
+
+The non-linear fitting is performed with:
+
+
+#### Workflow
+
+1. Detection of the temperature unit, and convertion to Kelvin where necessary 
+2. Blank subtraction, if blank data is submitted (can be turned off)
+3. Determination and separation of the ramps (cooling and heating). The ramps are always processed separately
+4. Data selection from user input: *oligonucleotides*, *ramps*, *buffers*, *replicates*.
+5. Non linear fitting initialization
+6. Non linear fitting
+7. Folded fraction calculation
+
+For the data to be fitted and subsequently converted to folded fraction
+
+  a. Fitting initialization: maximum of the first derivative (dT/dA) is used as the initial $T_{m}$. Other values are hard coded but can be changed by the user
+  b. Fitting with the following model:
+  $$A = (P3 + P4 \times  T)\frac{1}{1+K}+(P5 + P6\times T)\frac{K}{1+K}$$
+  $$K = exp(-\frac{P1(1-\frac{T}{P2}) + P7[P2 - x \times ln(\frac{T}{P2})]}{R \times T})$$
+
+### Data filtering
+
+The data must be loaded from the Excel template into *importR*. All of the UV-melting data is automatically imported into *meltR*, regardless of the oligonucleotides selected in *importR* (to facilitate the standalone use). However, only the processed data for the oligonucleotides selected in *importR* is sent back to that tab.
+
+The *meltR* interface has a slightly different organization than *importR* and *database*: the filtering of data to process is carried out in the hovering *Filter* panel:
+
+1. Where necessary, refine the temperature range (default: 276-363 K, or ~ 3-90 °C),
+2. Select the oligonucleotides to process (default to all). It is possible to process several oligonucleotides at once. Remember however that, in the context of *g4db*, these different oligonucleotides need to be selected in *importR* to be sent to that tab.
+3. Select the ramps (heating or cooling) to process (default: both). The nature of the ramps is determined automatically, and the ramps are processed separately.
+4. 
 
 # Other functions and reference files
 
