@@ -154,8 +154,8 @@ g4db <- function() {
                     status = 'primary',
                     solidHeader = F,
                     collapsible = T,
-                    sliderInput("melt.deriv.smooth.width",
-                                "Smooth window",
+                    sliderInput(inputId = "melt.deriv.smooth.width",
+                                label = "Smooth window",
                                 min = 1,
                                 max = 20,
                                 value = 5,
@@ -2719,7 +2719,7 @@ g4db <- function() {
                 geom_point(aes(T.K, abs.melt, color = id), size = input$size.dot.melt, alpha = input$alpha.dot.melt, shape = 16) + #plots the experimental data
                 geom_line(aes(x = T.K, y = raw.fit.y, color = id),
                           size = input$size.line.melt, alpha = input$alpha.line.melt) +
-                ylab(bquote(bold("modeled folded fraction"))) + #modifies axes titles
+                ylab(bquote(Delta*epsilon*'/'*Delta*'T ('*M^-1~cm^-1*K^-1*')')) + #modifies axes titles
                 xlab("Temperature (K)") +
                 # scale_y_continuous(limits=c(-0.1,1.1), breaks = c(0, 0.25, 0.5, 0.75, 1.0)) +
                 labs(color="id") +
@@ -2775,7 +2775,7 @@ g4db <- function() {
                 geom_point(aes(T.K, folded.fraction, color = id),
                            size = input$size.dot.melt-2, alpha = input$alpha.dot.melt,
                            shape = 16) + #plots the experimental data
-                ylab(bquote(bold("folded fraction"))) + #modifies axes titles
+                ylab("folded fraction") + #modifies axes titles
                 xlab("Temperature (K)") +
                 # scale_y_continuous(limits=c(-0.1,1.1), breaks = c(0, 0.25, 0.5, 0.75, 1.0)) +
                 labs(color="id") +
