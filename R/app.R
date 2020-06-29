@@ -1737,7 +1737,7 @@ g4db <- function() {
                             'Cation' = 'cation',
                             'Ramp' = 'ramp',
                             'T (K)' = 'T.K',
-                            'Blank subtracted Abs' = 'abs.melt',
+                            'Epsilon' = 'abs.melt',
                             'Folded fraction' = 'folded.fraction.base',
                             'Absorbance' = 'abs.raw',
                             'Modeled folded fraction' = 'folded.fraction',
@@ -1758,7 +1758,7 @@ g4db <- function() {
                             columnDefs = list(list(visible=FALSE, targets=c(0,2,3,7,9:13,15:37)))
                         )
                     ) %>%
-                    formatRound(c('Modeled folded fraction', 'Folded fraction', 'Blank subtracted Abs',
+                    formatRound(c('Modeled folded fraction', 'Folded fraction', 'Epsilon',
                                   'Absorbance', 'Modeled absorbance', 'Blank absorbance'),
                                 digits = 3)
             }
@@ -2248,11 +2248,11 @@ g4db <- function() {
 
             #extract descriptors
             descriptors <- wide.input %>%
-                slice(1:5)
+                slice(1:7)
 
             #extract data
             raw.data <- wide.input %>%
-                slice(-1:-5)
+                slice(-1:-7)
 
             data.collector <- data.frame()
 
@@ -2265,10 +2265,12 @@ g4db <- function() {
                     mutate(descriptors[[1, n+1]], #adds columns for descriptors
                            descriptors[[2, n+1]],
                            descriptors[[3, n+1]],
-                           descriptors[[4, n+1]]) %>%
-                    magrittr::set_colnames(c('T.unk', 'abs.raw', 'abs.blk', 'oligo', 'buffer', 'cation', 'rep')) %>%
+                           descriptors[[4, n+1]],
+                           descriptors[[5, n+1]],
+                           descriptors[[6, n+1]]) %>%
+                    magrittr::set_colnames(c('T.unk', 'abs.raw', 'abs.blk', 'oligo', 'buffer', 'cation', 'rep', 'melt.l', 'melt.c')) %>%
                     mutate(comment = ifelse(is.na(cation), buffer, paste(buffer, '+', cation))) %>%
-                    convert(num('T.unk', 'abs.raw', 'abs.blk')) %>% #converts some columns to numeric type
+                    convert(num('T.unk', 'abs.raw', 'abs.blk', 'melt.l', 'melt.c')) %>% #converts some columns to numeric type
                     drop_na('T.unk')
 
                 #binds data
@@ -2290,9 +2292,9 @@ g4db <- function() {
                 mutate(T.K = if_else(abs.raw < 100, T.unk + 273.15, T.unk)) %>%
                 add_column(blk.sub = blk.subtract()) %>%
                 group_by(id) %>%
-                #subtract the blank column is values are provided and toggle activated
-                mutate(abs.melt = if_else(is.na(abs.blk), abs.raw,
-                                          if_else(blk.sub == 1, abs.raw - abs.blk, abs.raw))) %>%
+                #subtract the blank column is values are provided and toggle activated + converts to molar absorbtion coeff
+                mutate(abs.melt = if_else(is.na(abs.blk), abs.raw/(melt.c/1E6 * melt.l),
+                                          if_else(blk.sub == 1, (abs.raw - abs.blk)/(melt.c/1E6 * melt.l), abs.raw/(melt.c/1E6 * melt.l)))) %>%
                 ungroup()
 
             return(melt.buffer)
@@ -2447,7 +2449,7 @@ g4db <- function() {
                 scale_color_d3() +
                 theme_pander() +
                 xlab("Temperature (K)") +
-                ylab("Absorbance")
+                ylab(bquote('Epsilon ('*M^-1~cm^-1*')'))
 
             # p45 <- melt.palette.modifier(plot = p45)
 
@@ -2510,7 +2512,7 @@ g4db <- function() {
                 theme_pander() +
                 scale_color_d3(palette = "category20") +
                 xlab("Temperature (K)") +
-                ylab("DA/DT")
+                ylab(bquote(Delta*epsilon*'/'*Delta*'T ('*M^-1~cm^-1*K^-1*')'))
 
             # p46 <- melt.palette.modifier(plot = p46)
 
@@ -2581,19 +2583,22 @@ g4db <- function() {
             #loops across all unique selected ids
             for (i in unique(melt.filtered()$id)) {
 
-                #initialize Parameters
-                fit.melt.init.par <- subset(tm.init.change(), id == i)
-
-                P1s <- as.vector(fit.melt.init.par$P1.init)
-                P2s <- as.vector(fit.melt.init.par$Tm.init)
-                P3s <- as.vector(fit.melt.init.par$P3.init)
-                P4s <- as.vector(fit.melt.init.par$P4.init)
-                P5s <- as.vector(fit.melt.init.par$P5.init)
-                P6s <- as.vector(fit.melt.init.par$P6.init)
-
                 #buffers the data to fit
                 fit.melt.input.buffer <- data.frame(melt.filtered()) %>%
                     filter(id == i)
+
+                #initialize Parameters
+                fit.melt.init.par <- subset(tm.init.change(), id == i)
+
+                melt.c <- unique(fit.melt.input.buffer$melt.c) #oligo concentration
+                melt.l <- unique(fit.melt.input.buffer$melt.l) #path length
+
+                P1s <- as.vector(fit.melt.init.par$P1.init)
+                P2s <- as.vector(fit.melt.init.par$Tm.init)
+                P3s <- as.vector(fit.melt.init.par$P3.init)/(melt.c/1E6 * melt.l) #convert initial parameters to molar abs coeff.
+                P4s <- as.vector(fit.melt.init.par$P4.init)/(melt.c/1E6 * melt.l)
+                P5s <- as.vector(fit.melt.init.par$P5.init)/(melt.c/1E6 * melt.l)
+                P6s <- as.vector(fit.melt.init.par$P6.init)/(melt.c/1E6 * melt.l)
 
                 #fit
                 ms <- nls(
