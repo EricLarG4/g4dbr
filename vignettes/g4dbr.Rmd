@@ -517,6 +517,7 @@ The use of *meltR* itself is described below.
 Once the data has been selected and properly filtered (including or not UV-melting data from *meltR*), it can be written into a database file in three simple steps:
 
 1. Select a database file, either an existing one (to add new entries) or an empty one (to create a new database). This file can be opened in the *Export* section of the *left sidebar* of *importR*, or from the *database* tab. In either way, the data can be consulted in the *database* tab. An empty file is available in the package, and can be found by running:
+
 ```{r empty.db, eval=FALSE, include=TRUE}
 system.file("extdata/empty_database.Rda", package = 'g4dbr')
 ```
@@ -535,9 +536,9 @@ system.file("extdata/empty_database.Rda", package = 'g4dbr')
 
 Folded fractions are a good way to assess to which extent an oligonucleotide is structured (1: all molecules folded, 0: all molecules unfolded), visually observe the $T_{m}$ (folded fraction = 0.5), and normalize the data to different oligonucleotides in different experimental conditions to a common y-scale.
 
-For the non-linear fitting and the folded fraction calculation to work, the data must contain both a *lower* and *higher* baseline.[@Mergny2003] In other words, the oligonucleotide must not be too stable or too unstable. In such cases, *meltR* allows to normalize the data to [0;1] to at least bring all data to a common y-scale.
+For the non-linear fitting and the folded fraction calculation to work, the data <ins>must contain both a *lower* and *higher* baseline</ins>.[@Mergny2003] In other words, the oligonucleotide must not be too stable or too unstable. In such cases, *meltR* allows to normalize the data to [0;1] to at least bring all data to a common y-scale.
 
-#### Data modeling
+#### Data modeling: General model
 
 In a melting experiment, changes in the solution temperature lead to changes in the amount of folded (decreases with increasing temperatures) and unfolded species (increases with increasing temperatures). The model relies on the expression of the measured absorbance $A_T$ as the sum of the absorbances from the folded (*F*) and unfolded (*U*) forms, weighted by their abundance expressed from the folded fraction $\theta _T$.
 
@@ -557,48 +558,136 @@ $K$ can be expressed by thermodynamic quantities of interest: $\Delta G^0$, $\De
 $$-RTlnK = \Delta G^0 = \Delta H^0 - T\Delta S^0$$
 Note that in meltR, potential changes in heat capacity changes in the evaluated temperature range are not taken into account to avoid over-paramaterization. At $T = T_m$, $\Delta G_m^0 = \Delta H_m^0 - T\Delta S_m^0 = 0 $, giving $\Delta S_m^0 = \frac{\Delta H_m^0}{T_m} $, and therefore:
 
-$$\Delta G^0 = \Delta H^0_{T_m} (1- \frac{T}{T_m})$$
+$$\Delta G^0 = \Delta H^0_{m} (1- \frac{T}{T_m})$$
 
-Finally, K can be expressed as:
+Finally, K can be expressed as $exp(-\frac{\Delta H^0 (1- \frac{T}{T_m})}{RT})$, yielding:
 
-$$exp(-\frac{\Delta H^0_{T_m} (1- \frac{T}{T_m})}{RT})$$
+$$A_T=(a^FT+b^F) \times \frac{1}{1+exp(-\frac{\Delta H^0 (1- \frac{T}{T_m})}{RT})} + (a^UT+b^U) \times \frac{exp(-\frac{\Delta H^0 (1- \frac{T}{T_m})}{RT})}{1+exp(-\frac{\Delta H^0 (1- \frac{T}{T_m})}{RT})}$$
 
-The non-linear fitting is performed with:
+#### Data modeling: Implementation and derived values
+
+In meltR, the absorbance is converted to molar extinction coefficients before fitting with the following model:
+
+```{r echo=TRUE, eval=FALSE}
+epsilon = (P3+P4*T)*1/(1+exp(-P1*(1-T/P2)/(8.31451*T)))+(P5+P6*T)*exp(-P1*(1-T/P2)/(8.31451*T))/(1+exp(-P1*(1-T/P2)/(8.31451*T)))
+```
+
+where *epsilon* is the molar extinction coefficient, *T* is the temperature (in Kelvin), `P1` is $\Delta H^0$, `P2` is the $T_m$, `P3`/`P5` and `P4`/`P6` are respectively the origins and slopes of the baselines. The optimized parameters are summarized in the *meltR* tab, and can be later consulted in the *database* tab.
+
+After fitting, the baselines (in M^-1^cm^-1^) are obtained with `P3+P4*T` and `P5+P6*T`. The folded fraction is calculated with: 
+$$\theta = \frac{1}{1 + exp(-\frac{P1(1-\frac{T}{P2})}{RT})}$$. 
+
+A modeled folded fraction is also computed, using:
+$$\theta_{model} = \frac{P6T + P5 - \epsilon}{P6T+P5-(P4T + P3)}$$
+
+
+XXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXX
+DeltaG/H/S + fitting quality values
+XXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXX
 
 
 #### Workflow
 
-1. Detection of the temperature unit, and convertion to Kelvin where necessary 
-2. Blank subtraction, if blank data is submitted (can be turned off)
-3. Determination and separation of the ramps (cooling and heating). The ramps are always processed separately
-4. Data selection from user input: *oligonucleotides*, *ramps*, *buffers*, *replicates*.
-5. Non linear fitting initialization
-6. Non linear fitting
-7. Folded fraction calculation
+The data is processed following this workflow:
 
-For the data to be fitted and subsequently converted to folded fraction
+1. Detection of the temperature unit, and conversion to Kelvin where necessary, 
+2. Generation of a unique `id` for each *oligonucleotides*, *ramps*, *buffers*, and *replicates* combinations. From then on, all data is processed by `id` (in particular cooling and heating ramps are processed separately).
+3. Blank subtraction, if blank data is submitted (can be turned off),
+4. Conversion of the absorbance data to molar extinction coefficient,
+5. Determination and separation of the ramps (cooling and heating). The ramps are always processed separately.
+6. Data selection from user input: *oligonucleotides*, *ramps*, *buffers*, *replicates*, or individual *id*.
 
-  a. Fitting initialization: maximum of the first derivative (dT/dA) is used as the initial $T_{m}$. Other values are hard coded but can be changed by the user
-  b. Fitting with the following model:
-  $$A = (P3 + P4 \times  T)\frac{1}{1+K}+(P5 + P6\times T)\frac{K}{1+K}$$
-  $$K = exp(-\frac{P1(1-\frac{T}{P2}) + P7[P2 - x \times ln(\frac{T}{P2})]}{R \times T})$$
+The steps 7--9 are only carried out if the data can be fitted (presence of both lower and upper baselines):
 
-### Data filtering
+7. Non linear fitting initialization
+    a. `P2` (the *T_m*) is initialized as the maximum of the first derivative ($\frac{\Delta\epsilon}{\Delta T}$)
+    b. All other parameters initial values are hard-coded, and modulated by the oligonucleotide concentration and cell path length
+    c. Manual user modification
+8. Non linear fitting (see model above),
+9. Calculation of the folded fractions (from experimental data and from the model) and baselines (see equations above)
+
+Step 10 is only carried out for non-fittable data:
+
+10. The $\epsilon$ values are normalized in the [0;1] range, to be displayed alongside folded fraction data (same y-scale).
+
+### Data loading and filtering
 
 The data must be loaded from the Excel template into *importR*. All of the UV-melting data is automatically imported into *meltR*, regardless of the oligonucleotides selected in *importR* (to facilitate the standalone use). However, only the processed data for the oligonucleotides selected in *importR* is sent back to that tab.
 
-The *meltR* interface has a slightly different organization than *importR* and *database*: the filtering of data to process is carried out in the hovering *Filter* panel:
+The *meltR* interface has a slightly different organization than *importR* and *database*: the filtering of data to process is carried out in the hovering *Filter* panel (Figure @\ref(fig:melting1)).
 
 1. Where necessary, refine the temperature range (default: 276-363 K, or ~ 3-90 °C),
 2. Select the oligonucleotides to process (default to all). It is possible to process several oligonucleotides at once. Remember however that, in the context of *g4db*, these different oligonucleotides need to be selected in *importR* to be sent to that tab.
 3. Select the ramps (heating or cooling) to process (default: both). The nature of the ramps is determined automatically, and the ramps are processed separately.
-4. 
+4. Select the buffers to process (default: all),
+5. Select the replicates to process (default: all)
+6. If the steps 2--5 do not allow to specifically select the desired data, it is possible to directly filter the data by `id`.
+
+```{r melting1, echo=FALSE, fig.cap='The UV-melting data from the demo_inpout, where the Kp+KCl buffer was filtered off', out.width='100%'}
+knitr::include_graphics('ressources/melting_1.PNG')
+```
+
+The *Filter* panel can be minimized by clicking on the header.
+
+### Data fitting
+
+This section can be carried out only for data that can be fitted. For non-fittable data, skip this section.
+
+1. Click on the *Plot derivative* button, located in the *left sidebar*. 
+    a. The *Input data* box will automatically switch to display $\frac{\Delta\epsilon}{\Delta T}$ (Figure \@ref(fig:melting2))
+    b. The *Approximate T_m* table is filled with the maxima from the derivatives, in the *Fit* box.   
+    c. Artifactual points (e.g. caused by important local data variations) may lead to erroneous approximated *T_m*: increase the smooth window and click on the button again. If the results are still not satisfactory, continue anyway to step 2 (Figures \@ref(fig:melting2) and \@ref(fig:melting3)).
+    
+```{r melting2, echo=FALSE, fig.cap='First derivative data was obtained by clicking on Plot derivatives. Note the presence of artifacts at high temperature that will cause an erroneous initialization to the Tm for 1XAV-TMAA + KCl-heating-1', out.width='100%'}
+knitr::include_graphics('ressources/melting_2.PNG')
+```
+
+```{r melting3, echo=FALSE, fig.cap='T_m initialization from first derivative data. Here, the second entry is erroneous and must be corrected either by increasing the derivative smoothing, or manually at the next step', out.width='100%'}
+knitr::include_graphics('ressources/melting_3.PNG')
+```   
+    
+    
+2. Click on the *Initialize fitting button*, located in the *left sidebar* (Figure \@ref(fig:melting4)).
+    a. The *Fit* box will automatically switch to the *Fit initialization* table.
+    b. If step 1. was not satisfactory, manually correct the `Tm.init` variable. <ins>Correctly initialized *Tm* are critical for the success of the fitting process </ins> The other initial fitting parameter values can also be modified.
+    c. If desired, change the legend; by default it is the `id`
+    
+```{r melting4, echo=FALSE, fig.cap='Fitting initialization. All parameters are initialized. Note that the Tm initialization is being manually corrected', out.width='100%'}
+knitr::include_graphics('ressources/melting_4.PNG')
+```   
+  
+    
+3. Click on the *Launch fitting* button (Figure \@ref(fig:melting4)), and the data will be processed and the result displayed in several figures and tables (Figure \@ref(fig:melting5)).
+   a. The *Fit* box will automatically switch to the fit result tab, showing the fit lines and calculated baselines. Baselines can be toggled off using the corresponding switch in the *left sidebar*.
+    b. The folded fractions (and modeled folded fraction) are shown in the *Fit results* box
+    c. The melting temperatures and other thermodynamic values are accessible in the *Melting temperatures* box. The temperature at which the Free energy is calculated can be adjusted from a slider in the *left sidebar*. The *T_m* values are also plotted in the *Plot* tab (box plot grouped by *oligonucleotide* and *buffers*, with distinctive colors per ramp).
+    d. If the fit fails, it is likely that the data was not correctly initialized. Change the parameters, and click again on *Launch fitting*
+    
+```{r melting5, echo=FALSE, fig.cap='Fitting results: Fitted data (top right), folded fraction (bottom left), data table and Tm plot (bottom right)', out.width='100%'}
+knitr::include_graphics('ressources/melting_5.PNG')
+``` 
+  
+### Sending data to *importR*
+
+To send data to *importR* for database edition:
+
+1. If not already done, select the oligonucleotides to import in *importR* from the *General information* table of that tab,
+2. Select whether the data was fitted or not with the *select data* switch, in the *left sidebar*,
+3. Click on the *send to importR* button,
+4. In *importR*, verify that the data has correctly been sent into the *UV-melting data* box.
+
+  
+### Figure customization
+
+The choice of colour palettes, lines and points size and transparency, can be made from the hovering *Customisation* panel. The panel can be minimized by clicking on the header. 
 
 # Other functions and reference files
 
 ## epsilon.calculator
 
-### Principles
+### Principle
 
 `epsilon.calculator` relies on the 'traditional' format of the nearest-neighbor model for extinction coefficient calculation, applied at 260 nm.[@Cantor1970; @Tataurov2008]
 
