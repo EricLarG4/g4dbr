@@ -7,12 +7,22 @@
 #' database.eraser("this is a filepath")
 #'
 
-database.eraser <- function(db.to.erase = NULL, remove.oligos = NULL){
+database.eraser <- function(db.to.erase = NULL, remove.oligos = NULL, erase.CD, erase.NMR, erase.MS, erase.UV){
 
+  #operator definition
   '%notin%' <- Negate('%in%')
 
+  #data to remove
   remove.oligos <- remove.oligos
 
+  #if all exp data is removed, remove the oligo info as well
+  if (erase.CD == TRUE & erase.NMR == TRUE & erase.MS == TRUE & erase.UV == TRUE) {
+    erase.info <- TRUE
+  } else {
+    erase.info <- FALSE
+  }
+
+  #file loading
   load(file = db.to.erase)
 
   #erasing function
@@ -24,12 +34,29 @@ database.eraser <- function(db.to.erase = NULL, remove.oligos = NULL){
     return(dataset)
   }
 
-  db.CD <- as.data.frame(erase.db(dataset = db.CD, remove.oligos))
-  db.info <- as.data.frame(erase.db(db.info, remove.oligos))
-  db.MS <- as.data.frame(erase.db(db.MS, remove.oligos))
-  db.UV <- as.data.frame(erase.db(db.UV, remove.oligos))
-  db.NMR <- as.data.frame(erase.db(db.NMR, remove.oligos))
+  #Data removal (per method, if selected for removal)
+  if (erase.CD == TRUE) {
+    db.CD <- as.data.frame(erase.db(dataset = db.CD, remove.oligos))
+  }
 
+  if (erase.info == TRUE) {
+    db.info <- as.data.frame(erase.db(db.info, remove.oligos))
+  }
+
+  if (erase.MS == TRUE) {
+    db.MS <- as.data.frame(erase.db(db.MS, remove.oligos))
+  }
+
+  if (erase.UV == TRUE) {
+    db.UV <- as.data.frame(erase.db(db.UV, remove.oligos))
+  }
+
+  if (erase.NMR == TRUE) {
+    db.NMR <- as.data.frame(erase.db(db.NMR, remove.oligos))
+  }
+
+
+  #Rest of data collected back in a list
   db.collection <- list('db.info' = db.info,
                         'db.CD' = db.CD,
                         'db.NMR' = db.NMR,

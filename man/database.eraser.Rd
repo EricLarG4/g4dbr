@@ -4,7 +4,14 @@
 \alias{database.eraser}
 \title{Erases the data of all of selected oligonucleotides from a g4dbr database while maintaining its structure for reuse}
 \usage{
-database.eraser(db.to.erase = NULL, remove.oligos = NULL)
+database.eraser(
+  db.to.erase = NULL,
+  remove.oligos = NULL,
+  erase.CD,
+  erase.NMR,
+  erase.MS,
+  erase.UV
+)
 }
 \arguments{
 \item{db.to.erase}{An .Rda file path to erase}

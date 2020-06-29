@@ -273,7 +273,36 @@ g4db <- function() {
                        h5('1/ Select oligonucleotides to erase from the sidebar filter'),
                        h5('The following oligonucleotides will be erased:'),
                        textOutput('oligos.to.remove'),
-                       h5('2/ Download the curated database:'),
+                       h5('2/ Select the methods to erase:'),
+                       switchInput(inputId = 'erase.CD',
+                                   label = 'CD',
+                                   offLabel = 'Off',
+                                   onLabel = 'On',
+                                   onStatus = 'info',
+                                   offStatus = 'danger'
+                       ),
+                       switchInput(inputId = 'erase.NMR',
+                                   label = 'NMR',
+                                   offLabel = 'Off',
+                                   onLabel = 'On',
+                                   onStatus = 'info',
+                                   offStatus = 'danger'
+                       ),
+                       switchInput(inputId = 'erase.MS',
+                                   label = 'MS',
+                                   offLabel = 'Off',
+                                   onLabel = 'On',
+                                   onStatus = 'info',
+                                   offStatus = 'danger'
+                       ),
+                       switchInput(inputId = 'erase.UV',
+                                   label = 'UV',
+                                   offLabel = 'Off',
+                                   onLabel = 'On',
+                                   onStatus = 'info',
+                                   offStatus = 'danger'
+                       ),
+                       h5('3/ Download the curated database:'),
                        downloadButton("erase.db", "Erase to a db file"),
                 )
             )
@@ -3989,7 +4018,11 @@ g4db <- function() {
             content = function(file) {
 
                 db.collection <- database.eraser(db.to.erase = db.file()$datapath,
-                                                 remove.oligos =  input$select.oligo.db)
+                                                 remove.oligos =  input$select.oligo.db,
+                                                 erase.CD = input$erase.CD,
+                                                 erase.NMR = input$erase.NMR,
+                                                 erase.MS = input$erase.MS,
+                                                 erase.UV = input$erase.UV)
 
                 db.CD <- db.collection$db.CD
                 db.info <- db.collection$db.info
