@@ -2,9 +2,13 @@
 #'
 #' @param db.to.erase An .Rda file path to erase
 #' @param remove.oligos A vector containg strings of the \code{oligo} names
+#' @param erase.CD A logical value (TRUE or FALSE) indicated whether to remove CD data
+#' @param erase.NMR A logical value (TRUE or FALSE) indicated whether to remove NMR data
+#' @param erase.MS A logical value (TRUE or FALSE) indicated whether to remove MS data
+#' @param erase.UV A logical value (TRUE or FALSE) indicated whether to remove UV data
 #' @return Return a list of partially of fully emptied dataframes with the correct structure for g4db use
 #' @examples
-#' database.eraser("this is a filepath")
+#' database.eraser(db.to.erase = "this is a filepath", remove.oligos = c("oligo1", "oligo42"), erase.CD = TRUE, erase.NMR = FALSE, erase.MS = TRUE, erase.UV = FALSE)
 #'
 
 database.eraser <- function(db.to.erase = NULL, remove.oligos = NULL, erase.CD, erase.NMR, erase.MS, erase.UV){

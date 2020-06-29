@@ -73,6 +73,7 @@ load(system.file("extdata/demo_database.Rda", package = 'g4dbr'))
 + computation of molar extinction coefficient ($\lambda$ = 260 nm) of oligonucleotides (*epsilon.calculator*),
 + UV-melting data treatment (*meltR*),
 + MS data size reduction (*mass.diet*)
++ Database file selective data deletion (*database.eraser*)
 
 ## Main features
 
@@ -356,18 +357,23 @@ It is also advised to back up this file in another location, because any new ins
 
 ### Data deletion
 
-It is possible to remove data from the database. In some cases, it is not good practice to ever delete data from a database. <ins>If the use of *g4db* lies within these cases do not use the data deletion tool as it **permanently deletes data**</ins>, rather than flag them for deletion.
+It is possible to selectively remove data from the database, by oligonucleotide and analytical method, using the *database.eraser* function implemented within *g4db*.
 
-Here, the data deletion tool was mostly provided as a mean to correct and update data *cleanly*, as the new data might not be written to the database if a duplicate record already exists. It is also a way to generate lighter databases for particular uses, by discarding all irrelevant entries.
+Several oligonucleotides can be processed at once, if the same analytical methods to remove are selected. If all analytical methods are selected, the selected oligonucleotide(s) entries will be entirely purged (including the general information).
 
-By default, a new file will be generated, named (partially) with the date of the day, so as to avoid accidental deletion of data. <ins>If the database in use was generated the same day than the deletion operation, there is a risk of it being overwritten: make sure to name the new file with a different name</ins>.
+In some cases, it is not good practice to ever delete data from a database. <ins>If the use of *g4db* lies within these cases do not use the data deletion tool as it **permanently deletes data**</ins>. Here, the data deletion tool was mostly provided as a mean to correct and update data *cleanly*, as the new data might not be written to the database if a duplicate record already exists. It is also a way to generate lighter, sub-databases for specific uses, by discarding all irrelevant entries.
+
+By default, a new file will be generated, named `Modified database-YYYY-MM-DD.Rda`, where `YYYY-MM-DD` is the date of the day, so as to avoid accidental file overwriting.
 
 To delete one or several entries:
 
 1. Select the *oligonucleotide(s)* to delete from the dropdown menu in the *left_sidebar* (**not from the _general info table_**),
-2. Click on *Erase to a db file*
-3. Save the file (with a different name than the one in use)
-4. Optional: load the new database file for verification and further use
+2. Select the *methods* for which the data must be removed, by flipping the switches on,
+3. Click on *Erase to a db file*
+4. Save the file (with a different name than the one in use)
+5. Optional: load the new database file for verification and further use
+
+For more details on the *database.eraser* function, refer to the *Other functions and reference files* section.
 
 ## Importing data in the database: the *importR* tab
 
@@ -516,7 +522,7 @@ system.file("extdata/empty_database.Rda", package = 'g4dbr')
 ```
 
 2. Select the methods to write to the database file, using the switches. The MS and UV-melting data must be generated to be exported.
-3. Click on *Write to db file*. By default, the file will be named following the `Database-YYYY-MM-DD.Rda` template. Rename where necessary.
+3. Click on *Write to db file*. By default, the file will be named following the `Database-YYYY-MM-DD.Rda` template. Rename where necessary. <ins>If the database in use was generated the same day than the deletion operation, there is a risk of it being overwritten: make sure to name the new file with a different name</ins>.
 4. Optional: load the new/updated database to verify that the import worked correctly.
 
 ## Automated processing of UV-melting data: the *meltR tab*
@@ -877,6 +883,126 @@ reduced.data %>%
   facet_grid(buffer.id~oligo) +
   theme_pander() +
   theme(legend.position = 'none')
+```
+
+
+## database.eraser
+
+### Principle
+
+The `database.eraser` function reads a user-specified database, remove the data for the indicated *oligonucleotides* and analytical *methods*, and returns a list of dataframe (one dataframe per *method*). Specifically, the `erase.db` function, which filters off the data of the indicated `oligo`s, is applied method per method, and only on those specified by logical values `erase.CD`, `erase.MS`, `erase.NMR` and `erase.UV`. This way, it maintains the data frames structures even if all data is removed, which allows to reuse the file in *g4db*.
+
+### Code
+
+```{r db_eraser}
+database.eraser <- function(db.to.erase = NULL, remove.oligos = NULL, 
+                            erase.CD, erase.NMR, erase.MS, erase.UV){
+
+  #operator definition
+  '%notin%' <- Negate('%in%')
+
+  #data to remove
+  remove.oligos <- remove.oligos
+
+  #if all exp data is removed, remove the oligo info as well
+  if (erase.CD == TRUE & erase.NMR == TRUE & erase.MS == TRUE & erase.UV == TRUE) {
+    erase.info <- TRUE
+  } else {
+    erase.info <- FALSE
+  }
+
+  #file loading
+  load(file = db.to.erase)
+
+  #erasing function
+  erase.db <- function(dataset = NULL, remove.oligos){
+
+    dataset <- dataset %>%
+      filter(oligo %notin% remove.oligos)
+
+    return(dataset)
+  }
+
+  #Data removal (per method, if selected for removal)
+  if (erase.CD == TRUE) {
+    db.CD <- as.data.frame(erase.db(dataset = db.CD, remove.oligos))
+  }
+
+  if (erase.info == TRUE) {
+    db.info <- as.data.frame(erase.db(db.info, remove.oligos))
+  }
+
+  if (erase.MS == TRUE) {
+    db.MS <- as.data.frame(erase.db(db.MS, remove.oligos))
+  }
+
+  if (erase.UV == TRUE) {
+    db.UV <- as.data.frame(erase.db(db.UV, remove.oligos))
+  }
+
+  if (erase.NMR == TRUE) {
+    db.NMR <- as.data.frame(erase.db(db.NMR, remove.oligos))
+  }
+
+
+  #Rest of data collected back in a list
+  db.collection <- list('db.info' = db.info,
+                        'db.CD' = db.CD,
+                        'db.NMR' = db.NMR,
+                        'db.MS' = db.MS,
+                        'db.UV' = db.UV)
+
+  return(db.collection)
+
+}
+```
+
+### Use
+
+Below is an example for the demo database, for which the MS and NMR data will be removed for both entries. 
+
+```{r db_remove_use}
+modified.db <- database.eraser(db.to.erase = system.file('extdata/demo_database.Rda', package = 'g4dbr'),
+                remove.oligos = c('1XAV', '2LOD'),
+                erase.CD = FALSE, erase.NMR = TRUE, erase.MS = TRUE, erase.UV = FALSE)
+
+```
+
+Both entries are still present in the database:
+
+```{r mod.db.info}
+head(modified.db[["db.info"]])
+```
+
+And the UV and CD data are still present:
+
+```{r mod.db.UV}
+db.CD <- modified.db[["db.CD"]]
+db.UV <- modified.db[["db.UV"]]
+head(db.UV)
+head(db.CD)
+```
+
+But the MS and NMR data have been removed for both oligonucleotides. Note that the dataframe structure is conserved:
+
+```{r mod.db.MS}
+db.NMR <- modified.db[["db.NMR"]]
+db.MS <- modified.db[["db.MS"]]
+head(db.MS)
+head(db.CD)
+```
+
+To save the modified database, use the `save` function:
+
+```{r save.mod.db, echo=TRUE, eval=FALSE}
+db.info <- modified.db[["db.info"]]
+
+save(db.info,
+     db.CD,
+     db.NMR,
+     db.MS,
+     db.UV,
+     file = 'filepath/filename.rda')
 ```
 
 

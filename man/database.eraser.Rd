@@ -17,6 +17,14 @@ database.eraser(
 \item{db.to.erase}{An .Rda file path to erase}
 
 \item{remove.oligos}{A vector containg strings of the \code{oligo} names}
+
+\item{erase.CD}{A logical value (TRUE or FALSE) indicated whether to remove CD data}
+
+\item{erase.NMR}{A logical value (TRUE or FALSE) indicated whether to remove NMR data}
+
+\item{erase.MS}{A logical value (TRUE or FALSE) indicated whether to remove MS data}
+
+\item{erase.UV}{A logical value (TRUE or FALSE) indicated whether to remove UV data}
 }
 \value{
 Return a list of partially of fully emptied dataframes with the correct structure for g4db use
@@ -25,6 +33,6 @@ Return a list of partially of fully emptied dataframes with the correct structur
 Erases the data of all of selected oligonucleotides from a g4dbr database while maintaining its structure for reuse
 }
 \examples{
-database.eraser("this is a filepath")
+database.eraser(db.to.erase = "this is a filepath", remove.oligos = c("oligo1", "oligo42"), erase.CD = TRUE, erase.NMR = FALSE, erase.MS = TRUE, erase.UV = FALSE)
 
 }
