@@ -1125,8 +1125,7 @@ g4db <- function() {
             }
 
             data.collector <- data.collector %>%
-                mutate(cation = replace_na(cation, 'none')) %>%
-                filter(oligo %in% selected.oligos())
+                mutate(cation = replace_na(cation, 'none'))
 
             return(data.collector)
 
@@ -1213,11 +1212,9 @@ g4db <- function() {
                 select(c(1:8)) %>%
                 group_by(oligo, buffer.id) %>%
                 mutate(peak.number = replace(peak.number, duplicated(peak.number), NA)) %>%
-                filter(oligo %in% selected.oligos()) %>%
                 filter(buffer.id %in% input$select.buffer.id) %>%
                 filter(buffer %in% input$select.buffer) %>%
-                filter(cation %in% input$select.cation) %>%
-                filter(shift > min(input$slide.nmr) & shift < max(input$slide.nmr))
+                filter(cation %in% input$select.cation)
 
             return(data.collector)
         })
@@ -1889,6 +1886,7 @@ g4db <- function() {
 
         p.CD <- reactive({
             p.CD <- calc.cd() %>%
+                filter(oligo %in% selected.oligos()) %>%
                 ggplot(aes(x = wl, y = plot.y, color = buffer.id, shape = oligo)) +
                 geom_point(size = input$cd.size.pt,
                            alpha = input$cd.alpha.pt) +
@@ -1964,6 +1962,8 @@ g4db <- function() {
         p.NMR <- reactive({
 
             nmr.bounds <- input.NMR() %>%
+                filter(oligo %in% selected.oligos()) %>%
+                filter(shift > min(input$slide.nmr) & shift < max(input$slide.nmr)) %>%
                 group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
                 mutate(int = (int - min(int))/(max(int) - min(int)))
 
@@ -3013,7 +3013,7 @@ g4db <- function() {
         })
 
         #CD loading
-        db.CD.0 <- reactive({
+        db.CD <- reactive({
 
             load(db.file()$datapath)
 
@@ -3021,10 +3021,10 @@ g4db <- function() {
         })
 
         #CD pre-filtering
-        db.CD <- reactive({
-            db.CD.0() %>%
-                filter(oligo %in% selected.oligos.db())
-        })
+        # db.CD <- reactive({
+        #     db.CD.0() %>%
+        #         filter(oligo %in% selected.oligos.db())
+        # })
 
         #CD filtering
         db.cd.select <- reactive({
@@ -3050,8 +3050,7 @@ g4db <- function() {
             db.NMR() %>%
                 filter(buffer.id %in% input$select.buffer.id.db) %>%
                 filter(buffer %in% input$select.buffer.db) %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(oligo %in% selected.oligos.db())
+                filter(cation %in% input$select.cation.db)
         })
 
         #MS loading
@@ -3074,7 +3073,6 @@ g4db <- function() {
                 filter(cation %in% input$select.cation.db) %>%
                 filter(comment %in% input$select.buffer.id.db) %>%
                 filter(buffer %in% input$select.buffer.db) %>%
-                filter(oligo %in% selected.oligos.db()) %>%
                 filter(T.K > min(input$slide.uv.fit.db) & T.K < max(input$slide.uv.fit.db))
         })
 
@@ -3280,6 +3278,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 db.cd.select() %>%
+                    filter(oligo %in% selected.oligos.db()) %>%
                     setcolorder(c('oligo', 'buffer.id')) %>%
                     datatable(
                         extensions = c('Buttons', 'Responsive', 'Scroller'),
@@ -3320,6 +3319,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 db.nmr.select() %>%
+                    filter(oligo %in% selected.oligos.db()) %>%
                     setcolorder(c('oligo', 'buffer.id', 'shift', 'int')) %>%
                     datatable(
                         extensions = c('Buttons', 'Responsive', 'Scroller'),
@@ -3354,6 +3354,7 @@ g4db <- function() {
                 return(NULL)
             } else {
                 db.UV.select() %>%
+                    filter(oligo %in% selected.oligos.db()) %>%
                     setcolorder(c('id', 'oligo', 'comment', 'ramp', 'T.K', 'abs.melt', 'folded.fraction.base', 'abs.raw')) %>%
                     datatable(
                         extensions = c('Buttons', 'Responsive', 'Scroller'),
@@ -3446,6 +3447,7 @@ g4db <- function() {
         p.CD.db <- reactive({
 
             p.CD.db <- db.cd.select() %>%
+                filter(oligo %in% selected.oligos.db()) %>%
                 ggplot(aes(x = wl, y = plot.y, color = buffer.id, shape = oligo)) +
                 geom_point(size = input$cd.size.pt.db,
                            alpha = input$cd.alpha.pt.db) +
@@ -3528,6 +3530,7 @@ g4db <- function() {
         p.NMR.db <- reactive({
 
             nmr.bounds <- db.nmr.select() %>%
+                filter(oligo %in% selected.oligos.db()) %>%
                 filter(shift > min(input$slide.nmr.db) & shift < max(input$slide.nmr.db)) %>% #x-scale range selection
                 group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
                 mutate(int = (int - min(int))/(max(int) - min(int)))
@@ -3856,6 +3859,7 @@ g4db <- function() {
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
                 p.UV.melting.db <- db.UV.select() %>%
+                    filter(oligo %in% selected.oligos.db()) %>%
                     ggplot() +
                     geom_point(aes(x = T.K, y = abs.melt, color = id),
                                size = input$uv.fit.size.pt.db, alpha = input$uv.fit.alpha.pt.db,
@@ -3881,6 +3885,7 @@ g4db <- function() {
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
                 p.UV.melting.db <- db.UV.select() %>%
+                    filter(oligo %in% selected.oligos.db()) %>%
                     ggplot() +
                     geom_point(aes(x = T.K, y = folded.fraction.base, color = id),
                                size = input$uv.size.pt.db, alpha = input$uv.alpha.pt.db,
@@ -3943,14 +3948,18 @@ g4db <- function() {
 
                                  # CD
                                  if (isTRUE(input$exp.CD)) { #only write to database if switch is on
-                                     db.CD <- rbind(calc.cd(), db.CD.0())
+
+                                     db.CD.0 <- db.cd.select() %>%
+                                         filter(oligo %in% selected.oligos.db())
+
+                                     db.CD <- rbind(calc.cd(), db.CD.0)
 
                                      # rbind.data.frame(db.CD(), calc.cd())
 
                                      db.CD <- db.CD[!duplicated(paste(db.CD$oligo, db.CD$wl, db.CD$buffer.id)), ]
 
                                  } else {
-                                     db.CD <- db.CD.0()
+                                     db.CD <- db.CD()
                                  }
 
                                  incProgress(amount=3/8)
@@ -3972,7 +3981,10 @@ g4db <- function() {
                                  #NMR
                                  if (isTRUE(input$exp.NMR)) { #only write to database if switch is on
 
-                                     db.NMR <- rbind.data.frame(db.NMR(), input.NMR())
+                                     NMR.to.db <- input.NMR() %>%
+                                         filter(oligo %in% selected.oligos.db())
+
+                                     db.NMR <- rbind.data.frame(db.NMR(), NMR.to.db)
 
                                      #removes rows with duplicated data -> no duplicates in db
                                      db.NMR <- db.NMR[!duplicated(paste(db.NMR$oligo, db.NMR$shift, db.NMR$buffer.id)), ]
@@ -3988,7 +4000,8 @@ g4db <- function() {
 
                                      filtered.MS <- input.MS() %>%
                                          filter(tune %in% input$select.tune) %>%
-                                         filter(rep %in% input$select.rep)
+                                         filter(rep %in% input$select.rep) %>%
+                                         filter(oligo %in% selected.oligos.db())
 
                                      incProgress(amount=6/8)
 
