@@ -7,44 +7,18 @@ _G4 biophysics database visualization and management_
 
 ## Installation
 
-### Re-installation
-
-If a previous version has been installed, the previous can be removed using `remove.packages('g4dbr')`, although this is not necessary.
-
-It is also not necessary to reinstall devtools.
-
-### Zip-less installation
-
-For the first installation, [create a private access token](https://github.com/settings/tokens).
-
 In R (e.g. the console of RStudio), run:
 
 ```{r install_online}
 install.packages("devtools")
-devtools::install_github('g4db-team/g4dbr', auth_token = 'XXX', build_vignettes = T, build_manual = T)
-```
-Where `XXX` is your token (40 characters).
-
-Restart your R session before use.
-
-### Zip-download installation
-
-To install, download the zip archive.
-
-![Download g4dbr](man/ressources/readme.PNG)
-
-In R (e.g. the console of RStudio), run:
-
-```{r install}
-install.packages("devtools")
-devtools::install_local("XXX/g4dbr-master.zip")
+devtools::install_github('g4db-team/g4dbr', build_vignettes = T, build_manual = T)
 ```
 
-Where `XXX` is the filepath of the zip archive. Use slashes `/` rather than backslashes `\` even on Windows.
-
-You may update some or all of the packages that were already installed or skip this step.
+You may update some or all of the packages that were already installed, or skip this step.
 
 ![Package updates](man/ressources/readme2.PNG)
+
+Restart your R session before use.
 
 ## Use
 
@@ -61,7 +35,7 @@ For more details, consult the package and function documentation here using `hel
 
 #### pdf reports
 
-To be able to generate reports in pdf (Word and HTML are also possible out of the box), `tinytex` (a lightweight LaTeX distribution) must be installed.
+To be able to generate reports in pdf (Word and HTML reports are possible out of the box), `tinytex` (a lightweight LaTeX distribution) must be installed.
 
 Install the package with `install.packages('tinytex')`, then finish the installation using `tinytex::install_tinytex()`.
 
@@ -73,23 +47,58 @@ In case of issue, check the [help page](https://yihui.org/tinytex/r/#debugging).
 
 <ins>**Local file system.**</ins> An example database (`demo_database.Rda`), an empty database (`empty_database.Rda`), and a demo input file (`demo_input.xlsx`) are located in the extdata subfolder of your package installation path. 
 
-To locate these files, use `system.file("extdata/", package = 'g4dbr')` in R. The output should be something like `C:\Users\username\Documents\R\win-library\4.0\g4dbr`. 
+To locate these files, use `system.file("extdata/", package = 'g4dbr')` in R. The output should be something like `C:\Users\username\Documents\R\win-library\X.Y\g4dbr`. 
 **These files will be overridden if the package is re-installed, and removed is the package in uninstalled. Do not save file at this location** 
 
 <ins>**From source zip.**</ins> The zip file contains the example database (`demo_database.Rda`), empty database (`empty_database.Rda`), and demo input file (`demo_input.xlsx`) in the inst/extdata subfolder.
 
 <ins>**Use**</ins>
-To use the demo file, load them in the `g4db()` app.
+To use the demo files, load them in the `g4db()` app.
 
 ### Standalone extinction coefficient calculation
 
-To use epsilon.calculator, run:
+To use `epsilon.calculator`, run:
 
 ```{r use}
 library(g4dbr)
 epsilon.calculator("SEQUENCE")
 ```
 where `SEQUENCE` is the DNA sequence of choice.
+
+### Mass spectrometry spectrum data reduction
+
+To use `mass.diet`, prepare your data in a data frame containing the following columns:
+
++ `mz`, the m/z axis,
++ `int`, the intensity,
++ `oligo`, the oligonucleotide names,
++ `buffer.id`, the buffer name,
++ `tune`, the MS tune name,
++ `rep`, the replicate number
+
+Then run:
+
+```{r}
+mass.diet(fat.mass = data.to.reduce, 
+          base.start, base.end, 
+          range.start, range.end, 
+          baseline.int)
+```
+
+Where `data.to.reduce` is the dataframe prepared at the previous step, the *m/z* range to keep is given by `range.start` and `range.end`, the baseline for noise calculation with `base.start` and `base.end`, and the threshold coefficient for noise removal is specified with `baseline.int`.
+
+
+### Database data removal
+
+To use `database.eraser`, run:
+
+```{r}
+database.eraser(db.to.erase,
+                remove.oligos,
+                erase.CD, erase.NMR, erase.MS, erase.UV)
+```
+
+Where `db.to.erase` is an .Rda file prepared with `g4db`, `remove oligos` is a vector containing the `oligo` names for which data must be removed, and `erase.CD`, `erase.NMR`, `erase.MS` and `erase.UV` are logical values indicating whether to remove data from the corresponging techniques (respectively circular dichroism, ^1^H-NMR, mass spectrometry, and UV-melting).
 
 ## License
 
