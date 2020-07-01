@@ -16,7 +16,7 @@ devtools::install_github('g4db-team/g4dbr', build_vignettes = T, build_manual = 
 
 You may update some or all of the packages that were already installed, or skip this step.
 
-![Package updates](man/ressources/readme2.PNG)
+![Package updates](vignettes/ressources/readme2.PNG)
 
 Restart your R session before use.
 
