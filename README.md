@@ -11,7 +11,7 @@ In R (e.g. the console of RStudio), run:
 
 ```{r install_online}
 install.packages("devtools")
-devtools::install_github('EricLarG4/g4dbr', build_vignettes = T, build_manual = T)
+devtools::install_github('EricLarG4/g4dbr', build_vignettes = T)
 ```
 
 You may update some or all of the packages that were already installed, or skip this step.
