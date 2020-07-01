@@ -2449,7 +2449,7 @@ g4db <- function() {
                 scale_color_d3() +
                 theme_pander() +
                 xlab("Temperature (K)") +
-                ylab(bquote('Epsilon ('*M^-1~cm^-1*')'))
+                ylab(bquote(epsilon*' ('*M^-1~cm^-1*')'))  #modifies axes titles
 
             # p45 <- melt.palette.modifier(plot = p45)
 
@@ -2719,7 +2719,7 @@ g4db <- function() {
                 geom_point(aes(T.K, abs.melt, color = id), size = input$size.dot.melt, alpha = input$alpha.dot.melt, shape = 16) + #plots the experimental data
                 geom_line(aes(x = T.K, y = raw.fit.y, color = id),
                           size = input$size.line.melt, alpha = input$alpha.line.melt) +
-                ylab(bquote(Delta*epsilon*'/'*Delta*'T ('*M^-1~cm^-1*K^-1*')')) + #modifies axes titles
+                ylab(bquote(epsilon*' ('*M^-1~cm^-1*')')) + #modifies axes titles
                 xlab("Temperature (K)") +
                 # scale_y_continuous(limits=c(-0.1,1.1), breaks = c(0, 0.25, 0.5, 0.75, 1.0)) +
                 labs(color="id") +
@@ -3866,7 +3866,7 @@ g4db <- function() {
                                shape = 16) +  #plots the experimental data
                     geom_line(aes(x = T.K, y = raw.fit.y, color = id),
                               size = input$uv.fit.size.line.db, alpha = input$uv.fit.alpha.line.db) +
-                    ylab(bquote(bold("Absorbance"))) + #modifies axes titles
+                    ylab(bquote(epsilon*' ('*M^-1~cm^-1*')')) + #modifies axes titles
                     xlab("Temperature (K)") +
                     labs(color="id") +
                     theme_pander()
@@ -4090,8 +4090,7 @@ g4db <- function() {
 
                                  incProgress(amount=1/7)
 
-                                 # src <- normalizePath('report.Rmd')
-                                 src <- system.file("report.Rmd", package = 'g4dbr')
+                                 src <- system.file("rmarkdown/report.Rmd", package = 'g4dbr')
 
                                  incProgress(amount=2/7)
 
