@@ -4090,7 +4090,8 @@ g4db <- function() {
 
                                  incProgress(amount=1/7)
 
-                                 src <- normalizePath('report.Rmd')
+                                 # src <- normalizePath('report.Rmd')
+                                 src <- system.file("report.Rmd", package = 'g4dbr')
 
                                  incProgress(amount=2/7)
 
