@@ -132,7 +132,7 @@ if (length(selected.oligos.db()) > 1) {
                 theme(legend.position = 'bottom',
                       legend.text = element_text(size = 8),
                       legend.title = element_text(size = 9)), #plot
-              cap = "paste('1H-NMR spectra of', paste('the', paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=', '), 'and', selected.oligos.db()[length(selected.oligos.db())]), 'oligonucleotides', , 'acquired at 25°C'))", #figure caption
+              cap = "paste('1H-NMR spectra of the', paste(selected.oligos.db()[1:(length(selected.oligos.db())-1)], collapse = ', '), 'and', selected.oligos.db()[length(selected.oligos.db())], 'oligonucleotides, acquired at 25°C')", #figure caption
               fig_height = 4 * row.p.NMR.db(), #dynamic figure height
               fig_width = (9*col.p.NMR.db())/(col.p.NMR.db()+0.4) #dynamic figure width
   ) 
