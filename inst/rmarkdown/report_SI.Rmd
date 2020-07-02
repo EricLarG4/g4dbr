@@ -1,0 +1,134 @@
+---
+output:
+  word_document:
+    reference_docx: !expr system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
+  bookdown::html_document2:
+    fig_caption: true
+---
+
+```{r library, include=FALSE}
+library(knitr)
+```
+
+
+```{r selected.oligos, include=FALSE}
+#Extract the selected oligonucleotides names to print as a comma separated string
+if (length(selected.oligos.db()) > 1) { #if more than one oligo, then use plural
+  selected.oligos <- paste("oligonucleotides", paste(selected.oligos.db()[1:length(selected.oligos.db())-1], collapse=", "), "and", selected.oligos.db()[length(selected.oligos.db())])
+} else { #else use singular 
+  selected.oligos <- paste("oligonucleotide", paste(selected.oligos.db(), collapse=", "))
+}
+```
+
+
+```{r title, include=FALSE}
+#Document title takes selected oligonucleotides values
+title_var <- selected.oligos.db()
+```
+
+---
+title: `r title_var`
+output:
+word_document:
+reference_docx: word-styles-reference.docx
+---
+
+
+```{r oligo.table, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+#table of oligonucleotides properties (pageable)
+db.info <- db.info() %>%
+  filter(oligo %in% selected.oligos.db()) %>% #only display selected oligos data
+  select(c('sequence', 'DOI')) %>%
+  magrittr::set_colnames(c('Sequence', 'DOI'))
+
+knitr::kable(db.info,
+             escape = F) #DOI parsed in HTML reports
+```
+
+---
+
+```{r CDcap, echo=FALSE, message=FALSE, warning=FALSE}
+
+#Extraction of the oligo concentration
+conc.cd <- db.cd.select() %>%
+  group_by(oligo) %>%
+  filter(oligo == selected.oligos.db()) %>%
+  ungroup() %>%
+  select(con) %>%
+  unique() %>%
+  as.numeric()
+
+#Extraction of the path length
+path.cd <- db.cd.select() %>%
+  group_by(oligo) %>%
+  filter(oligo == selected.oligos.db()) %>%
+  ungroup() %>%
+  select(l) %>%
+  unique() %>%
+  as.numeric()
+
+
+CDcap <- paste0('Circular dichroism spectra of the ', selected.oligos.db(), ' oligonucleotide (', conc.cd, ' μM), acquired at 25°C in ', path.cd, '-cm path-length cuvettes')
+```
+
+```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=CDcap, fig.width=6.299213, fig.height=3.25}
+p.CD.db()+
+  guides(shape = FALSE) 
+# theme(legend.position = 'bottom',
+#       legend.text = element_text(size = 8),
+#       legend.title = element_text(size = 9))
+
+
+```
+
+
+```{r NMRcap, echo=FALSE, message=FALSE, warning=FALSE}
+NMRcap <- paste('1H-NMR spectrum of the', selected.oligos.db(), 'oligonucleotide, acquired at 25°C')
+```
+
+```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=NMRcap, fig.width=6.299213, fig.height=3.75, dpi=600}
+
+p.NMR.db()+
+  theme(legend.position = 'none')
+
+```
+
+
+```{r UVcap, echo=FALSE, message=FALSE, warning=FALSE}
+UVcap <- paste('Folded fraction from UV-melting experiments (\\lambda = 295 nm) of the', selected.oligos.db(), 'oligonucleotide')
+```
+
+```{r UVplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=UVcap, fig.width=6.299213, fig.height=4.25, dpi=600}
+p.UV.melting.db() +
+  guides(colour=guide_legend(nrow=2))+
+  theme(
+    legend.position = 'bottom'
+  )
+```
+
+
+```{r print.option, message=FALSE, warning=FALSE, include=FALSE}
+#controls whether MS section is knitted or not based on the use of the plotMS button
+if(input$plotMS.db == 0) {
+  print.option <- FALSE
+} else {
+  print.option <- TRUE
+}
+```
+
+
+```{r MScap, echo=FALSE, message=FALSE, warning=FALSE}
+MScap <- paste('Native ESI-MS spectra of the', selected.oligos.db(), 'oligonucleotide')
+```
+
+```{r MSplot, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= MScap, fig.width=6.299213, fig.height=4.25}
+p.MS.db() +
+  theme(
+    legend.position = 'none',
+    strip.text.x = element_blank(),
+    strip.text.y = element_text(size = 12, face = 'bold', colour = 'grey25')
+  ) +
+  coord_cartesian(ylim = c(0,1.1))
+```
+
+
