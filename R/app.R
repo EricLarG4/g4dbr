@@ -422,7 +422,7 @@ g4db <- function() {
                                                label = "chemical shift (ppm)",
                                                min = 8,
                                                max = 13,
-                                               value = c(10, 12.5),
+                                               value = c(9.5, 12.5),
                                                step = 0.25
                                            ),
                                            sliderInput(
@@ -731,7 +731,7 @@ g4db <- function() {
                                            label = "chemical shift (ppm)",
                                            min = 8,
                                            max = 13,
-                                           value = c(10, 12.5),
+                                           value = c(9.5, 12.5),
                                            step = 0.25
                                        ),
                                        sliderInput(
@@ -3006,74 +3006,135 @@ g4db <- function() {
         #info loading
         db.info <- reactive({
 
-            load(db.file()$datapath)
+            withProgress(message = 'Loading info',
+                         detail = 'Please wait', value = 0, {
 
-            db.info %>% #date formatting
-                mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
+                             incProgress(amount=1/2)
+
+                             load(db.file()$datapath)
+
+                             incProgress(amount=2/2)
+
+                             db.info %>% #date formatting
+                                 mutate(depo.date = as.Date(depo.date, format='%Y/%m/%d'))
+
+                         })
         })
 
         #CD loading
         db.CD <- reactive({
 
-            load(db.file()$datapath)
+            withProgress(message = 'Loading CD',
+                         detail = 'Please wait', value = 0, {
 
-            db.CD
+                             incProgress(amount=1/2)
+
+                             load(db.file()$datapath)
+
+                             incProgress(amount=2/2)
+
+                             db.CD
+
+                         })
+
         })
 
-        #CD pre-filtering
-        # db.CD <- reactive({
-        #     db.CD.0() %>%
-        #         filter(oligo %in% selected.oligos.db())
-        # })
 
         #CD filtering
         db.cd.select <- reactive({
-            db.CD() %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(buffer.id %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(wl > min(input$slide.cd.db) & wl < max(input$slide.cd.db)) %>%
-                group_by(oligo, buffer.id, wl, l, con, CD, delta.epsilon) %>%
-                mutate(plot.y = if_else(isTRUE(input$cd.data.select.db), delta.epsilon, CD))
+
+            withProgress(message = 'Filtering CD',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/2)
+
+                             db.CD() %>%
+                                 filter(cation %in% input$select.cation.db) %>%
+                                 filter(buffer.id %in% input$select.buffer.id.db) %>%
+                                 filter(buffer %in% input$select.buffer.db)
+                         })
         })
 
         #NMR loading
         db.NMR <- reactive({
 
-            load(db.file()$datapath)
+            withProgress(message = 'Loading NMR',
+                         detail = 'Please wait', value = 0, {
 
-            db.NMR
+                             incProgress(amount=1/2)
+
+                             load(db.file()$datapath)
+
+                             incProgress(amount=2/2)
+
+                             db.NMR
+
+                         })
         })
 
         #NMR filtering
         db.nmr.select <- reactive({
-            db.NMR() %>%
-                filter(buffer.id %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(cation %in% input$select.cation.db)
+
+            withProgress(message = 'Filtering NMR',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/2)
+
+                             db.NMR() %>%
+                                 filter(buffer.id %in% input$select.buffer.id.db) %>%
+                                 filter(buffer %in% input$select.buffer.db) %>%
+                                 filter(cation %in% input$select.cation.db)
+
+                         })
         })
 
         #MS loading
         db.MS <- reactive({
-            load(db.file()$datapath)
 
-            db.MS
+            withProgress(message = 'Loading MS',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/2)
+
+                             load(db.file()$datapath)
+
+                             incProgress(amount=2/2)
+
+                             db.MS
+                         })
         })
 
         #UV loading
         db.UV <- reactive({
-            load(db.file()$datapath)
 
-            db.UV
+            withProgress(message = 'Loading UV',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/2)
+
+                             load(db.file()$datapath)
+
+                             incProgress(amount=2/2)
+
+                             db.UV
+                         })
         })
 
         #UV filtering
         db.UV.select <- reactive({
-            db.UV() %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(comment %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(T.K > min(input$slide.uv.fit.db) & T.K < max(input$slide.uv.fit.db))
+
+            withProgress(message = 'Filtering UV',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/2)
+
+                             db.UV() %>%
+                                 filter(cation %in% input$select.cation.db) %>%
+                                 filter(comment %in% input$select.buffer.id.db) %>%
+                                 filter(buffer %in% input$select.buffer.db) %>%
+                                 filter(T.K > min(input$slide.uv.fit.db) & T.K < max(input$slide.uv.fit.db))
+
+                         })
         })
 
         #Oligo selection db
@@ -3102,31 +3163,89 @@ g4db <- function() {
             if (is.null(input$input.info.db_rows_selected)) {
                 return(NULL)
             } else {
-                selected.oligos.db <- db.info() %>%
-                    slice(input$input.info.db_rows_selected) %>%
-                    dplyr::select(oligo)
 
-                selected.oligos.db <- as.vector(selected.oligos.db[[1]])
+                withProgress(message = 'Collecting oligonucleotides',
+                             detail = 'Please wait', value = 0, {
 
-                return(selected.oligos.db)
+                                 incProgress(amount=1/3)
+
+                                 selected.oligos.db <- db.info() %>%
+                                     slice(input$input.info.db_rows_selected) %>%
+                                     dplyr::select(oligo)
+
+                                 incProgress(amount=2/3)
+
+                                 selected.oligos.db <- as.vector(selected.oligos.db[[1]])
+
+                                 incProgress(amount=3/3)
+
+                                 return(selected.oligos.db)
+                             })
             }
-
         })
 
         buffer.list.db <- reactive({
 
-            buffer.collect <- data.frame(buffers = unique(db.CD()$buffer)) %>%
-                # rbind(buffers = unique(db.NMR()$buffer)) %>%
-                # rbind(buffers = unique(db.UV()$comment)) %>%
-                unique()
+            withProgress(message = 'Collecting electrolytes',
+                         detail = 'Please wait', value = 0, {
 
+                             incProgress(amount=1/3)
 
-            buffer.list <- as.vector(buffer.collect$buffer)
+                             buffer.collect <- data.frame(buffers = unique(db.CD()$buffer)) %>%
+                                 unique()
 
-            return(buffer.list)
+                             incProgress(amount=2/3)
+
+                             buffer.list.db <- as.vector(buffer.collect$buffer)
+
+                             incProgress(amount=3/3)
+
+                             return(buffer.list.db)
+                         })
+        })
+
+        buffer.id.list.db <- reactive({
+
+            withProgress(message = 'Collecting buffers',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/3)
+
+                             buffer.id.collect <- data.frame(buffers.id = unique(db.CD()$buffer.id)) %>%
+                                 unique()
+
+                             incProgress(amount=2/3)
+
+                             buffer.id.list.db <- as.vector(buffer.id.collect$buffer)
+
+                             incProgress(amount=3/3)
+
+                             return(buffer.id.list.db)
+                         })
+        })
+
+        cation.list.db <- reactive({
+
+            withProgress(message = 'Collecting cations',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/3)
+
+                             cation.collect <- data.frame(cations = unique(db.CD()$cation)) %>%
+                                 unique()
+
+                             incProgress(amount=2/3)
+
+                             cation.list.db <- as.vector(cation.collect$cations)
+
+                             incProgress(amount=3/3)
+
+                             return(cation.list.db)
+                         })
         })
 
         output$select.buffer.db <- renderUI({
+
             if (is.null(db.file())) {
                 return(NULL)
             } else {
@@ -3146,21 +3265,9 @@ g4db <- function() {
             }
         })
 
-        buffer.id.list.db <- reactive({
-
-            buffer.id.collect <- data.frame(buffers.id = unique(db.CD()$buffer.id)) %>%
-                # rbind(buffers = unique(db.NMR()$buffer)) %>%
-                rbind(buffers.id = unique(db.UV()$comment)) %>%
-                unique()
-
-
-            buffer.id.list.db <- as.vector(buffer.id.collect$buffer)
-
-            return(buffer.id.list.db)
-        })
-
         output$select.buffer.id.db <- renderUI({
-            if (is.null(input$input.info.db_rows_selected)) {
+
+            if (is.null(db.file())) {
                 return(NULL)
             } else {
                 pickerInput("select.buffer.id.db",
@@ -3179,24 +3286,8 @@ g4db <- function() {
             }
         })
 
-        cation.list.db <- reactive({
-
-            cation.collect <- data.frame(cations = unique(db.CD()$cation)) %>%
-                # rbind(cations = if_else(length(unique(db.NMR()$cation) > 0, unique(db.NMR()$cation, NULL)))) %>%
-                # rbind(cations = unique(db.UV()$cation)) %>%
-                unique()
-
-            cation.list.db <- as.vector(cation.collect$cations)
-
-            return(cation.list.db)
-        })
-
-        output$cation.list.db <- DT::renderDT({
-            cation.list.db()
-        })
-
         output$select.cation.db <- renderUI({
-            if (is.null(input$input.info.db_rows_selected)) {
+            if (is.null(db.file())) {
                 return(NULL)
             } else {
                 pickerInput("select.cation.db",
@@ -3216,10 +3307,6 @@ g4db <- function() {
         })
 
         #b/tables----
-
-        # output$info.debug <- DT::renderDT({
-        #     datatable(write.db()$info)
-        # })
 
         output$input.info.db <- DT::renderDT({
 
@@ -3446,62 +3533,101 @@ g4db <- function() {
 
         p.CD.db <- reactive({
 
-            p.CD.db <- db.cd.select() %>%
-                filter(oligo %in% selected.oligos.db()) %>%
-                ggplot(aes(x = wl, y = plot.y, color = buffer.id, shape = oligo)) +
-                geom_point(size = input$cd.size.pt.db,
-                           alpha = input$cd.alpha.pt.db) +
-                geom_line(size = input$cd.size.line.db,
-                          alpha = input$cd.alpha.pt.db) +
-                theme_pander() +
-                xlab("Wavelength (nm)") +
-                labs(colour = "buffer",
-                     shape = 'oligo')
+            withProgress(message = 'Plotting CD',
+                         detail = 'Please wait', value = 0, {
 
+                             incProgress(amount=1/7)
 
-            if (input$cd.superimpose.db == "none") {
-                if (input$cd.free.db == 'free') {
-                    p.CD.db <- p.CD.db +
-                        facet_grid(buffer.id~oligo,
-                                   scales = 'free_y')
-                } else {
-                    p.CD.db <- p.CD.db +
-                        facet_grid(buffer.id~oligo)
-                }
-            }
+                             p.CD.db <- db.cd.select() %>%
+                                 filter(oligo %in% selected.oligos.db()) %>%
+                                 filter(wl > min(input$slide.cd.db) & wl < max(input$slide.cd.db)) %>%
+                                 group_by(oligo, buffer.id, wl, l, con, CD, delta.epsilon) %>%
+                                 mutate(plot.y = if_else(isTRUE(input$cd.data.select.db), delta.epsilon, CD)) %>%
+                                 ggplot(aes(x = wl, y = plot.y, color = buffer.id, shape = oligo)) +
+                                 geom_hline(yintercept = 0, linetype = 'dashed', color = 'grey70', size = 0.7) +
+                                 geom_point(size = input$cd.size.pt.db,
+                                            alpha = input$cd.alpha.pt.db) +
+                                 geom_line(size = input$cd.size.line.db,
+                                           alpha = input$cd.alpha.pt.db) +
+                                 theme(
+                                     panel.background = element_blank(),
+                                     legend.background = element_blank(),
+                                     legend.box.background = element_blank(),
+                                     legend.key = element_blank(),
+                                     legend.text = element_text(size = 10),
+                                     legend.title = element_text(size = 12, face = 'bold'),
+                                     axis.text = element_text(size = 14, face = 'italic'),
+                                     axis.title.x = element_text(size = 16),
+                                     axis.title.y = element_text(size = 16),
+                                     axis.line = element_line(size = 1),
+                                     axis.ticks = element_line(size = 1, colour = 'black'),
+                                     panel.grid.major.x = element_line(size = 0.7, colour = 'grey70', linetype = 'dashed'),
+                                     panel.grid.minor.x = element_line(size = 0.7, colour = 'grey70', linetype = 'dashed'),
+                                     strip.background = element_blank(),
+                                     strip.text = element_text(size = 14, face = 'bold', colour = 'grey25')
+                                 ) +
+                                 xlab("Wavelength (nm)") +
+                                 labs(colour = "buffer",
+                                      shape = 'oligo') +
+                                 guides(color = guide_legend(title = "Buffer"),
+                                        shape = guide_legend(title = 'Oligonucleotide'))
 
-            if (input$cd.superimpose.db == "oligos") {
-                if (input$cd.free.db == 'free') {
-                    p.CD.db <- p.CD.db +
-                        facet_grid(~oligo,
-                                   scales = 'free_y')
-                } else {
-                    p.CD.db <- p.CD.db +
-                        facet_grid(~oligo)
-                }
-            }
+                             incProgress(amount=2/7)
 
-            if (input$cd.superimpose.db == "buffer") {
-                if (input$cd.free.db == 'free') {
-                    p.CD.db <- p.CD.db +
-                        facet_grid(~buffer.id,
-                                   scales = 'free_y')
-                } else {
-                    p.CD.db <- p.CD.db +
-                        facet_grid(~buffer.id)
-                }
-            }
+                             if (input$cd.superimpose.db == "none") {
+                                 if (input$cd.free.db == 'free') {
+                                     p.CD.db <- p.CD.db +
+                                         facet_grid(buffer.id~oligo,
+                                                    scales = 'free_y')
+                                 } else {
+                                     p.CD.db <- p.CD.db +
+                                         facet_grid(buffer.id~oligo)
+                                 }
+                             }
 
-            if (isTRUE(input$cd.data.select.db)) {
-                p.CD.db <- p.CD.db + ylab(expression(paste(Delta*epsilon, ' (M'^{-1},'cm'^{-1}, ')')))
-            } else {
-                p.CD.db <- p.CD.db + ylab('mdeg')
-            }
+                             incProgress(amount=3/7)
 
-            p.CD.db <- palette.modifier.db(plot = p.CD.db)
+                             if (input$cd.superimpose.db == "oligos") {
+                                 if (input$cd.free.db == 'free') {
+                                     p.CD.db <- p.CD.db +
+                                         facet_grid(~oligo,
+                                                    scales = 'free_y')
+                                 } else {
+                                     p.CD.db <- p.CD.db +
+                                         facet_grid(~oligo)
+                                 }
+                             }
 
-            return(p.CD.db)
+                             incProgress(amount=4/7)
 
+                             if (input$cd.superimpose.db == "buffer") {
+                                 if (input$cd.free.db == 'free') {
+                                     p.CD.db <- p.CD.db +
+                                         facet_grid(~buffer.id,
+                                                    scales = 'free_y')
+                                 } else {
+                                     p.CD.db <- p.CD.db +
+                                         facet_grid(~buffer.id)
+                                 }
+                             }
+
+                             incProgress(amount=5/7)
+
+                             if (isTRUE(input$cd.data.select.db)) {
+                                 p.CD.db <- p.CD.db + ylab(expression(paste(Delta*epsilon, ' (M'^{-1},'cm'^{-1}, ')')))
+                             } else {
+                                 p.CD.db <- p.CD.db + ylab('mdeg')
+                             }
+
+                             incProgress(amount=6/7)
+
+                             p.CD.db <- palette.modifier.db(plot = p.CD.db)
+
+                             incProgress(amount=7/7)
+
+                             return(p.CD.db)
+
+                         })
         })
 
         output$p.CD.db.ui <- renderUI({
@@ -3529,76 +3655,116 @@ g4db <- function() {
 
         p.NMR.db <- reactive({
 
-            nmr.bounds <- db.nmr.select() %>%
-                filter(oligo %in% selected.oligos.db()) %>%
-                filter(shift > min(input$slide.nmr.db) & shift < max(input$slide.nmr.db)) %>% #x-scale range selection
-                group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
-                mutate(int = (int - min(int))/(max(int) - min(int)))
+            withProgress(message = 'Plotting NMR',
+                         detail = 'Please wait', value = 0, {
 
-            limits <- c(0.8*max(nmr.bounds$int), 1.3*max(nmr.bounds$int)) #y-scale labelling limits
+                             incProgress(amount=1/8)
 
-            p.NMR.db <- nmr.bounds %>%
-                mutate(peak.number = if_else(is.na(peak.number), "", peak.number)) %>% #assigns empty labels to avoid label over data points
-                ggplot(aes(x = shift, y = int, color = oligo)) +
-                geom_line(size = input$nmr.size.line.db) +
-                geom_text_repel(aes(x = shift, y = int, label = peak.number,
-                                    color = oligo, segment.color = oligo),
-                                force = 4,
-                                direction = 'y',
-                                min.segment.length = 0.15,
-                                segment.size = 0.5,
-                                box.padding = 1,
-                                alpha = 1,
-                                size = 5,
-                                fontface = 'bold',
-                                show.legend = F,
-                                ylim = limits
-                ) +
-                scale_x_reverse() + #inverted x scale for chemical shift
-                theme_pander() +
-                xlab("Chemical shift (ppm)") +
-                theme(
-                    axis.text.y = element_blank(),
-                    axis.title.y = element_blank()
-                ) + #allows for some extra space on the y-scale for labelling
-                coord_cartesian(ylim = c(min(nmr.bounds$int), max(nmr.bounds$int)*1.2))
+                             nmr.bounds <- db.nmr.select() %>%
+                                 filter(oligo %in% selected.oligos.db()) %>%
+                                 filter(shift > min(input$slide.nmr.db) & shift < max(input$slide.nmr.db)) %>% #x-scale range selection
+                                 group_by(oligo) %>% #y-scale normalization (helps with labelling y-scale limits and spectra comparisons)
+                                 mutate(int = (int - min(int))/(max(int) - min(int)))
 
-            if (input$nmr.superimpose.db == "none") {
-                if (input$nmr.free.db == 'free') {
-                    p.NMR.db <- p.NMR.db +
-                        facet_grid(buffer~oligo,
-                                   scales = 'free_y')
-                } else {
-                    p.NMR.db <- p.NMR.db +
-                        facet_grid(oligo~buffer)
-                }
-            }
+                             incProgress(amount=2/8)
 
-            if (input$nmr.superimpose.db == "oligos") {
-                if (input$nmr.free.db == 'free') {
-                    p.NMR.db <- p.NMR.db +
-                        facet_grid(~oligo,
-                                   scales = 'free_y')
-                } else {
-                    p.NMR.db <- p.NMR.db +
-                        facet_grid(~oligo)
-                }
-            }
+                             limits <- c(0.8*max(nmr.bounds$int), 1.3*max(nmr.bounds$int)) #y-scale labelling limits
 
-            if (input$nmr.superimpose.db == "buffer") {
-                if (input$nmr.free.db == 'free') {
-                    p.NMR.db <- p.NMR.db +
-                        facet_grid(~buffer,
-                                   scales = 'free_y')
-                } else {
-                    p.NMR.db <- p.NMR.db +
-                        facet_grid(~buffer)
-                }
-            }
+                             incProgress(amount=3/8)
 
-            p.NMR.db <- palette.modifier.db(plot = p.NMR.db)
+                             p.NMR.db <- nmr.bounds %>%
+                                 mutate(peak.number = if_else(is.na(peak.number), "", peak.number)) %>% #assigns empty labels to avoid label over data points
+                                 ggplot(aes(x = shift, y = int, color = oligo)) +
+                                 geom_line(size = input$nmr.size.line.db) +
+                                 geom_text_repel(
+                                     aes(x = shift, y = int, label = peak.number,
+                                         color = oligo, segment.color = oligo),
+                                     force = 4,
+                                     direction = 'y',
+                                     min.segment.length = 0.15,
+                                     segment.size = 0.5,
+                                     box.padding = 1,
+                                     alpha = 1,
+                                     size = 5,
+                                     fontface = 'bold',
+                                     show.legend = F,
+                                     ylim = limits
+                                 ) +
+                                 scale_x_reverse() + #inverted x scale for chemical shift
+                                 theme(
+                                     panel.background = element_blank(),
+                                     legend.position = 'none',
+                                     axis.text.x = element_text(size = 14, face = 'italic'),
+                                     axis.text.y = element_blank(),
+                                     axis.title.x = element_text(size = 16),
+                                     axis.title.y = element_blank(),
+                                     axis.line.x = element_line(size = 1),
+                                     axis.ticks.x = element_line(size = 1, colour = 'black'),
+                                     axis.ticks.y = element_blank(),
+                                     strip.background = element_blank(),
+                                     strip.text = element_text(size = 14, face = 'bold', colour = 'grey25')
+                                 ) +
+                                 xlab(bquote(""^1*H~"Chemical shift (ppm)")) +
+                                 #allows for some extra space on the y-scale for labelling
+                                 coord_cartesian(ylim = c(min(nmr.bounds$int), max(nmr.bounds$int)*1.2))
 
-            return(p.NMR.db)
+                             incProgress(amount=4/8)
+
+                             if (length(selected.oligos.db()>1)) {
+                                 if (input$nmr.superimpose.db == "none") {
+                                     if (input$nmr.free.db == 'free') {
+                                         p.NMR.db <- p.NMR.db +
+                                             facet_grid(buffer.id~oligo,
+                                                        scales = 'free_y')
+                                     } else {
+                                         p.NMR.db <- p.NMR.db +
+                                             facet_grid(oligo~buffer.id)
+                                     }
+                                 }
+
+                                 incProgress(amount=5/8)
+
+                                 if (input$nmr.superimpose.db == "oligos") {
+                                     if (input$nmr.free.db == 'free') {
+                                         p.NMR.db <- p.NMR.db +
+                                             facet_grid(~oligo,
+                                                        scales = 'free_y')
+                                     } else {
+                                         p.NMR.db <- p.NMR.db +
+                                             facet_grid(~oligo)
+                                     }
+                                 }
+
+                                 incProgress(amount=6/8)
+
+                                 if (input$nmr.superimpose.db == "buffer") {
+                                     if (input$nmr.free.db == 'free') {
+                                         p.NMR.db <- p.NMR.db +
+                                             facet_grid(~buffer.id,
+                                                        scales = 'free_y')
+                                     } else {
+                                         p.NMR.db <- p.NMR.db +
+                                             facet_grid(~buffer.id)
+                                     }
+                                 }
+                             }
+
+                             if (length(selected.oligos.db() == 1)) {
+
+                                 p.NMR.db <- p.NMR.db +
+                                     theme(
+                                         strip.text = element_blank()
+                                     )
+                             }
+
+                             incProgress(amount=7/8)
+
+                             p.NMR.db <- palette.modifier.db(plot = p.NMR.db)
+
+                             incProgress(amount=8/8)
+
+                             return(p.NMR.db)
+                         })
         })
 
         output$p.NMR.ui.db <- renderUI({
@@ -3609,13 +3775,20 @@ g4db <- function() {
         })
 
         db.ms.select <- eventReactive(input$plotMS.db,{
-            db.MS() %>%
-                filter(buffer.id %in% input$select.buffer.id.db) %>%
-                filter(buffer %in% input$select.buffer.db) %>%
-                filter(cation %in% input$select.cation.db) %>%
-                filter(oligo %in% selected.oligos.db()) %>%
-                filter(mz > min(input$slide.ms.db) & mz < max(input$slide.ms.db))
 
+            withProgress(message = 'Filtering MS',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/2)
+
+                             db.MS() %>%
+                                 filter(buffer.id %in% input$select.buffer.id.db) %>%
+                                 filter(buffer %in% input$select.buffer.db) %>%
+                                 filter(cation %in% input$select.cation.db) %>%
+                                 filter(oligo %in% selected.oligos.db()) %>%
+                                 filter(mz > min(input$slide.ms.db) & mz < max(input$slide.ms.db))
+
+                         })
         })
 
         output$select.tune.db <- renderUI({
@@ -3678,169 +3851,211 @@ g4db <- function() {
 
         p.MS.db <- reactive({
 
-            req(db.ms.select())
+            withProgress(message = 'Plotting MS',
+                         detail = 'Please wait', value = 0, {
 
-            p.MS.db <- db.ms.select() %>%
-                filter(rep %in% input$select.rep.db) %>%
-                filter(tune %in% input$select.tune.db) %>%
-                ggplot(aes(x = mz, y = norm.int)) +
-                theme_pander() +
-                theme(
-                    legend.position = "right",
-                    axis.text.y = element_blank()
-                ) +
-                xlab("m/z") +
-                ylab("") +
-                labs(colour = "legend")
+                             incProgress(amount=1/9)
 
-            if (input$ms.superimpose.db == "oligo x buffer") {
-                if(isFALSE(input$switch.grid.ms.db)){
-                    p.MS.db <- p.MS.db + facet_grid(oligo~buffer.id,
-                                                    scales = "free_y")
-                } else {
-                    p.MS.db <- p.MS.db + facet_grid(buffer.id~oligo,
-                                                    scales = "free_y")
-                }
+                             req(db.ms.select())
 
-                p.MS.db <- p.MS.db +
-                    geom_line(size = input$ms.size.line.db,
-                              aes(color = paste("replicate:", rep,
-                                                ", tune:", tune))
-                    )
+                             incProgress(amount=2/9)
 
-                if (isTRUE(input$switch.label.ms.db)) {
-                    p.MS.db <- p.MS.db  +
-                        geom_label(aes(label = species, y = 1,
-                                       color = paste("replicate:", rep,
-                                                     ", tune:", tune)),
-                                   show.legend = F)
-                }
+                             p.MS.db <- db.ms.select() %>%
+                                 filter(rep %in% input$select.rep.db) %>%
+                                 filter(tune %in% input$select.tune.db) %>%
+                                 ggplot(aes(x = mz, y = norm.int)) +
+                                 theme(
+                                     panel.background = element_blank(),
+                                     legend.background = element_blank(),
+                                     legend.box.background = element_blank(),
+                                     legend.key = element_blank(),
+                                     legend.text = element_text(size = 10),
+                                     legend.title = element_text(size = 12, face = 'bold'),
+                                     axis.text = element_text(size = 14, face = 'italic'),
+                                     axis.title.x = element_text(size = 16),
+                                     axis.title.y = element_blank(),
+                                     axis.text.y = element_blank(),
+                                     axis.line.x = element_line(size = 1),
+                                     axis.line.y = element_blank(),
+                                     axis.ticks.x = element_line(size = 1, colour = 'black'),
+                                     axis.ticks.y = element_blank(),
+                                     panel.grid.major.x = element_line(size = 0.7, colour = 'grey70', linetype = 'dashed'),
+                                     panel.grid.minor.x = element_line(size = 0.7, colour = 'grey70', linetype = 'dashed'),
+                                     strip.background = element_blank(),
+                                     strip.text = element_text(size = 14, face = 'bold', colour = 'grey25')
+                                 ) +
+                                 xlab("m/z") +
+                                 labs(colour = "legend")
 
-            }
+                             incProgress(amount=3/9)
 
-            if (input$ms.superimpose.db == "oligo x tune") {
-                if(isFALSE(input$switch.grid.ms.db)){
-                    p.MS.db <- p.MS.db + facet_grid(oligo~tune,
-                                                    scales = "free_y")
-                } else {
-                    p.MS.db <- p.MS.db + facet_grid(tune~oligo,
-                                                    scales = "free_y")
-                }
+                             if (input$ms.superimpose.db == "oligo x buffer") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(oligo~buffer.id,
+                                                                     scales = "free_y")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(buffer.id~oligo,
+                                                                     scales = "free_y")
+                                 }
 
-                p.MS.db <- p.MS.db +
-                    geom_line(size = input$ms.size.line.db,
-                              aes(color = paste("replicate:", rep,
-                                                ", buffer:", buffer.id))
-                    )
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("replicate:", rep,
+                                                                 ", tune:", tune))
+                                     ) +
+                                     guides(color = guide_legend(title = "replicate x tune"))
 
-                if (isTRUE(input$switch.label.ms.db)) {
-                    p.MS.db <- p.MS.db  +
-                        geom_label(aes(label = species, y = 1,
-                                       color = paste("replicate:", rep,
-                                                     ", buffer:", buffer.id)),
-                                   show.legend = F)
-                }
-            }
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = species, y = 1,
+                                                        color = paste("replicate:", rep,
+                                                                      ", tune:", tune)),
+                                                    show.legend = F)
+                                 }
 
-            if (input$ms.superimpose.db == "oligo x replicate") {
-                if(isFALSE(input$switch.grid.ms.db)){
-                    p.MS.db <- p.MS.db + facet_grid(oligo~rep,
-                                                    scales = "free_y")
-                } else {
-                    p.MS.db <- p.MS.db + facet_grid(rep~oligo,
-                                                    scales = "free_y")
-                }
+                             }
 
-                p.MS.db <- p.MS.db +
-                    geom_line(size = input$ms.size.line.db,
-                              aes(color = paste("buffer:", buffer.id,
-                                                ", tune:", tune))
-                    )
+                             incProgress(amount=4/9)
 
-                if (isTRUE(input$switch.label.ms.db)) {
-                    p.MS.db <- p.MS.db  +
-                        geom_label(aes(label = species, y = 1,
-                                       color = paste("buffer:", buffer.id,
-                                                     ", tune:", tune)),
-                                   show.legend = F)
-                }
-            }
+                             if (input$ms.superimpose.db == "oligo x tune") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(oligo~tune,
+                                                                     scales = "free_y")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(tune~oligo,
+                                                                     scales = "free_y")
+                                 }
 
-            if (input$ms.superimpose.db == "buffer x tune") {
-                if(isFALSE(input$switch.grid.ms.db)){
-                    p.MS.db <- p.MS.db + facet_grid(buffer.id~tune,
-                                                    scales = "free_y")
-                } else {
-                    p.MS.db <- p.MS.db + facet_grid(tune~buffer.id,
-                                                    scales = "free_y")
-                }
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("replicate:", rep,
+                                                                 ", buffer:", buffer.id))
+                                     ) +
+                                     guides(color = guide_legend(title = "replicate x buffer"))
 
-                p.MS.db <- p.MS.db +
-                    geom_line(size = input$ms.size.line.db,
-                              aes(color = paste("oligo:", oligo,
-                                                ", replicate:", rep))
-                    )
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = species, y = 1,
+                                                        color = paste("replicate:", rep,
+                                                                      ", buffer:", buffer.id)),
+                                                    show.legend = F)
+                                 }
+                             }
 
-                if (isTRUE(input$switch.label.ms.db)) {
-                    p.MS.db <- p.MS.db  +
-                        geom_label(aes(label = species, y = 1,
-                                       color = paste("oligo:", oligo,
-                                                     ", replicate:", rep)),
-                                   show.legend = F)
-                }
-            }
+                             incProgress(amount=5/9)
 
-            if (input$ms.superimpose.db == "buffer x replicate") {
-                if(isFALSE(input$switch.grid.ms.db)){
-                    p.MS.db <- p.MS.db + facet_grid(buffer.id~rep,
-                                                    scales = "free_y")
-                } else {
-                    p.MS.db <- p.MS.db + facet_grid(rep~buffer.id,
-                                                    scales = "free_y")
-                }
+                             if (input$ms.superimpose.db == "oligo x replicate") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(oligo~rep,
+                                                                     scales = "free_y")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(rep~oligo,
+                                                                     scales = "free_y")
+                                 }
 
-                p.MS.db <- p.MS.db +
-                    geom_line(size = input$ms.size.line.db,
-                              aes(color = paste("oligo:", oligo,
-                                                ", tune:", tune))
-                    )
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("buffer:", buffer.id,
+                                                                 ", tune:", tune))
+                                     ) +
+                                     guides(color = guide_legend(title = "buffer x tune"))
 
-                if (isTRUE(input$switch.label.ms.db)) {
-                    p.MS.db <- p.MS.db  +
-                        geom_label(aes(label = species, y = 1,
-                                       color = paste("oligo:", oligo,
-                                                     ", tune:", tune)),
-                                   show.legend = F)
-                }
-            }
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = species, y = 1,
+                                                        color = paste("buffer:", buffer.id,
+                                                                      ", tune:", tune)),
+                                                    show.legend = F)
+                                 }
+                             }
 
-            if (input$ms.superimpose.db == "tune x replicate") {
-                if(isFALSE(input$switch.grid.ms.db)){
-                    p.MS.db <- p.MS.db + facet_grid(tune~rep,
-                                                    scales = "free_y")
-                } else {
-                    p.MS.db <- p.MS.db + facet_grid(rep~tune,
-                                                    scales = "free_y")
-                }
+                             incProgress(amount=6/9)
 
-                p.MS.db <- p.MS.db +
-                    geom_line(size = input$ms.size.line.db,
-                              aes(color = paste("oligo:", oligo,
-                                                ", buffer:", buffer.id))
-                    )
+                             if (input$ms.superimpose.db == "buffer x tune") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(buffer.id~tune,
+                                                                     scales = "free_y")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(tune~buffer.id,
+                                                                     scales = "free_y")
+                                 }
 
-                if (isTRUE(input$switch.label.ms.db)) {
-                    p.MS.db <- p.MS.db  +
-                        geom_label(aes(label = species, y = 1,
-                                       color = paste("oligo:", oligo,
-                                                     ", buffer:", buffer.id)),
-                                   show.legend = F)
-                }
-            }
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("oligo:", oligo,
+                                                                 ", replicate:", rep))
+                                     ) +
+                                     guides(color = guide_legend(title = "oligonucleotide x replicate"))
 
-            p.MS.db <- palette.modifier.db(plot = p.MS.db)
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = species, y = 1,
+                                                        color = paste("oligo:", oligo,
+                                                                      ", replicate:", rep)),
+                                                    show.legend = F)
+                                 }
+                             }
 
-            return(p.MS.db)
+                             incProgress(amount=7/9)
+
+                             if (input$ms.superimpose.db == "buffer x replicate") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(buffer.id~rep,
+                                                                     scales = "free_y")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(rep~buffer.id,
+                                                                     scales = "free_y")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("oligo:", oligo,
+                                                                 ", tune:", tune))
+                                     ) +
+                                     guides(color = guide_legend(title = "oligonucleotide x tune"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = species, y = 1,
+                                                        color = paste("oligo:", oligo,
+                                                                      ", tune:", tune)),
+                                                    show.legend = F)
+                                 }
+                             }
+
+                             incProgress(amount=8/9)
+
+                             if (input$ms.superimpose.db == "tune x replicate") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(tune~rep,
+                                                                     scales = "free_y")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(rep~tune,
+                                                                     scales = "free_y")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("oligo:", oligo,
+                                                                 ", buffer:", buffer.id))
+                                     ) +
+                                     guides(color = guide_legend(title = "oligonucleotide x buffer"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = species, y = 1,
+                                                        color = paste("oligo:", oligo,
+                                                                      ", buffer:", buffer.id)),
+                                                    show.legend = F)
+                                 }
+                             }
+
+                             incProgress(amount=9/9)
+
+                             p.MS.db <- palette.modifier.db(plot = p.MS.db)
+
+                             return(p.MS.db)
+                         })
         })
 
         output$p.MS.db <- renderPlot({
@@ -3855,25 +4070,57 @@ g4db <- function() {
         })
 
 
+        p.db.UV.select <- reactive({
+            db.UV.select() %>%
+                filter(oligo %in% selected.oligos.db())
+        })
+
+
+
         p.UV.fit.db <- reactive({
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
-                p.UV.melting.db <- db.UV.select() %>%
-                    filter(oligo %in% selected.oligos.db()) %>%
-                    ggplot() +
-                    geom_point(aes(x = T.K, y = abs.melt, color = id),
-                               size = input$uv.fit.size.pt.db, alpha = input$uv.fit.alpha.pt.db,
-                               shape = 16) +  #plots the experimental data
-                    geom_line(aes(x = T.K, y = raw.fit.y, color = id),
-                              size = input$uv.fit.size.line.db, alpha = input$uv.fit.alpha.line.db) +
-                    ylab(bquote(epsilon*' ('*M^-1~cm^-1*')')) + #modifies axes titles
-                    xlab("Temperature (K)") +
-                    labs(color="id") +
-                    theme_pander()
+                withProgress(message = 'Plotting raw UV-melting',
+                             detail = 'Please wait', value = 0, {
 
-                p.UV.fit.db <- palette.modifier.db(plot = p.UV.melting.db)
+                                 incProgress(amount=1/3)
 
-                return(p.UV.fit.db)
+                                 p.UV.melting.db <- p.db.UV.select() %>%
+                                     ggplot() +
+                                     geom_point(aes(x = T.K, y = abs.melt, color = id),
+                                                size = input$uv.fit.size.pt.db, alpha = input$uv.fit.alpha.pt.db,
+                                                shape = 16) +  #plots the experimental data
+                                     geom_line(aes(x = T.K, y = raw.fit.y, color = id),
+                                               size = input$uv.fit.size.line.db, alpha = input$uv.fit.alpha.line.db) +
+                                     ylab(bquote(epsilon*' ('*M^-1~cm^-1*')')) + #modifies axes titles
+                                     xlab("Temperature (K)") +
+                                     labs(color="id") +
+                                     theme(
+                                         panel.background = element_blank(),
+                                         legend.background = element_blank(),
+                                         legend.box.background = element_blank(),
+                                         legend.key = element_blank(),
+                                         legend.text = element_text(size = 10),
+                                         legend.title = element_text(size = 12, face = 'bold'),
+                                         axis.text = element_text(size = 14, face = 'italic'),
+                                         axis.title.x = element_text(size = 16),
+                                         axis.title.y = element_text(size = 16),
+                                         axis.line = element_line(size = 1),
+                                         axis.ticks = element_line(size = 1, colour = 'black'),
+                                         panel.grid.major.x = element_blank(),
+                                         panel.grid.minor.x = element_blank()
+                                     ) +
+                                     guides(color = guide_legend(title = "Melting id"))
+
+                                 incProgress(amount=2/3)
+
+                                 p.UV.fit.db <- palette.modifier.db(plot = p.UV.melting.db)
+
+                                 incProgress(amount=3/3)
+
+                                 return(p.UV.fit.db)
+
+                             })
             }
         })
 
@@ -3884,20 +4131,62 @@ g4db <- function() {
         p.UV.melting.db <- reactive({
             if(is.null(selected.oligos.db())) {return(NULL)}else{
 
-                p.UV.melting.db <- db.UV.select() %>%
-                    filter(oligo %in% selected.oligos.db()) %>%
-                    ggplot() +
-                    geom_point(aes(x = T.K, y = folded.fraction.base, color = id),
-                               size = input$uv.size.pt.db, alpha = input$uv.alpha.pt.db,
-                               shape = 16) +  #plots the experimental data
-                    ylab(bquote(bold("folded fraction"))) + #modifies axes titles
-                    xlab("Temperature (K)") +
-                    labs(color="id") +
-                    theme_pander()
+                withProgress(message = 'Plotting processed UV-melting',
+                             detail = 'Please wait', value = 0, {
 
-                p.UV.melting.db <- palette.modifier.db(plot = p.UV.melting.db)
+                                 incProgress(amount=1/3)
 
-                return(p.UV.melting.db)
+                                 labels <- p.db.UV.select() %>%
+                                     group_by(id) %>%
+                                     dplyr::distinct(P2, .keep_all = T) %>%
+                                     group_by(oligo, comment) %>%
+                                     # mutate(label = round(mean(P2), 1)) ##to have a single label for both ramps (remove the repel as well below)
+                                     mutate(label = round(P2, 1))
+
+                                 incProgress(amount=2/3)
+
+                                 p.UV.melting.db <- p.db.UV.select() %>%
+                                     ggplot() +
+                                     geom_hline(yintercept = 0.5, linetype = 'dashed', color = 'grey70', size = 0.7) +
+                                     geom_point(aes(x = T.K, y = folded.fraction.base, color = id),
+                                                size = input$uv.size.pt.db, alpha = input$uv.alpha.pt.db,
+                                                shape = 16) +  #plots the experimental data
+                                     geom_label_repel(
+                                         size = 5,
+                                         inherit.aes = F,
+                                         shshow.legend = F,
+                                         data = labels,
+                                         aes(label = label, x = label, y = 0.5, color = id),
+                                     ) +
+                                     ylab(bquote(bold("folded fraction"))) + #modifies axes titles
+                                     xlab("Temperature (K)") +
+                                     labs(color="id") +
+                                     theme(
+                                         panel.background = element_blank(),
+                                         legend.background = element_blank(),
+                                         legend.box.background = element_blank(),
+                                         legend.key = element_blank(),
+                                         legend.text = element_text(size = 10),
+                                         legend.title = element_text(size = 12, face = 'bold'),
+                                         axis.text = element_text(size = 14, face = 'italic'),
+                                         axis.title.x = element_text(size = 16),
+                                         axis.title.y = element_text(size = 16),
+                                         axis.line = element_line(size = 1),
+                                         axis.ticks = element_line(size = 1, colour = 'black'),
+                                         panel.grid.major.x = element_blank(),
+                                         panel.grid.minor.x = element_blank()
+                                     ) +
+                                     guides(color = guide_legend(title = "Melting id"))
+
+                                 incProgress(amount=2/3)
+
+                                 p.UV.melting.db <- palette.modifier.db(plot = p.UV.melting.db)
+
+                                 incProgress(amount=3/3)
+
+                                 return(p.UV.melting.db)
+
+                             })
             }
         })
 
@@ -4029,31 +4318,45 @@ g4db <- function() {
             }
         )
 
+        #6bis-Erasing db----
+
         output$erase.db <- downloadHandler(
             filename = function() {
                 paste("Modified database-", Sys.Date(), ".Rda", sep="")
             },
             content = function(file) {
 
-                db.collection <- database.eraser(db.to.erase = db.file()$datapath,
-                                                 remove.oligos =  input$select.oligo.db,
-                                                 erase.CD = input$erase.CD,
-                                                 erase.NMR = input$erase.NMR,
-                                                 erase.MS = input$erase.MS,
-                                                 erase.UV = input$erase.UV)
+                withProgress(message = 'Writing a modified database',
+                             detail = 'Please wait', value = 0, {
 
-                db.CD <- db.collection$db.CD
-                db.info <- db.collection$db.info
-                db.NMR <- db.collection$db.NMR
-                db.MS <- db.collection$db.MS
-                db.UV <- db.collection$db.UV
+                                 incProgress(amount=1/7)
 
-                save(db.info,
-                     db.CD,
-                     db.NMR,
-                     db.MS,
-                     db.UV,
-                     file = file)
+                                 db.collection <- database.eraser(db.to.erase = db.file()$datapath,
+                                                                  remove.oligos =  input$select.oligo.db,
+                                                                  erase.CD = input$erase.CD,
+                                                                  erase.NMR = input$erase.NMR,
+                                                                  erase.MS = input$erase.MS,
+                                                                  erase.UV = input$erase.UV)
+                                 incProgress(amount=2/7)
+
+                                 db.CD <- db.collection$db.CD
+                                 incProgress(amount=3/7)
+                                 db.info <- db.collection$db.info
+                                 incProgress(amount=4/7)
+                                 db.NMR <- db.collection$db.NMR
+                                 incProgress(amount=5/7)
+                                 db.MS <- db.collection$db.MS
+                                 incProgress(amount=6/7)
+                                 db.UV <- db.collection$db.UV
+                                 incProgress(amount=7/7)
+
+                                 save(db.info,
+                                      db.CD,
+                                      db.NMR,
+                                      db.MS,
+                                      db.UV,
+                                      file = file)
+                             })
             })
 
         oligos.to.remove <- reactive({
@@ -4090,7 +4393,7 @@ g4db <- function() {
 
                                  incProgress(amount=1/7)
 
-                                 src <- system.file("rmarkdown/report.Rmd", package = 'g4dbr')
+                                 src <- system.file("rmarkdown/report_SI.Rmd", package = 'g4dbr')
 
                                  incProgress(amount=2/7)
 
@@ -4099,12 +4402,12 @@ g4db <- function() {
                                  incProgress(amount=3/7)
                                  on.exit(setwd(owd))
                                  incProgress(amount=4/7)
-                                 file.copy(src, 'report.Rmd', overwrite = TRUE)
+                                 file.copy(src, 'report_SI.Rmd', overwrite = TRUE)
                                  incProgress(amount=5/7)
                                  # "word_document" used instead of word_document() so that template is taken into account
                                  # To modify template, locate it with:
                                  # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
-                                 out <- rmarkdown::render('report.Rmd', switch(
+                                 out <- rmarkdown::render('report_SI.Rmd', switch(
                                      input$format,
                                      PDF = pdf_document(), HTML = html_document(), Word = "word_document"
                                  ))
