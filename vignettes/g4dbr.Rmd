@@ -107,6 +107,7 @@ Below is a list of the main features of *g4dbr*.
   + MS data normalization
   + ^1^H-NMR and MS peak labelling
   + UV-melting data normalization and conversion to folded fraction
+  + UV-melting Tm labeling
 + Custom figures
   + Control over colors, size, and transparency of figures
   + Color palettes adapted to qualitative, sequential, and diverging data
@@ -115,8 +116,9 @@ Below is a list of the main features of *g4dbr*.
   + Automated colour mapping to non-paneled variables
   + Automated figure dimension change to accomodate multiple rows
 + Automated report generation
+  + Full or SI dedicated reports
   + pdf, HTML and Word formats can be selected
-  + All data, figure captions, figure sizing, file name, etc. are generated dynamically without user input
+  + All data, figure captions, figure sizing, file name, etc. generated dynamically without user input
 + Open
   + Easy-to-export data tables (practical for standalone data treatment)
   + Import template easy to read in other software
