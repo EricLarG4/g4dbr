@@ -105,6 +105,7 @@ Below is a list of the main features of *g4dbr*.
   + Automated colour mapping to non-paneled variables
   + Automated figure dimension change to accomodate multiple rows
 + Automated report generation
+  + Minimal (for supporting information) or full report selection
   + pdf, HTML and Word formats can be selected
   + All data, figure captions, figure sizing, file name, etc. are generated dynamically without user input
 + Open
@@ -335,13 +336,14 @@ The table may take some time to load given the large number of data points.
 
 #### Report generation
 
-It is possible to generate automated reports from the displayed data in Word, pdf, and HTML formats, in a few simple steps:
+Reports can be generated from the displayed data, either *full* (with traceability features, titles,...), or *SI* (with minimal information to avoid redundancy when reports are collated into a supporting information document), in Word, pdf, and HTML formats, in a few simple steps:
 
 1. Select the *oligonucleotide(s)* for which the report must be generated,
 2. Plot the MS data, if they are to be included in the report. If not, the section will not appear in the report,
-3. Customize, where necessary, the figures,
-4. Select a document format (Word, pdf, HTML), in the *left_sidebar* (*Report* section)
-5. Click on the *Download* button and save the document.
+3. Customize, where necessary, the figures (e.g. colours, scales),
+4. Select the report type (*full* or *SI*) with the *Report type* switch, 
+5. Select a document format (Word, pdf, HTML), in the *left_sidebar* (*Report* section)
+6. Click on the *Download* button and save the document.
 
 #### Word formatting
 
