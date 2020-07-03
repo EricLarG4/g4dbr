@@ -1,6 +1,10 @@
-![](vignettes/ressources/logo.png)
+[![GitHub license](https://img.shields.io/github/license/EricLarG4/g4dbr)](https://github.com/EricLarG4/g4dbr/blob/master/LICENSE)
+![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/EricLarG4/g4dbr)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/EricLarG4/g4dbr?include_prereleases)
+![GitHub repo size](https://img.shields.io/github/repo-size/EricLarG4/g4dbr)
+![R version](https://img.shields.io/badge/R-%3E%3D%203.5.0-blue)
 
-# g4dbr
+# g4dbr <a href='https://github.com/EricLarG4/g4dbr'><img src='vignettes/ressources/logo.png' align="right" height="75" /></a>
 _G4 biophysics database visualization and management_
 
   + [Installation](#Installation)
