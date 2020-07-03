@@ -1,3 +1,5 @@
+![](vignettes/ressources/logo.png)
+
 # g4dbr
 _G4 biophysics database visualization and management_
 
