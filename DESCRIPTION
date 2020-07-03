@@ -41,7 +41,7 @@ Remotes:
   github::DavidBarke/QWUtils
 Depends: 
     R (>= 3.5.0)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown
