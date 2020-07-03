@@ -33,7 +33,7 @@ library(g4dbr)
 g4db()
 ```
 
-For more details, consult the package and function documentation here using `help(package = 'g4dbr')`
+For more details, consult the package (HTML vignette) and function documentation using `help(package = 'g4dbr')`. The vignette is also available in pdf [here](doc/g4dbr.pdf).
 
 #### pdf reports
 
