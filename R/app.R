@@ -4161,7 +4161,7 @@ g4db <- function() {
                                      geom_label_repel(
                                          size = 5,
                                          inherit.aes = F,
-                                         shshow.legend = F,
+                                         show.legend = F,
                                          data = labels,
                                          aes(label = label, x = label, y = 0.5, color = id),
                                      ) +
