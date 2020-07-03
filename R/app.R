@@ -262,6 +262,13 @@ g4db <- function() {
                        hr(),
                        h3('Report')
                 ),
+                switchInput(inputId = 'report.choice',
+                            label = 'Report type',
+                            offLabel = 'SI',
+                            onLabel = 'Full',
+                            onStatus = 'info',
+                            offStatus = 'success'
+                ),
                 radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
                              inline = TRUE),
                 column(12,
@@ -4391,9 +4398,17 @@ g4db <- function() {
                 withProgress(message = 'Report generation',
                              detail = 'Please wait', value = 0, {
 
+                                 if (isTRUE(input$report.choice)) {
+                                     report <- "report.Rmd"
+                                 } else {
+                                     report <- "report_SI.Rmd"
+                                 }
+
                                  incProgress(amount=1/7)
 
-                                 src <- system.file("rmarkdown/report_SI.Rmd", package = 'g4dbr')
+                                 src <- system.file(paste0("rmarkdown/", report), package = 'g4dbr')
+
+                                 # src <- system.file("rmarkdown/report_SI.Rmd", package = 'g4dbr')
 
                                  incProgress(amount=2/7)
 
@@ -4402,12 +4417,12 @@ g4db <- function() {
                                  incProgress(amount=3/7)
                                  on.exit(setwd(owd))
                                  incProgress(amount=4/7)
-                                 file.copy(src, 'report_SI.Rmd', overwrite = TRUE)
+                                 file.copy(src, report, overwrite = TRUE)
                                  incProgress(amount=5/7)
                                  # "word_document" used instead of word_document() so that template is taken into account
                                  # To modify template, locate it with:
                                  # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
-                                 out <- rmarkdown::render('report_SI.Rmd', switch(
+                                 out <- rmarkdown::render(report, switch(
                                      input$format,
                                      PDF = pdf_document(), HTML = html_document(), Word = "word_document"
                                  ))
