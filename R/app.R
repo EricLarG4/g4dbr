@@ -4405,9 +4405,19 @@ g4db <- function() {
                 withProgress(message = 'Plotting raw UV-melting',
                              detail = 'Please wait', value = 0, {
 
-                                 incProgress(amount=1/3)
+                                 incProgress(amount=1/4)
 
-                                 p.UV.melting.db <- p.db.UV.select() %>%
+                                 #simplifies the id for simple cases (only one replicate of a single oligo)
+                                 if (length(selected.oligos.db()) == 1) {
+                                     p.db.UV.select <- p.db.UV.select() %>%
+                                         mutate(id = paste0(comment, '-', ramp))
+                                 } else {
+                                     p.db.UV.select <- p.db.UV.select()
+                                 }
+
+                                 incProgress(amount=2/4)
+
+                                 p.UV.melting.db <- p.db.UV.select %>%
                                      ggplot() +
                                      geom_point(aes(x = T.K-273.15, y = abs.melt, color = id),
                                                 size = input$uv.fit.size.pt.db, alpha = input$uv.fit.alpha.pt.db,
@@ -4434,11 +4444,11 @@ g4db <- function() {
                                      ) +
                                      guides(color = guide_legend(title = "Melting id"))
 
-                                 incProgress(amount=2/3)
+                                 incProgress(amount=3/4)
 
                                  p.UV.fit.db <- palette.modifier.db(plot = p.UV.melting.db)
 
-                                 incProgress(amount=3/3)
+                                 incProgress(amount=4/4)
 
                                  return(p.UV.fit.db)
 
@@ -4456,18 +4466,29 @@ g4db <- function() {
                 withProgress(message = 'Plotting processed UV-melting',
                              detail = 'Please wait', value = 0, {
 
-                                 incProgress(amount=1/3)
+                                 incProgress(amount=1/5)
 
-                                 labels <- p.db.UV.select() %>%
+                                 #simplifies the id for simple cases (only one replicate of a single oligo)
+                                 if (length(selected.oligos.db()) == 1) {
+                                     p.db.UV.select <- p.db.UV.select() %>%
+                                         mutate(id = paste0(comment, '-', ramp))
+                                 } else {
+                                     p.db.UV.select <- p.db.UV.select()
+                                 }
+
+                                 incProgress(amount=2/5)
+
+                                 #creation of Tm labels
+                                 labels <- p.db.UV.select %>%
                                      group_by(id) %>%
                                      dplyr::distinct(P2, .keep_all = T) %>%
                                      group_by(oligo, comment) %>%
                                      # mutate(label = round(mean(P2), 1)) ##to have a single label for both ramps (remove the repel as well below)
                                      mutate(label = round((P2-273.15), 1))
 
-                                 incProgress(amount=2/3)
+                                 incProgress(amount=3/5)
 
-                                 p.UV.melting.db <- p.db.UV.select() %>%
+                                 p.UV.melting.db <- p.db.UV.select %>%
                                      ggplot() +
                                      geom_hline(yintercept = 0.5, linetype = 'dashed', color = 'grey70', size = 0.7) +
                                      geom_point(aes(x = (T.K-273.15), y = folded.fraction.base, color = id),
@@ -4500,11 +4521,11 @@ g4db <- function() {
                                      ) +
                                      guides(color = guide_legend(title = "Melting id"))
 
-                                 incProgress(amount=2/3)
+                                 incProgress(amount=4/5)
 
                                  p.UV.melting.db <- palette.modifier.db(plot = p.UV.melting.db)
 
-                                 incProgress(amount=3/3)
+                                 incProgress(amount=5/5)
 
                                  return(p.UV.melting.db)
 

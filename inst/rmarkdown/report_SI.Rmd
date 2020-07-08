@@ -38,8 +38,8 @@ reference_docx: word-styles-reference.docx
 #table of oligonucleotides properties (pageable)
 db.info <- db.info() %>%
   filter(oligo %in% selected.oligos.db()) %>% #only display selected oligos data
-  select(c('sequence', 'averagemw', 'ext.coeff.260', 'DOI')) %>%
-  magrittr::set_colnames(c('Sequence (5\' to 3\')', 'MW ($g.mol^{-1}$)', '$\\epsilon_{260 nm}~(M^{-1}cm^{-1})$', 'DOI'))
+  select(c('sequence', 'ext.coeff.260', 'DOI')) %>%
+  magrittr::set_colnames(c('Sequence (5\' to 3\')', '$\\epsilon_{260 nm}~(M^{-1}cm^{-1})$', 'DOI'))
 
 knitr::kable(db.info,
              escape = F) #DOI parsed in HTML reports
@@ -131,10 +131,10 @@ if(input$plotMS.db == 0) {
 
 
 ```{r MScap, echo=FALSE, message=FALSE, warning=FALSE}
-MScap <- paste('Native ESI-MS spectra of the', selected.oligos.db(), 'oligonucleotide (μM)')
+MScap <- paste('Native ESI-MS spectra of the', selected.oligos.db(), 'oligonucleotide (10 μM)')
 ```
 ```{r MScap2, echo=FALSE, message=FALSE, warning=FALSE}
-MScap2 <- paste0('Native ESI-MS spectra of the ', selected.oligos.db(), ' oligonucleotide (μM), focused on the ', input$charge.select, '$^{-}$ charge state')
+MScap2 <- paste0('Native ESI-MS spectra of the ', selected.oligos.db(), ' oligonucleotide (10 μM), focused on the ', input$charge.select, '$^{-}$ charge state')
 ```
 
 ```{r MSplot, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= MScap, fig.width=6.299213, fig.height=4.25}
