@@ -5,3 +5,5 @@
 vignettes/g4dbr.log
 Meta
 vignettes/ressources/ai
+inst/extdata/full_database-CanHard.Rda
+inst/extdata/dbmod.Rda
