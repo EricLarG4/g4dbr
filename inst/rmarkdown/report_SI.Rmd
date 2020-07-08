@@ -80,7 +80,8 @@ CDcap <- paste0('Circular dichroism spectra of the ', selected.oligos.db(), ' ol
 ```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=CDcap, fig.width=6.299213, fig.height=3.75}
 p.CD.db()+
   guides(shape = FALSE,
-         colour = guide_legend(nrow = 2)) +
+         colour = guide_legend(nrow = 2,
+                               title = element_blank())) +
   theme(legend.position = 'bottom')
 
 # theme(legend.position = 'bottom',
