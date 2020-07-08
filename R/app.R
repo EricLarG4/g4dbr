@@ -269,7 +269,7 @@ g4db <- function() {
                             onStatus = 'info',
                             offStatus = 'success'
                 ),
-                radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+                radioButtons('format', 'Document format', c('Word', 'HTML', 'PDF'),
                              inline = TRUE),
                 column(12,
                        downloadButton('downloadReport')
@@ -571,19 +571,21 @@ g4db <- function() {
                                )
                         ),
                         column(12,
+                               column(12,
+                                      actionBttn(inputId = "plotMS.db",
+                                                 label = "plot MS",
+                                                 icon = icon('check-circle', class = 'regular'),
+                                                 style = "simple",
+                                                 color = "danger",
+                                                 size = "sm",
+                                                 block = F,
+                                                 no_outline = TRUE)
+                               ),
                                boxPlus(id = 'output.MS.db',
                                        title = 'Native ESI-MS',
                                        collapsible = T,
                                        collapsed = F,
                                        width = 12,
-                                       actionBttn(inputId = "plotMS.db",
-                                                  label = "plot MS",
-                                                  icon = icon('check-circle', class = 'regular'),
-                                                  style = "simple",
-                                                  color = "danger",
-                                                  size = "sm",
-                                                  block = F,
-                                                  no_outline = TRUE),
                                        uiOutput("p.MS.ui.db"),
                                        enable_sidebar = T,
                                        sidebar_width = 20,
@@ -625,6 +627,26 @@ g4db <- function() {
                                                max = 5,
                                                value = 1,
                                                step = 0.05
+                                           )
+                                       )
+                               )
+                        ),
+                        column(12,
+                               boxPlus(id = 'output.MS.db.2',
+                                       title = 'Zoomed native ESI-MS',
+                                       collapsible = T,
+                                       collapsed = F,
+                                       width = 12,
+                                       uiOutput("p.MS.ui.db.2"),
+                                       enable_sidebar = TRUE,
+                                       sidebar_width = 10,
+                                       sidebar_content = tagList(
+                                           selectInput(
+                                               inputId = 'charge.select',
+                                               label = 'charge',
+                                               multiple = F,
+                                               choices = 1:10,
+                                               selected = 5
                                            )
                                        )
                                )
@@ -3856,6 +3878,33 @@ g4db <- function() {
             gg_facet_ncol_ng(p.MS.db())
         })
 
+
+        p.MS.db.0 <- reactive({
+
+            req(db.ms.select())
+
+            p.MS.db.0 <- db.ms.select() %>%
+                filter(rep %in% input$select.rep.db) %>%
+                filter(tune %in% input$select.tune.db)
+        })
+
+        p.MS.db.1 <- reactive({
+
+            label.range <- p.MS.db.0() %>%
+                filter(charge == input$charge.select) %>%
+                group_by(oligo, buffer.id, tune, rep) %>%
+                select(c('oligo', 'buffer.id', 'tune', 'rep', 'mz')) %>%
+                mutate(range.min = min(mz)*0.975,
+                       range.max = max(mz)*1.05) %>%
+                distinct(range.min, range.max, oligo, buffer.id, tune, rep)
+
+            p.MS.db.1 <- p.MS.db.0() %>%
+                left_join(label.range) %>%
+                group_by(oligo, buffer.id, tune, rep)
+
+            return(p.MS.db.1)
+        })
+
         p.MS.db <- reactive({
 
             withProgress(message = 'Plotting MS',
@@ -3863,13 +3912,22 @@ g4db <- function() {
 
                              incProgress(amount=1/9)
 
-                             req(db.ms.select())
+                             req(p.MS.db.0())
 
                              incProgress(amount=2/9)
 
-                             p.MS.db <- db.ms.select() %>%
-                                 filter(rep %in% input$select.rep.db) %>%
-                                 filter(tune %in% input$select.tune.db) %>%
+                             p.MS.db <- p.MS.db.0() %>%
+                                 mutate(
+                                     labels = if_else( #generation of formatted labels
+                                         is.na(species), species,
+                                         case_when( #add brackets and charge in superscript
+                                             species == 'M' ~ paste('"[M]"^', charge, '^-', NA),
+                                             species == 'MK' ~ paste('"[MK]"^', charge, '^-', NA),
+                                             #if more than 1 K, extract that number of K, use in subscript
+                                             length(species) > 2 ~ paste('"["*MK', '[',substring(species, 3),']*"]"^', charge, '^-', NA)
+                                         )
+                                     )
+                                 ) %>%
                                  ggplot(aes(x = mz, y = norm.int)) +
                                  theme(
                                      panel.background = element_blank(),
@@ -3914,10 +3972,12 @@ g4db <- function() {
 
                                  if (isTRUE(input$switch.label.ms.db)) {
                                      p.MS.db <- p.MS.db  +
-                                         geom_label(aes(label = species, y = 1,
+                                         geom_label(aes(label = labels, x = mz, y = 1,
                                                         color = paste("replicate:", rep,
                                                                       ", tune:", tune)),
-                                                    show.legend = F)
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
                                  }
 
                              }
@@ -3942,10 +4002,12 @@ g4db <- function() {
 
                                  if (isTRUE(input$switch.label.ms.db)) {
                                      p.MS.db <- p.MS.db  +
-                                         geom_label(aes(label = species, y = 1,
+                                         geom_label(aes(label = labels, x = mz, y = 1,
                                                         color = paste("replicate:", rep,
                                                                       ", buffer:", buffer.id)),
-                                                    show.legend = F)
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
                                  }
                              }
 
@@ -3969,10 +4031,12 @@ g4db <- function() {
 
                                  if (isTRUE(input$switch.label.ms.db)) {
                                      p.MS.db <- p.MS.db  +
-                                         geom_label(aes(label = species, y = 1,
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
                                                         color = paste("buffer:", buffer.id,
                                                                       ", tune:", tune)),
-                                                    show.legend = F)
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
                                  }
                              }
 
@@ -3996,10 +4060,12 @@ g4db <- function() {
 
                                  if (isTRUE(input$switch.label.ms.db)) {
                                      p.MS.db <- p.MS.db  +
-                                         geom_label(aes(label = species, y = 1,
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
                                                         color = paste("oligo:", oligo,
                                                                       ", replicate:", rep)),
-                                                    show.legend = F)
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
                                  }
                              }
 
@@ -4023,10 +4089,12 @@ g4db <- function() {
 
                                  if (isTRUE(input$switch.label.ms.db)) {
                                      p.MS.db <- p.MS.db  +
-                                         geom_label(aes(label = species, y = 1,
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
                                                         color = paste("oligo:", oligo,
                                                                       ", tune:", tune)),
-                                                    show.legend = F)
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
                                  }
                              }
 
@@ -4050,10 +4118,247 @@ g4db <- function() {
 
                                  if (isTRUE(input$switch.label.ms.db)) {
                                      p.MS.db <- p.MS.db  +
-                                         geom_label(aes(label = species, y = 1,
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
                                                         color = paste("oligo:", oligo,
                                                                       ", buffer:", buffer.id)),
-                                                    show.legend = F)
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
+                                 }
+                             }
+
+                             incProgress(amount=9/9)
+
+                             p.MS.db <- palette.modifier.db(plot = p.MS.db)
+
+                             return(p.MS.db)
+                         })
+        })
+
+        p.MS.db.2 <- reactive({
+
+            withProgress(message = 'Plotting zoomed MS',
+                         detail = 'Please wait', value = 0, {
+
+                             incProgress(amount=1/9)
+
+                             req(p.MS.db.0())
+
+                             incProgress(amount=2/9)
+
+                             p.MS.db <- p.MS.db.1() %>%
+                                 mutate(
+                                     labels = if_else( #generation of formatted labels
+                                         is.na(species), species,
+                                         case_when( #add brackets and charge in superscript
+                                             species == 'M' ~ paste('"[M]"^', charge, '^-', NA),
+                                             species == 'MK' ~ paste('"[MK]"^', charge, '^-', NA),
+                                             #if more than 1 K, extract that number of K, use in subscript
+                                             length(species) > 2 ~ paste('"["*MK', '[',substring(species, 3),']*"]"^', charge, '^-', NA)
+                                         )
+                                     )
+                                 ) %>%
+                                 group_by(oligo, buffer.id, rep, tune) %>%
+                                 filter(mz > range.min & mz < range.max) %>%
+                                 mutate(int.min = min(int), int.max = max(int)) %>%
+                                 group_by(mz, oligo, buffer.id, tune, rep) %>%
+                                 mutate(norm.int = (int - int.min)/(int.max - int.min)) %>%
+                                 ggplot(aes(x = mz, y = norm.int)) +
+                                 theme(
+                                     panel.background = element_blank(),
+                                     legend.background = element_blank(),
+                                     legend.box.background = element_blank(),
+                                     legend.key = element_blank(),
+                                     legend.text = element_text(size = 10),
+                                     legend.title = element_text(size = 12, face = 'bold'),
+                                     axis.text = element_text(size = 14, face = 'italic'),
+                                     axis.title.x = element_text(size = 16),
+                                     axis.title.y = element_blank(),
+                                     axis.text.y = element_blank(),
+                                     axis.line.x = element_line(size = 1),
+                                     axis.line.y = element_blank(),
+                                     axis.ticks.x = element_line(size = 1, colour = 'black'),
+                                     axis.ticks.y = element_blank(),
+                                     panel.grid.major.x = element_line(size = 0.7, colour = 'grey70', linetype = 'dashed'),
+                                     panel.grid.minor.x = element_line(size = 0.7, colour = 'grey70', linetype = 'dashed'),
+                                     strip.background = element_blank(),
+                                     strip.text = element_text(size = 14, face = 'bold', colour = 'grey25')
+                                 ) +
+                                 xlab("m/z") +
+                                 labs(colour = "legend")
+
+                             incProgress(amount=3/9)
+
+                             if (input$ms.superimpose.db == "oligo x buffer") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(oligo~buffer.id,
+                                                                     scales = "free")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(buffer.id~oligo,
+                                                                     scales = "free")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("replicate:", rep,
+                                                                 ", tune:", tune))
+                                     ) +
+                                     guides(color = guide_legend(title = "replicate x tune"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = labels, x = mz, y = 1,
+                                                        color = paste("replicate:", rep,
+                                                                      ", tune:", tune)),
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
+                                 }
+
+                             }
+
+                             incProgress(amount=4/9)
+
+                             if (input$ms.superimpose.db == "oligo x tune") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(oligo~tune,
+                                                                     scales = "free")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(tune~oligo,
+                                                                     scales = "free")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("replicate:", rep,
+                                                                 ", buffer:", buffer.id))
+                                     ) +
+                                     guides(color = guide_legend(title = "replicate x buffer"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = labels, x = mz, y = 1,
+                                                        color = paste("replicate:", rep,
+                                                                      ", buffer:", buffer.id)),
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
+                                 }
+                             }
+
+                             incProgress(amount=5/9)
+
+                             if (input$ms.superimpose.db == "oligo x replicate") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(oligo~rep,
+                                                                     scales = "free")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(rep~oligo,
+                                                                     scales = "free")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("buffer:", buffer.id,
+                                                                 ", tune:", tune))
+                                     ) +
+                                     guides(color = guide_legend(title = "buffer x tune"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
+                                                        color = paste("buffer:", buffer.id,
+                                                                      ", tune:", tune)),
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
+                                 }
+                             }
+
+                             incProgress(amount=6/9)
+
+                             if (input$ms.superimpose.db == "buffer x tune") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(buffer.id~tune,
+                                                                     scales = "free")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(tune~buffer.id,
+                                                                     scales = "fre")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("oligo:", oligo,
+                                                                 ", replicate:", rep))
+                                     ) +
+                                     guides(color = guide_legend(title = "oligonucleotide x replicate"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
+                                                        color = paste("oligo:", oligo,
+                                                                      ", replicate:", rep)),
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
+                                 }
+                             }
+
+                             incProgress(amount=7/9)
+
+                             if (input$ms.superimpose.db == "buffer x replicate") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(buffer.id~rep,
+                                                                     scales = "free")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(rep~buffer.id,
+                                                                     scales = "free")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("oligo:", oligo,
+                                                                 ", tune:", tune))
+                                     ) +
+                                     guides(color = guide_legend(title = "oligonucleotide x tune"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
+                                                        color = paste("oligo:", oligo,
+                                                                      ", tune:", tune)),
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
+                                 }
+                             }
+
+                             incProgress(amount=8/9)
+
+                             if (input$ms.superimpose.db == "tune x replicate") {
+                                 if(isFALSE(input$switch.grid.ms.db)){
+                                     p.MS.db <- p.MS.db + facet_grid(tune~rep,
+                                                                     scales = "free")
+                                 } else {
+                                     p.MS.db <- p.MS.db + facet_grid(rep~tune,
+                                                                     scales = "free")
+                                 }
+
+                                 p.MS.db <- p.MS.db +
+                                     geom_line(size = input$ms.size.line.db,
+                                               aes(color = paste("oligo:", oligo,
+                                                                 ", buffer:", buffer.id))
+                                     ) +
+                                     guides(color = guide_legend(title = "oligonucleotide x buffer"))
+
+                                 if (isTRUE(input$switch.label.ms.db)) {
+                                     p.MS.db <- p.MS.db  +
+                                         geom_label(aes(label = deparse(labels), x = mz, y = 1,
+                                                        color = paste("oligo:", oligo,
+                                                                      ", buffer:", buffer.id)),
+                                                    show.legend = F,
+                                                    inherit.aes = F,
+                                                    parse = T)
                                  }
                              }
 
@@ -4071,11 +4376,21 @@ g4db <- function() {
             }
         })
 
+        output$p.MS.db.2 <- renderPlot({
+            if(is.null(selected.oligos.db())) {return(NULL)}else{
+                return(p.MS.db.2())
+            }
+        })
+
         output$p.MS.ui.db <- renderUI({
             plotOutput("p.MS.db",
                        height = 300*row.p.MS.db())
         })
 
+        output$p.MS.ui.db.2 <- renderUI({
+            plotOutput("p.MS.db.2",
+                       height = 300*row.p.MS.db())
+        })
 
         p.db.UV.select <- reactive({
             db.UV.select() %>%
@@ -4094,13 +4409,13 @@ g4db <- function() {
 
                                  p.UV.melting.db <- p.db.UV.select() %>%
                                      ggplot() +
-                                     geom_point(aes(x = T.K, y = abs.melt, color = id),
+                                     geom_point(aes(x = T.K-273.15, y = abs.melt, color = id),
                                                 size = input$uv.fit.size.pt.db, alpha = input$uv.fit.alpha.pt.db,
                                                 shape = 16) +  #plots the experimental data
-                                     geom_line(aes(x = T.K, y = raw.fit.y, color = id),
+                                     geom_line(aes(x = T.K-273.15, y = raw.fit.y, color = id),
                                                size = input$uv.fit.size.line.db, alpha = input$uv.fit.alpha.line.db) +
                                      ylab(bquote(epsilon*' ('*M^-1~cm^-1*')')) + #modifies axes titles
-                                     xlab("Temperature (K)") +
+                                     xlab("Temperature (°C)") +
                                      labs(color="id") +
                                      theme(
                                          panel.background = element_blank(),
@@ -4148,14 +4463,14 @@ g4db <- function() {
                                      dplyr::distinct(P2, .keep_all = T) %>%
                                      group_by(oligo, comment) %>%
                                      # mutate(label = round(mean(P2), 1)) ##to have a single label for both ramps (remove the repel as well below)
-                                     mutate(label = round(P2, 1))
+                                     mutate(label = round((P2-273.15), 1))
 
                                  incProgress(amount=2/3)
 
                                  p.UV.melting.db <- p.db.UV.select() %>%
                                      ggplot() +
                                      geom_hline(yintercept = 0.5, linetype = 'dashed', color = 'grey70', size = 0.7) +
-                                     geom_point(aes(x = T.K, y = folded.fraction.base, color = id),
+                                     geom_point(aes(x = (T.K-273.15), y = folded.fraction.base, color = id),
                                                 size = input$uv.size.pt.db, alpha = input$uv.alpha.pt.db,
                                                 shape = 16) +  #plots the experimental data
                                      geom_label_repel(
@@ -4163,10 +4478,10 @@ g4db <- function() {
                                          inherit.aes = F,
                                          show.legend = F,
                                          data = labels,
-                                         aes(label = label, x = label, y = 0.5, color = id),
+                                         aes(label = label, x = label, y = 0.5, color = id)
                                      ) +
                                      ylab(bquote(bold("folded fraction"))) + #modifies axes titles
-                                     xlab("Temperature (K)") +
+                                     xlab("Temperature (°C)") +
                                      labs(color="id") +
                                      theme(
                                          panel.background = element_blank(),
@@ -4424,7 +4739,7 @@ g4db <- function() {
                                  # run system.file("rmarkdown/word-styles-reference.docx", package = "g4dbr")
                                  out <- rmarkdown::render(report, switch(
                                      input$format,
-                                     PDF = pdf_document(), HTML = html_document(), Word = "word_document"
+                                     Word = "word_document", HTML = html_document(),  PDF = pdf_document()
                                  ))
                                  incProgress(amount=6/7)
                                  file.rename(out, file)

@@ -45,7 +45,12 @@ knitr::kable(db.info,
              escape = F) #DOI parsed in HTML reports
 ```
 
+&nbsp; 
+
 ---
+
+&nbsp;
+&nbsp; 
 
 ```{r CDcap, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -71,9 +76,12 @@ path.cd <- db.cd.select() %>%
 CDcap <- paste0('Circular dichroism spectra of the ', selected.oligos.db(), ' oligonucleotide (', conc.cd, ' μM), acquired at 25°C in ', path.cd, '-cm path-length cuvettes')
 ```
 
-```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=CDcap, fig.width=6.299213, fig.height=3.25}
+```{r CDplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=CDcap, fig.width=6.299213, fig.height=3.75}
 p.CD.db()+
-  guides(shape = FALSE) 
+  guides(shape = FALSE,
+         colour = guide_legend(nrow = 2)) +
+  theme(legend.position = 'bottom')
+
 # theme(legend.position = 'bottom',
 #       legend.text = element_text(size = 8),
 #       legend.title = element_text(size = 9))
@@ -83,7 +91,7 @@ p.CD.db()+
 
 
 ```{r NMRcap, echo=FALSE, message=FALSE, warning=FALSE}
-NMRcap <- paste('1H-NMR spectrum of the', selected.oligos.db(), 'oligonucleotide, acquired at 25°C')
+NMRcap <- paste('1H-NMR spectrum of the', selected.oligos.db(), 'oligonucleotide, acquired at 25°C in', db.nmr.select()$buffer.id)
 ```
 
 ```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=NMRcap, fig.width=6.299213, fig.height=3.75, dpi=600}
@@ -95,14 +103,16 @@ p.NMR.db()+
 
 
 ```{r UVcap, echo=FALSE, message=FALSE, warning=FALSE}
-UVcap <- paste('Folded fraction from UV-melting experiments (\\lambda = 295 nm) of the', selected.oligos.db(), 'oligonucleotide')
+UVcap <- paste('Folded fraction from UV-melting experiments ($\\lambda$ = 295 nm) of the', selected.oligos.db(), 'oligonucleotide')
 ```
 
 ```{r UVplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=UVcap, fig.width=6.299213, fig.height=4.25, dpi=600}
 p.UV.melting.db() +
-  guides(colour=guide_legend(nrow=2))+
+  guides(colour=guide_legend(nrow = 2,
+                             title = element_blank()))+
   theme(
-    legend.position = 'bottom'
+    legend.position = 'bottom',
+    legend.text = element_text(size = 8)
   )
 ```
 
@@ -120,15 +130,26 @@ if(input$plotMS.db == 0) {
 ```{r MScap, echo=FALSE, message=FALSE, warning=FALSE}
 MScap <- paste('Native ESI-MS spectra of the', selected.oligos.db(), 'oligonucleotide')
 ```
+```{r MScap2, echo=FALSE, message=FALSE, warning=FALSE}
+MScap2 <- paste0('Native ESI-MS spectra of the ', selected.oligos.db(), ' oligonucleotide, focused on the ', input$charge.select, '$^{-}$ charge state')
+```
 
 ```{r MSplot, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= MScap, fig.width=6.299213, fig.height=4.25}
 p.MS.db() +
   theme(
     legend.position = 'none',
     strip.text.x = element_blank(),
-    strip.text.y = element_text(size = 12, face = 'bold', colour = 'grey25')
+    strip.text.y = element_text(size = 7, face = 'bold', colour = 'grey25')
   ) +
   coord_cartesian(ylim = c(0,1.1))
 ```
 
-
+```{r MSplot2, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= MScap2, fig.width=6.299213, fig.height=4.25}
+p.MS.db.2() +
+  theme(
+    legend.position = 'none',
+    strip.text.x = element_blank(),
+    strip.text.y = element_text(size = 7, face = 'bold', colour = 'grey25')
+  ) +
+  coord_cartesian(ylim = c(0,1.1))
+```
