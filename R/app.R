@@ -639,7 +639,7 @@ g4db <- function() {
                                        width = 12,
                                        uiOutput("p.MS.ui.db.2"),
                                        enable_sidebar = TRUE,
-                                       sidebar_width = 10,
+                                       sidebar_width = 20,
                                        sidebar_content = tagList(
                                            selectInput(
                                                inputId = 'charge.select',
@@ -3892,10 +3892,10 @@ g4db <- function() {
 
             label.range <- p.MS.db.0() %>%
                 filter(charge == input$charge.select) %>%
-                group_by(oligo, buffer.id, tune, rep) %>%
+                group_by(oligo) %>%
                 select(c('oligo', 'buffer.id', 'tune', 'rep', 'mz')) %>%
-                mutate(range.min = min(mz)*0.975,
-                       range.max = max(mz)*1.05) %>%
+                mutate(range.min = min(mz)*0.99,
+                       range.max = max(mz)*1.025) %>%
                 distinct(range.min, range.max, oligo, buffer.id, tune, rep)
 
             p.MS.db.1 <- p.MS.db.0() %>%
