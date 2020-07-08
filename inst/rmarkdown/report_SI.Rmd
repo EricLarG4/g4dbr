@@ -38,8 +38,8 @@ reference_docx: word-styles-reference.docx
 #table of oligonucleotides properties (pageable)
 db.info <- db.info() %>%
   filter(oligo %in% selected.oligos.db()) %>% #only display selected oligos data
-  select(c('sequence', 'DOI')) %>%
-  magrittr::set_colnames(c('Sequence', 'DOI'))
+  select(c('sequence', 'averagemw', 'ext.coeff.260', 'DOI')) %>%
+  magrittr::set_colnames(c('Sequence (5\' to 3\')', 'MW ($g.mol^{-1}$)', '$\\epsilon_{260 nm}~(M^{-1}cm^{-1})$', 'DOI'))
 
 knitr::kable(db.info,
              escape = F) #DOI parsed in HTML reports
@@ -49,6 +49,7 @@ knitr::kable(db.info,
 
 ---
 
+&nbsp;
 &nbsp;
 &nbsp; 
 
@@ -89,9 +90,10 @@ p.CD.db()+
 
 ```
 
+&nbsp;
 
 ```{r NMRcap, echo=FALSE, message=FALSE, warning=FALSE}
-NMRcap <- paste('1H-NMR spectrum of the', selected.oligos.db(), 'oligonucleotide, acquired at 25°C in', db.nmr.select()$buffer.id)
+NMRcap <- paste('$^{1}$H-NMR spectrum of the', selected.oligos.db(), 'oligonucleotide, acquired at 25°C in', db.nmr.select()$buffer.id)
 ```
 
 ```{r NMRplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=NMRcap, fig.width=6.299213, fig.height=3.75, dpi=600}
@@ -101,9 +103,10 @@ p.NMR.db()+
 
 ```
 
+&nbsp;
 
 ```{r UVcap, echo=FALSE, message=FALSE, warning=FALSE}
-UVcap <- paste('Folded fraction from UV-melting experiments ($\\lambda$ = 295 nm) of the', selected.oligos.db(), 'oligonucleotide')
+UVcap <- paste('Folded fraction of the', selected.oligos.db(), 'oligonucleotide as a function of temperature, determined by UV-melting ($\\lambda$ = 295 nm)')
 ```
 
 ```{r UVplot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=UVcap, fig.width=6.299213, fig.height=4.25, dpi=600}
@@ -128,10 +131,10 @@ if(input$plotMS.db == 0) {
 
 
 ```{r MScap, echo=FALSE, message=FALSE, warning=FALSE}
-MScap <- paste('Native ESI-MS spectra of the', selected.oligos.db(), 'oligonucleotide')
+MScap <- paste('Native ESI-MS spectra of the', selected.oligos.db(), 'oligonucleotide (μM)')
 ```
 ```{r MScap2, echo=FALSE, message=FALSE, warning=FALSE}
-MScap2 <- paste0('Native ESI-MS spectra of the ', selected.oligos.db(), ' oligonucleotide, focused on the ', input$charge.select, '$^{-}$ charge state')
+MScap2 <- paste0('Native ESI-MS spectra of the ', selected.oligos.db(), ' oligonucleotide (μM), focused on the ', input$charge.select, '$^{-}$ charge state')
 ```
 
 ```{r MSplot, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= MScap, fig.width=6.299213, fig.height=4.25}
@@ -143,6 +146,8 @@ p.MS.db() +
   ) +
   coord_cartesian(ylim = c(0,1.1))
 ```
+
+&nbsp;
 
 ```{r MSplot2, eval=print.option, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= MScap2, fig.width=6.299213, fig.height=4.25}
 p.MS.db.2() +
