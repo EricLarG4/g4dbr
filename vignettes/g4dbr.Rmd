@@ -321,9 +321,11 @@ The data is gathered in the *UV-melting data* table below, which can be sorted, 
 
 #### Native mass spectrometry
 
-The mass spectrometry data is shown as line (Figure \@ref(fig:dbmslayout)). By default, spectra are panelled by *oligonucleotide* (columns) and *buffer* (rows), which should typically lead to a single spectrum per panel. Peak labels appear above their corresponding peak. Zooming in might be necessary to see all peaks
+There are two distinct plots to visualize MS data, i.e. one full scale and one charge-state focused, to better see the potassium adduct distribution.
 
-Besided a *line size* slider, the *right sidebar* contains:
+In both cases, the data is shown as line, with labels to name the visible species (Figure \@ref(fig:dbmslayout)). By default, spectra are paneled by *oligonucleotide* (columns) and *buffer* (rows), which should typically lead to a single spectrum per panel. Peak labels appear above their corresponding peak. The focused plot displays the 5<sup>-</sup> charge state by default, but this can be changed by the user.
+
+Besided a *line size* slider, the *right sidebar* of the full-scale plot contains:
 
 + *m/z* slider: select the *m/z* range to display (default: 800-2500 *m/z*).
 + *Tunes* dropdown menu: select the *tunes* to display.
@@ -338,6 +340,8 @@ Besided a *line size* slider, the *right sidebar* contains:
 ```{r dbmslayout, echo=FALSE, fig.cap='Detail of native MS data panelled with *oligonucleotides* in columns (a) and *tunes* in row (b). Because several spectra are superimposed, the remaining variables (*replicate* and *buffer*) are combined to map colors (c)', out.width='100%'}
 knitr::include_graphics('ressources/database_mslayout.png')
 ```
+
+The charge-state focused plot *sidebar* only contains a *charge* selection menu.
 
 The data is gathered in the *native ESI-MS data* table above, which can be sorted, filtered, and exported. The fields displayed by default are `Oligonucleotide`, `Buffer`, `Tune`, `Replicate`, `m/z`, `Normalized intensity`, and `Intensity`. The other fields hidden by default can be displayed using the *column visibility* button.
 
@@ -499,7 +503,7 @@ Make sure to mirror the header from the MS data tab, so that all spectra are lab
 
 Once the template file is ready, the data can be loaded in *g4db*, processed, filtered, and written into a new or existing database file. All of these steps can be performed in the *importR* tab, except for the *UV-melting* data treatment that is carried out in *meltR* (see the [Importing UV-melting data: the *meltR* tab](#meltr) section).
 
-Essentially, *importR* works just like *database*. The main window hosts the same data tables and figures than database (except *UV-melting* figures), with the same functioning (data filtering, figure customization). In the same vein, the *left sidebar* also contains the filters and color palette selection menus. All these common features are described in the *Interface overview* and *Consulting a database: the database tab* sections, and will not be discussed below.
+Essentially, *importR* works just like *database*. The main window hosts the same data tables and figures than database (except *UV-melting* figures, which are in *meltR*, and the charge-focused MS plot), with the same functioning (data filtering, figure customization). In the same vein, the *left sidebar* also contains the filters and color palette selection menus. All these common features are described in the *Interface overview* and *Consulting a database: the database tab* sections, and will not be discussed below.
 
 The key aspect of *importR* is that it is a *selective* database writing tool. In that context:
 
@@ -613,7 +617,7 @@ melt.l <- 1 #cuvette with 1.0-cm path length
 #Selection of a melting curve from the demo data
 data.to.fit <- db.UV %>%
   select(oligo, buffer, cation, rep, comment, ramp, id, T.K, abs.melt) %>%
-  filter(oligo == '1XAV' & buffer == 'TMAA' & ramp == 'cooling')
+  filter(oligo == '1XAV' & buffer == '100 mM TMAA (pH 7.0)' & ramp == 'cooling')
 
 #Plot
 data.to.fit %>%
@@ -624,7 +628,7 @@ data.to.fit %>%
   ylab("epsilon")
 ```
 
-```{r}
+```{r uvfit}
 #Fit initialization (fully hard coded here for simplicity's sake)
 P1s <- 130000
 P2s <- 325 #extracted from the first derivative normally
