@@ -42,14 +42,10 @@ g4db <- function() {
 
     #UI-----------
     ui <- dashboardPagePlus(
-        sidebar_fullCollapse = TRUE,
         #header--------------
-        dashboardHeaderPlus(
-            title = "g4db"
-            # enable_rightsidebar = TRUE,
-            # rightSidebarIcon = "palette"
-        ),
+        dashboardHeader(title = "g4db"),
         #sidebar-------------
+        sidebar_fullCollapse = TRUE,
         dashboardSidebar(
             conditionalPanel(
                 condition = "input.tabs == 'importR'",
@@ -3885,7 +3881,18 @@ g4db <- function() {
 
             p.MS.db.0 <- db.ms.select() %>%
                 filter(rep %in% input$select.rep.db) %>%
-                filter(tune %in% input$select.tune.db)
+                filter(tune %in% input$select.tune.db) %>%
+                mutate(
+                    labels = if_else( #generation of formatted labels
+                        is.na(species), species,
+                        case_when( #add brackets and charge in superscript
+                            species == 'M' ~ paste('"["*M*"]"^{', charge, '-NA}'),
+                            species == 'MK' ~ paste('"["*MK*"]"^{', charge, '-NA}'),
+                            #if more than 1 K, extract that number of K, use in subscript
+                            length(species) > 2 ~ paste('"["*MK', '[',substring(species, 3),']*"]"^{', charge, '-NA}')
+                        )
+                    )
+                )
         })
 
         p.MS.db.1 <- reactive({
@@ -3893,7 +3900,7 @@ g4db <- function() {
             label.range <- p.MS.db.0() %>%
                 filter(charge == input$charge.select) %>%
                 group_by(oligo) %>%
-                select(c('oligo', 'buffer.id', 'tune', 'rep', 'mz')) %>%
+                select(c('oligo', 'buffer.id', 'tune', 'rep', 'mz', 'labels')) %>%
                 mutate(range.min = min(mz)*0.99,
                        range.max = max(mz)*1.025) %>%
                 distinct(range.min, range.max, oligo, buffer.id, tune, rep)
@@ -3917,17 +3924,6 @@ g4db <- function() {
                              incProgress(amount=2/9)
 
                              p.MS.db <- p.MS.db.0() %>%
-                                 mutate(
-                                     labels = if_else( #generation of formatted labels
-                                         is.na(species), species,
-                                         case_when( #add brackets and charge in superscript
-                                             species == 'M' ~ paste('"[M]"^', charge, '^-', NA),
-                                             species == 'MK' ~ paste('"[MK]"^', charge, '^-', NA),
-                                             #if more than 1 K, extract that number of K, use in subscript
-                                             length(species) > 2 ~ paste('"["*MK', '[',substring(species, 3),']*"]"^', charge, '^-', NA)
-                                         )
-                                     )
-                                 ) %>%
                                  ggplot(aes(x = mz, y = norm.int)) +
                                  theme(
                                      panel.background = element_blank(),
@@ -4147,17 +4143,6 @@ g4db <- function() {
                              incProgress(amount=2/9)
 
                              p.MS.db <- p.MS.db.1() %>%
-                                 mutate(
-                                     labels = if_else( #generation of formatted labels
-                                         is.na(species), species,
-                                         case_when( #add brackets and charge in superscript
-                                             species == 'M' ~ paste('"[M]"^', charge, '^-', NA),
-                                             species == 'MK' ~ paste('"[MK]"^', charge, '^-', NA),
-                                             #if more than 1 K, extract that number of K, use in subscript
-                                             length(species) > 2 ~ paste('"["*MK', '[',substring(species, 3),']*"]"^', charge, '^-', NA)
-                                         )
-                                     )
-                                 ) %>%
                                  group_by(oligo, buffer.id, rep, tune) %>%
                                  filter(mz > range.min & mz < range.max) %>%
                                  mutate(int.min = min(int), int.max = max(int)) %>%
