@@ -4567,7 +4567,7 @@ g4db <- function() {
                                  if (isTRUE(input$exp.CD)) { #only write to database if switch is on
 
                                      db.CD.0 <- db.cd.select() %>%
-                                         filter(oligo %in% selected.oligos.db())
+                                         filter(oligo %in% selected.oligos())
 
                                      db.CD <- rbind(calc.cd(), db.CD.0)
 
@@ -4599,7 +4599,8 @@ g4db <- function() {
                                  if (isTRUE(input$exp.NMR)) { #only write to database if switch is on
 
                                      NMR.to.db <- input.NMR() %>%
-                                         filter(oligo %in% selected.oligos.db())
+                                         filter(oligo %in% selected.oligos()) %>%
+                                         filter(shift > min(input$slide.nmr) & shift < max(input$slide.nmr))
 
                                      db.NMR <- rbind.data.frame(db.NMR(), NMR.to.db)
 
@@ -4618,7 +4619,7 @@ g4db <- function() {
                                      filtered.MS <- input.MS() %>%
                                          filter(tune %in% input$select.tune) %>%
                                          filter(rep %in% input$select.rep) %>%
-                                         filter(oligo %in% selected.oligos.db())
+                                         filter(oligo %in% selected.oligos())
 
                                      incProgress(amount=6/8)
 
