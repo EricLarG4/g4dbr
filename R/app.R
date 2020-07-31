@@ -370,7 +370,7 @@ g4db <- function() {
                                                label = "Wavelength (nm)",
                                                min = 200,
                                                max = 350,
-                                               value = c(220, 330),
+                                               value = c(220, 320),
                                                step = 5
                                            ),
                                            sliderInput(
