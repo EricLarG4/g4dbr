@@ -10,6 +10,40 @@ output:
 library(knitr)
 ```
 
+```{css reportcss, echo=FALSE}
+
+.figure {
+  width:80%!important;
+}
+
+.figure img {
+  display: block!important;
+  width:80%!important;
+  margin: auto!important;
+}
+
+.title {
+  color:steelblue!important
+}
+
+.caption {
+   color:grey!important;
+   font-style: italic!important;
+}
+
+img[alt~="Structure"] {
+  display: block!important;
+  width:70%!important;
+  margin: auto!important;
+}
+
+img[alt="   "] {
+  display: block!important;
+  width:30%!important;
+  margin: auto!important;
+}
+
+```
 
 ```{r selected.oligos, include=FALSE}
 #Extract the selected oligonucleotides names to print as a comma separated string
@@ -46,8 +80,27 @@ knitr::kable(db.info,
 ```
 
 &nbsp; 
+&nbsp;
+&nbsp;
+&nbsp;
 
----
+
+```{r diagcap, message=FALSE, warning=FALSE, include=FALSE}
+diagcap <- paste0('Structure diagram of ', selected.oligos.db())
+```
+
+```{r diag, echo=FALSE, message=FALSE, warning=FALSE, out.width="30%", fig.cap="   "}
+knitr::include_graphics(paste0("https://raw.githubusercontent.com/EricLarG4/EricLarG4.github.io/master/media/schemes/4x/",selected.oligos.db(),".png"))
+```
+
+  
+
+```{r diagleg, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=diagcap, out.width="20%"}
+knitr::include_graphics("https://raw.githubusercontent.com/EricLarG4/EricLarG4.github.io/master/media/schemes/4x/Legend.png")
+```
+
+\newpage
+
 
 &nbsp;
 &nbsp;
@@ -91,6 +144,7 @@ p.CD.db()+
 
 ```
 
+
 &nbsp;
 
 ```{r NMRcap, echo=FALSE, message=FALSE, warning=FALSE}
@@ -120,6 +174,8 @@ p.UV.melting.db() +
   )
 ```
 
+
+\newpage
 
 ```{r print.option, message=FALSE, warning=FALSE, include=FALSE}
 #controls whether MS section is knitted or not based on the use of the plotMS button
