@@ -551,9 +551,9 @@ system.file("extdata/empty_database.Rda", package = 'g4dbr')
 
 #### Purpose
 
-*meltR* is an automated UV-melting data processing software. It determines the melting temperatures ($T_{m}$), $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$ by non linear fitting, then converts the absorbances into folded fractions.[@Mergny2003] 
+*meltR* is an automated UV-melting data processing software. It determines the melting temperatures ($T_{m}$), $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$ by non linear fitting, and converts the absorbances into folded fractions.
 
-Folded fractions are a good way to assess to which extent an oligonucleotide is structured (1: all molecules folded, 0: all molecules unfolded), visually observe the $T_{m}$ (folded fraction = 0.5), and normalize the data to different oligonucleotides in different experimental conditions to a common y-scale.
+Folded fractions are a good way to assess to which extent an oligonucleotide is structured (1: all molecules folded, 0: all molecules unfolded), visually observe the $T_{m}$ (folded fraction = 0.5), and normalize the data of different samples (and therefore different absorbances) to a common y-scale.[@Mergny2003] 
 
 For the non-linear fitting and the folded fraction calculation to work, the data <ins>must contain both a *lower* and *higher* baseline</ins>.[@Mergny2003] In other words, the oligonucleotide must not be too stable or too unstable. In such cases, *meltR* allows to normalize the data to [0;1] to at least bring all data to a common y-scale.
 
@@ -561,16 +561,23 @@ For the non-linear fitting and the folded fraction calculation to work, the data
 
 In a melting experiment, changes in the solution temperature lead to changes in the amount of folded (decreases with increasing temperatures) and unfolded species (increases with increasing temperatures). The model relies on the expression of the measured absorbance $A_T$ as the sum of the absorbances from the folded (*F*) and unfolded (*U*) forms, weighted by their abundance expressed from the folded fraction $\theta _T$.
 
-$$A_T=A_T^F \times \theta _T + A_U^T \times (1-\theta _T)$$
+$$A_T=A_T^F \times \theta _T + A_T^U \times (1-\theta _T)$$
 
-The folded fraction is defined by $\theta = \frac{[F]}{[F]+[U]}$. Assuming a simple (and possibly oversimplified) two-state model $F \Leftrightarrow U$ with an equilibrium constant $K$, $\theta$ can be expressed as:
+Herein, the absorbances measured at 295 nm were converted to molar extinction coefficient (in M^-1^cm^-1^) using $\varepsilon=A/{lC}$, where $l$ is a path length (in cm) and $C$ the oligonucleotide concentration (in M).
+
+$$\varepsilon_T=\varepsilon_T^F \times \theta _T + \varepsilon_T^U \times (1-\theta _T)$$
+
+The folded fraction is defined by $\theta = \frac{[F]}{[F]+[U]}$. Assuming a simple two-state model $F \Leftrightarrow U$ with an equilibrium constant $K$, $\theta$ can be expressed as:
+
 $$\theta = \frac{1}{1+K}$$
 
 This leads to:
-$$A_T=A_T^F \times \frac{1}{1+K} + A_U^F \times \frac{K}{1+K}$$
-$A_T^F$ and $A_T^U$ can be modelled as a linear function of the temperature, where $a$ is the slope and $b$ the intercept of these baselines:
 
-$$A_T=(a^FT+b^F) \times \frac{1}{1+K} + (a^UT+b^U) \times \frac{K}{1+K}$$
+$$\varepsilon_T=\varepsilon_T^F \times \frac{1}{1+K} + \varepsilon_T^U \times \frac{K}{1+K}$$
+
+$\varepsilon_T^F$ and $\varepsilon_T^U$ can be modeled as a linear function of the temperature, where $a$ is the slope and $b$ the intercept of these baselines:
+
+$$\varepsilon_T=(a^FT+b^F) \times \frac{1}{1+K} + (a^UT+b^U) \times \frac{K}{1+K}$$
 
 $K$ can be expressed by thermodynamic quantities of interest: $\Delta G^0$, $\Delta H^0$ and $\Delta S^0$. 
 
@@ -592,27 +599,29 @@ $$A_T=(a^FT+b^F) \times \frac{1}{1+exp(-\frac{\Delta H^0 (1- \frac{T}{T_m})}{RT}
 
 #### Data modeling: Implementation and derived values
 
-In meltR, the absorbance is converted to molar extinction coefficients before fitting with the following model (code simplified for readability):
+In meltR, the absorbance is converted to molar extinction coefficients before fitting with the following model:
 
 ```{r echo=TRUE, eval=FALSE}
+#code simplified for readibility
 epsilon = (P3+P4*T)*1/(1+exp(-P1*(1-T/P2)/(8.31451*T))) +
   (P5+P6*T)*exp(-P1*(1-T/P2)/(8.31451*T))/(1+exp(-P1*(1-T/P2)/(8.31451*T)))
 ```
 
-where *epsilon* is the molar extinction coefficient, *T* is the temperature (in Kelvin), `P1` is $\Delta H^0$, `P2` is the $T_m$, `P3`/`P5` and `P4`/`P6` are respectively the origins and slopes of the baselines. The optimized parameters are summarized in the *meltR* tab, and can be later consulted in the *database* tab.
+where `epsilon` is the molar extinction coefficient, `T` is the temperature (in Kelvin), `P1` is $\Delta H^0$, `P2` is the $T_m$, `P3`/`P5` and `P4`/`P6` are respectively the origins and slopes of the baselines. The optimized parameters are summarized in the *meltR* tab, and can be later consulted in the *database* tab.
 
 The non-linear fitting is performed with the base function `nls()`. Below is a more detailed view of the fitting model, applied on a demo data melting curve of *1XAV* (Figure \@ref(fig:demomelt). Note that some user inputs have been hard-coded:
 
 ```{r demomelt, fig.cap='Melting curve of 1XAV (cooling ramp) in 100 mM TMAA + 1 mM KCl, from the demo database', fig.width=5, fig.height=3}
+#libraries
 library(tidyverse)
 library(ggthemes)
 
+#Experimental conditions
+melt.c <- 10 #oligo concentration (micromolars)
+melt.l <- 1 #cuvette of 1.0-cm path length
+
 #loading the demo data
 load(system.file('extdata/demo_database.Rda', package = 'g4dbr'))
-
-#Experimental conditions
-melt.c <- 10 #oligo at 10 micromolar
-melt.l <- 1 #cuvette with 1.0-cm path length
 
 #Selection of a melting curve from the demo data
 data.to.fit <- db.UV %>%
@@ -625,20 +634,20 @@ data.to.fit %>%
   geom_point(aes(x = T.K, y = abs.melt), color = 'steelblue') +
   theme_pander() +
   xlab("T (K)") +
-  ylab("epsilon")
+  ylab(expression(epsilon~(M^-1*cm^-1)))
 ```
 
 ```{r uvfit}
-#Fit initialization (fully hard coded here for simplicity's sake)
+#Fit initialization (automated in the application)
 P1s <- 130000
-P2s <- 325 #extracted from the first derivative normally
+P2s <- 325 #automatically extracted from the first derivative in the application
 P3s <- 1/(melt.c/1E6 * melt.l) #denominator converts initial parameters to molar abs coeff.
 P4s <- 0.30/(melt.c/1E6 * melt.l)
 P5s <- 0/(melt.c/1E6 * melt.l)
 P6s <- -0.2/(melt.c/1E6 * melt.l)
 
 
-#Non-linear fitting
+#Non-linear fitting using the base nls() function
 ms <- nls(
   data=data.to.fit,
   data.to.fit$abs.melt~(P3+P4*data.to.fit$T.K)*1 / (1+exp(-P1*(1-data.to.fit$T.K/P2) / (8.31451*data.to.fit$T.K)))+
@@ -672,7 +681,7 @@ After the fitting is complete, a number of derived values are calculated. The $\
 
 ```{r}
 #Temperature at which the free energy is calculated
-temp = 293 #a user input normally
+temp = 293 #User input in the app
 
 DeltaH = -as.vector(coef(ms))[1]
 DeltaS = -as.vector(coef(ms))[1]/as.vector(coef(ms))[2]
@@ -686,20 +695,21 @@ The baselines (in M^-1^cm^-1^) are obtained with `P3+P4*T` and `P5+P6*T` (Figure
 
 ```{r baseplot, fig.cap='The baselines are not determined manually, but computed from the fitting parameters', fig.width=5, fig.height=3}
 data.to.fit %>%
-  mutate(low.T.baseline = fit.output$P3+fit.output$P4*T.K,
-         high.T.baseline = fit.output$P5+fit.output$P6*T.K) %>%
+  mutate(low.T.baseline = fit.output$P3+fit.output$P4*T.K, #low temperature baseline
+         high.T.baseline = fit.output$P5+fit.output$P6*T.K) %>% #high temperature baseline
   ggplot() +
   geom_point(aes(x = T.K, y = abs.melt), color = 'steelblue') +
   geom_line(aes(x = T.K, y = low.T.baseline), color = "coral", size = 1) +
   geom_line(aes(x = T.K, y = high.T.baseline), color = "coral", size = 1) +
   theme_pander() +
   xlab("T (K)") +
-  ylab("epsilon")
+  ylab(expression(epsilon~(M^-1*cm^-1)))
 ```
 
 The folded fraction (Figure \@ref(fig:foldedfractionbase) is calculated by deconvoluting the baseline contributions: 
 
-$$\theta = \frac{P6T + P5 - \epsilon}{P6T+P5-(P4T + P3)}$$
+$$\theta = \frac{P6T + P5 - \varepsilon}{P6T+P5-(P4T + P3)}$$
+
 ```{r foldedfractionbase, fig.cap='The folded fraction of 1XAV (cooling ramp) in 100 mM TMAA + 1 mM KCl', fig.width=5, fig.height=3}
 data.to.fit %>%
   mutate(folded.fraction.model = (fit.output$P5+fit.output$P6*T.K-abs.melt)/(fit.output$P5+fit.output$P6*T.K - fit.output$P3-fit.output$P4*T.K)) %>%
@@ -707,14 +717,13 @@ data.to.fit %>%
   geom_point(color = "steelblue") +
   theme_pander() +
   xlab("T (K)") +
-  ylab("epsilon")
+  ylab(expression(epsilon~(M^-1*cm^-1)))
 ```
 
 
 The modeled folded fraction (Figure \@ref(fig:foldedfraction)) is also derived from the fit, using:
 
 $$\theta_{model} = \frac{1}{1 + exp(-\frac{P1(1-\frac{T}{P2})}{RT})}$$.
-
 
 ```{r foldedfraction, fig.cap='The modeled folded fraction of 1XAV (cooling ramp) in 100 mM TMAA + 1 mM KCl', fig.width=5, fig.height=3}
 data.to.fit %>%
@@ -724,11 +733,10 @@ data.to.fit %>%
   geom_point(color = "steelblue") +
   theme_pander() +
   xlab("T (K)") +
-  ylab("epsilon")
+  ylab(expression(epsilon~(M^-1*cm^-1)))
 ```
 
 #### Workflow
-
 
 The data is processed following this workflow:
 
@@ -742,7 +750,7 @@ The data is processed following this workflow:
 The steps 7--9 are only carried out if the data can be fitted (presence of both lower and upper baselines):
 
 7. Non linear fitting initialization
-    a. `P2` (the *T<sub>m</sub>*) is initialized as the maximum of the first derivative ($\frac{\Delta\epsilon}{\Delta T}$)
+    a. `P2` (the *T<sub>m</sub>*) is initialized as the maximum of the first derivative ($\frac{\Delta\varepsilon}{\Delta T}$)
     b. All other parameters initial values are hard-coded, and modulated by the oligonucleotide concentration and cell path length
     c. Manual user modification
 8. Non linear fitting (see model above),
@@ -750,7 +758,7 @@ The steps 7--9 are only carried out if the data can be fitted (presence of both 
 
 Step 10 is only carried out for non-fittable data:
 
-10. The $\epsilon$ values are normalized in the [0;1] range, to be displayed alongside folded fraction data (same y-scale).
+10. The $\varepsilon$ values are normalized in the [0;1] range, to be displayed alongside folded fraction data (same y-scale).
 
 ### Data loading and filtering
 
@@ -776,7 +784,7 @@ The *Filter* panel can be minimized by clicking on the header.
 This section can be carried out only for data that can be fitted. For non-fittable data, skip this section.
 
 1. Click on the *Plot derivative* button, located in the *left sidebar*. 
-    a. The *Input data* box will automatically switch to display $\frac{\Delta\epsilon}{\Delta T}$ (Figure \@ref(fig:melting2))
+    a. The *Input data* box will automatically switch to display $\frac{\Delta\varepsilon}{\Delta T}$ (Figure \@ref(fig:melting2))
     b. The *Approximate T<sub>m</sub>* table is filled with the maxima from the derivatives, in the *Fit* box.   
     c. Artifactual points (e.g. caused by important local data variations) may lead to erroneous approximated *T<sub>m</sub>*: increase the smooth window and click on the button again. If the results are still not satisfactory, continue anyway to step 2 (Figures \@ref(fig:melting2) and \@ref(fig:melting3)).
     
@@ -832,9 +840,10 @@ The choice of colour palettes, lines and points size and transparency, can be ma
 
 `epsilon.calculator` relies on the 'traditional' format of the nearest-neighbor model for extinction coefficient calculation, applied at 260 nm.[@Cantor1970; @Tataurov2008]
 
-$$\epsilon_{260nm} = \sum_{i=1}^{N_b - 1}\epsilon_{i, i+1} - \sum_{i=2}^{N_b - 1}\epsilon_{i}$$
+$$\varepsilon_{260nm} = \sum_{i=1}^{N_b - 1}\varepsilon_{i, i+1} - \sum_{i=2}^{N_b - 1}\varepsilon_{i}$$
+In the above equation, $\varepsilon_i$ is the molar extinction coefficient (in M^-1cm^-1) of the nucleotide in position $i$ (in the 5'to 3' direction), $\varepsilon_i,i+1$ is the extinction coefficients for doublets of nucleotides in positions $i$ and $i+1$, and $N_b is the number of nucleotides in the oligonucleotide.
 
-To that effect, it uses `epsilondb`, a database of reference $\epsilon_{260 nm}$ contributions from the individual nucleobases, and couples of nucleobases (neighboring effects):
+To that effect, it uses `epsilondb`, a database of reference $\varepsilon_{260 nm}$ contributions from the individual nucleobases, and couples of nucleobases (neighboring effects):
 
 ```{r epsilon.db}
 epsilondb
