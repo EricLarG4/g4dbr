@@ -3,18 +3,18 @@ title: "g4dbr"
 author: 'Eric Largy'
 date: "`r Sys.Date()`"
 output:
-  bookdown::html_document2:
-      base_format: rmarkdown::html_vignette
-      toc: true
-      number_sections: true
-      toc_depth: '3'
-      fig_caption: true
   bookdown::pdf_document2:
     pdf_output: xelatex
     toc_depth: 2
     number_sections: true
     fig_caption: true
     highlight: tango
+  bookdown::html_document2:
+      base_format: rmarkdown::html_vignette
+      toc: true
+      number_sections: true
+      toc_depth: '3'
+      fig_caption: true
 link-citations: yes
 bibliography: bibliography.bibtex
 csl: american-chemical-society.csl
