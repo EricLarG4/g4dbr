@@ -1,30 +1,51 @@
 ---
 title: "g4dbr"
-author: 'Eric Largy'
+author: "Eric Largy"
 date: "`r Sys.Date()`"
 output:
-  word_document:
-      reference_docx: !expr system.file("vignettes/ressources/knit_template.docx", package = "g4dbr")
-  bookdown::html_document2:
-      base_format: rmarkdown::html_vignette
-      toc: true
-      number_sections: true
-      toc_depth: '3'
-      fig_caption: true
   bookdown::pdf_document2:
+    fig_caption: yes
+    highlight: tango
+    number_sections: yes
     pdf_output: xelatex
     toc_depth: 2
-    number_sections: true
-    fig_caption: true
-    highlight: tango
+  bookdown::word_document2:
+    reference_docx: !expr system.file("rmarkdown/manual_knit_template.docx", package = "g4dbr")
+    fig_caption: yes
+    number_sections: yes
+  bookdown::html_document2:
+    base_format: rmarkdown::html_vignette
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+mainfont: SourceSansPro
 link-citations: yes
-bibliography: bibliography.bibtex
 csl: american-chemical-society.csl
-vignette: >
-  %\VignetteIndexEntry{g4dbr}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+bibliography: bibliography.bibtex
+vignette: |
+  %\VignetteIndexEntry{g4dbr} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
+header-includes: 
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  \usepackage{float} \floatplacement{figure}{H} 
+  \newcommand{\beginsupplement}{\setcounter{table}{29}  
+  \renewcommand{\thetable}{S\arabic{table}} \setcounter{figure}{168} 
+  \renewcommand{\thefigure}{S\arabic{figure}}}
+  \setcounter{page}{117}
 ---
+  
+<style type="text/css">
+
+code.r{
+  font-size: 200px;
+}
+
+</style>
+
   
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -39,11 +60,16 @@ comment = "#>"
 
 ```{r set-options, echo=FALSE, cache=FALSE}
 options(width = 1000)
+
+#to remove the supporting info numbering, remove the beginsupplement line below
+
 ```
 
 > *Copyright 2020 [Eric Largy](https://github.com/EricLarG4). Licensed under the GPL-3 license.*
 
 \newpage
+
+\beginsupplement
 
 # General overview
 
@@ -278,6 +304,7 @@ To also display MS data (\@ref(fig:dbmassplot)-2), the *Plot MS* button must be 
 ```{r dbmassplot, echo=FALSE, fig.cap='Database data display: UV-melting (1) and native MS (2) display. To display the MS data, the Plot MS button must be used (3)', out.width='100%'}
 knitr::include_graphics('ressources/database_massplot.png')
 ```
+
 For all these analytical methods, all data points are gathered in tables, collapsed by default. These data points can be sorted, filtered, and exported in .xlsx or .csv files, or copied in the clipboard (Figure \@ref(fig:dbimport)). Again, filtering data in the tables does **not** affects the figures, only the *left* and *right sidebars* do.
 
 ### Data content and customization
