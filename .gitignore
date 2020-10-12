@@ -5,5 +5,14 @@
 vignettes/g4dbr.log
 Meta
 vignettes/ressources/ai
-inst/extdata/full_database-CanHard.Rda
+inst/extdata/archives
 inst/extdata/dbmod.Rda
+.idea
+fig2.pdf
+fig3.pdf
+R/article.figures.R
+vignettes/g4dbr.toc
+vignettes/g4dbr.tex
+vignettes/g4dbr.log
+vignettes/g4dbr.docx
+vignettes/g4dbr.aux
