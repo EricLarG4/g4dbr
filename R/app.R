@@ -3481,7 +3481,8 @@ g4db <- function() {
                             'Cation' = 'cation',
                             'Ramp' = 'ramp',
                             'T (K)' = 'T.K',
-                            'Folded fraction' = 'abs.melt',
+                            'Folded fraction' = 'folded.fraction',
+                            'Epsilon' =  'abs.melt',
                             'Model' = 'folded.fraction.base',
                             'Absorbance' = 'abs.raw'
                         ),
@@ -3493,7 +3494,7 @@ g4db <- function() {
                             autoWidth = F,
                             dom = 'Bfrtip', #button position
                             buttons = c('copy', 'csv', 'excel', 'colvis'), #buttons
-                            columnDefs = list(list(visible=FALSE, targets=c(0,6,8:37)))
+                            columnDefs = list(list(visible=FALSE, targets=c(0,6,7,8:35, 37:39)))
                         )
                     ) %>%
                     formatRound(c('Model', 'Folded fraction', 'Absorbance'), digits = 3)
