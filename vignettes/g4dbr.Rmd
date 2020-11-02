@@ -35,7 +35,7 @@ header-includes:
   \newcommand{\beginsupplement}{\setcounter{table}{29}  
   \renewcommand{\thetable}{S\arabic{table}} \setcounter{figure}{168} 
   \renewcommand{\thefigure}{S\arabic{figure}}}
-  \setcounter{page}{117}
+  \setcounter{page}{33}
 ---
   
 <style type="text/css">
