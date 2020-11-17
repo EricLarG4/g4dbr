@@ -4481,6 +4481,7 @@ g4db <- function() {
                                      mutate(label = round((P2-273.15), 1))
 
                                  labels.theta <- p.db.UV.select %>%
+                                     filter(P2 > 0) %>%
                                      group_by(id) %>%
                                      summarise(
                                          label.theta = round(approxfun(x = T.K,
