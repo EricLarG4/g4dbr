@@ -544,6 +544,14 @@ g4db <- function() {
                                            max = 1,
                                            value = 0.85,
                                            step = 0.05
+                                       ),
+                                       sliderInput(
+                                           inputId = "folded.temp",
+                                           label = 'theta temp',
+                                           min = 0,
+                                           max = 100,
+                                           value = 25,
+                                           step = 0.25
                                        )
                                    )
                                )
@@ -4469,14 +4477,22 @@ g4db <- function() {
                                      group_by(id) %>%
                                      dplyr::distinct(P2, .keep_all = T) %>%
                                      group_by(oligo, comment) %>%
-                                     # mutate(label = round(mean(P2), 1)) ##to have a single label for both ramps (remove the repel as well below)
+                                     # mutate(label = round(mean(P2), 1)) #to have a single label for both ramps (remove the repel as well below)
                                      mutate(label = round((P2-273.15), 1))
+
+                                 labels.theta <- p.db.UV.select %>%
+                                     group_by(id) %>%
+                                     summarise(
+                                         label.theta = round(approxfun(x = T.K,
+                                                                       y = folded.fraction.base)(input$folded.temp+273.15),2)
+                                     )
 
                                  incProgress(amount=3/5)
 
                                  p.UV.melting.db <- p.db.UV.select %>%
                                      ggplot() +
                                      geom_hline(yintercept = 0.5, linetype = 'dashed', color = 'grey70', size = 0.7) +
+                                     geom_vline(xintercept = input$folded.temp, linetype = 'dashed', color = 'grey70', size = 0.7)+
                                      geom_point(aes(x = (T.K-273.15), y = folded.fraction.base, color = id),
                                                 size = input$uv.size.pt.db, alpha = input$uv.alpha.pt.db,
                                                 shape = 16) +  #plots the experimental data
@@ -4485,7 +4501,21 @@ g4db <- function() {
                                          inherit.aes = F,
                                          show.legend = F,
                                          data = labels,
-                                         aes(label = label, x = label, y = 0.5, color = id)
+                                         aes(label = label,
+                                             x = label,
+                                             y = 0.5,
+                                             color = id)
+                                     ) +
+                                     geom_label_repel(
+                                         size = 5,
+                                         inherit.aes = F,
+                                         show.legend = F,
+                                         data = labels.theta,
+                                         aes(label = label.theta,
+                                             x = input$folded.temp,
+                                             y = label.theta,
+                                             fill = id),
+                                         color = 'white'
                                      ) +
                                      ylab(bquote(bold("folded fraction"))) + #modifies axes titles
                                      xlab("Temperature (°C)") +
@@ -4822,46 +4852,60 @@ g4db <- function() {
         #palettes for database
         palette.modifier.db <- function(plot = NULL){
             if (input$select.import.palette.fam.db == 'd3') {
-                plot <- plot + scale_color_d3(palette = input$select.import.palette.db)
+                plot <- plot + scale_color_d3(palette = input$select.import.palette.db) +
+                    scale_fill_d3(palette = input$select.import.palette.db)
             } else {
                 if (input$select.import.palette.fam.db == "Brewer - qualitative") {
-                    plot <- plot + scale_color_brewer(palette = input$select.import.palette.db)
+                    plot <- plot + scale_color_brewer(palette = input$select.import.palette.db) +
+                        scale_fill_brewer(palette = input$select.import.palette.db)
                 } else{
                     if (input$select.import.palette.fam.db == "Brewer - sequential") {
-                        plot <- plot + scale_color_brewer(palette = input$select.import.palette.db)
+                        plot <- plot + scale_color_brewer(palette = input$select.import.palette.db) +
+                            scale_fill_brewer(palette = input$select.import.palette.db)
                     } else {
                         if (input$select.import.palette.fam.db == "Brewer - diverging") {
-                            plot <- plot + scale_color_brewer(palette = input$select.import.palette.db)
+                            plot <- plot + scale_color_brewer(palette = input$select.import.palette.db) +
+                                scale_fill_brewer(palette = input$select.import.palette.db)
                         } else {
                             if (input$select.import.palette.fam.db == "NPG") {
-                                plot <- plot + scale_color_npg()
+                                plot <- plot + scale_color_npg() +
+                                    scale_fill_npg()
                             } else {
                                 if (input$select.import.palette.fam.db == "AAAS") {
-                                    plot <- plot + scale_color_aaas()
+                                    plot <- plot + scale_color_aaas() +
+                                        scale_fill_aaas()
                                 } else {
                                     if (input$select.import.palette.fam.db == "NEJM") {
-                                        plot <- plot + scale_color_nejm()
+                                        plot <- plot + scale_color_nejm() +
+                                            scale_fill_nejm()
                                     } else {
                                         if (input$select.import.palette.fam.db == "Lancet") {
-                                            plot <- plot + scale_color_lancet()
+                                            plot <- plot + scale_color_lancet() +
+                                                scale_fill_lancet()
                                         } else {
                                             if (input$select.import.palette.fam.db == "JAMA") {
-                                                plot <- plot + scale_color_jama()
+                                                plot <- plot + scale_color_jama() +
+                                                    scale_fill_jama()
                                             } else {
                                                 if (input$select.import.palette.fam.db == "JCO") {
-                                                    plot <- plot + scale_color_jco()
+                                                    plot <- plot + scale_color_jco() +
+                                                        scale_fill_jco()
                                                 } else {
                                                     if (input$select.import.palette.fam.db == "UCSCGB") {
-                                                        plot <- plot + scale_color_ucscgb()
+                                                        plot <- plot + scale_color_ucscgb() +
+                                                            scale_fill_ucscgb()
                                                     } else {
                                                         if (input$select.import.palette.fam.db == "LocusZoom") {
-                                                            plot <- plot + scale_color_locuszoom()
+                                                            plot <- plot + scale_color_locuszoom() +
+                                                                scale_fill_locuszoom()
                                                         } else {
                                                             if (input$select.import.palette.fam.db == "IGV") {
-                                                                plot <- plot + scale_color_igv(palette = input$select.import.palette.db)
+                                                                plot <- plot + scale_color_igv(palette = input$select.import.palette.db) +
+                                                                    scale_fill_igv(palette = input$select.import.palette.db)
                                                             } else {
                                                                 if (input$select.import.palette.fam.db == "UChicago") {
-                                                                    plot <- plot + scale_color_uchicago(palette = input$select.import.palette.db)
+                                                                    plot <- plot + scale_color_uchicago(palette = input$select.import.palette.db) +
+                                                                        scale_fill_uchicago(palette = input$select.import.palette.db)
                                                                 }
                                                             }
                                                         }
